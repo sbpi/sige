@@ -314,7 +314,7 @@ Public Sub ShowQuem
    sql = "SELECT b.ds_institucional, b.ds_diretorio, e.sq_cliente_foto, e.ln_foto, e.ds_foto " & _
         "From escCliente as a INNER JOIN escCLIENTE_SITE  as b on (a.sq_cliente = b.sq_cliente) " & _
         "                     INNER JOIN escModelo        as c on (b.sq_modelo = c.sq_modelo) " & _
-        "                     INNER JOIN escCliente_Dados as d on (a.sq_cliente = d.sq_cliente) " & _
+        "                     LEFT  JOIN escCliente_Dados as d on (a.sq_cliente = d.sq_cliente) " & _
         "                     LEFT  JOIN escCliente_Foto  as e on (a.sq_cliente = e.sq_cliente and e.tp_foto = 'Q') " & _
         "WHERE a." & sstrEF & " " & VbCrLf & _
         "ORDER BY e.nr_ordem"
@@ -330,10 +330,9 @@ Public Sub ShowQuem
     End If
     ShowHTML "        </td>"
     If RS("sq_cliente_foto") > "" Then
- '      ShowHTML "<table border=0 width=""100%"">"
        ShowHTML "    <td align=""right""><font size=""1""><b>Fotografias</b><font size=1></b><br>"
        Do While Not RS.EOF
-         ShowHTML "     <a href=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ target=""_blank"" title=""Clique sobre a imagem para ampliar""><img align=""top"" class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ width=""201"" height=""153""><br>" & RS("ds_foto")& "</a><br>"
+          ShowHTML "     <a href=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ target=""_blank"" title=""Clique sobre a imagem para ampliar""><img align=""top"" class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ width=""201"" height=""153""><br>" & RS("ds_foto")& "</a><br>"
           RS.MoveNext
        Loop
     End If
@@ -686,8 +685,13 @@ Public Sub ShowValida
      ShowHTML "<tr><td>"
      If Nvl(RS("ln_prop_pedagogica"),"") > "" Then
         ShowHTML "    <font size=1><b>"
-        ShowHTML "        A exibição do arquivo exige o editor de textos Word ou equivalente. "
-        ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, verifique se o Word foi corretamente instalado em seu computador."
+        If InStr(lCase(RS("ln_prop_pedagogica")),lCase(".pdf")) > 0 Then
+           ShowHTML "        A exibição do arquivo exige que o Acrobat Reader tenha sido instalado em seu computador."
+           ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, clique <a href=""http://www.adobe.com.br/products/acrobat/readstep2.html"" target=""_blank"">aqui</a> para instalar ou atualizar o Acrobat Reader."
+        Else
+           ShowHTML "        A exibição do arquivo exige o editor de textos Word ou equivalente. "
+           ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, verifique se o Word foi corretamente instalado em seu computador."        
+        End If
         ShowHTML "<table align=""center"" width=""100%"" cellspacing=0 style=""border: 1px solid rgb(0,0,0);""><tr><td>"
         ShowHTML "    <iframe src=""http://" & replace(RS("ds_diretorio"),"http://","") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
         ShowHTML "    </iframe>"

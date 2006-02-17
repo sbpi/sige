@@ -31,7 +31,7 @@ REM                   = W   : Geração de documento no formato MS-Word (Office 20
   Private w_EF, w_troca
   Private SQL, CL, DBMS, RS, p_agrega
   Private w_Data, w_pagina
-  Dim w_tp, w_Disabled
+  Dim w_tp, w_Disabled, w_tipo
   Dim p_regional, p_escola, p_bdados, p_operacao, p_inicio, p_fim, p_secretaria
   
   p_agrega   = uCase(Request("p_agrega"))
@@ -62,10 +62,15 @@ REM                   = W   : Geração de documento no formato MS-Word (Office 20
     
   If w_ea = "A" Then w_ea = "P" End If
 
+  SQL = "select b.tipo from escCliente a inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente and a." & CL & ")"
+  ConectaBD SQL
+  w_tipo = RS("tipo")
+  DesconectaBD
   Main
   
   FechaSessao
 
+  Set w_tipo    = Nothing
   Set w_EA      = Nothing
   Set w_IN      = Nothing
   Set w_EF      = Nothing
@@ -107,7 +112,7 @@ Sub Gerencial
      If p_regional > ""  Then 
         SQL = "select * from escCliente where sq_cliente = " & p_regional
         ConectaBD SQL
-        w_filtro = w_filtro & "<tr valign=""top""><td align=""right""><font size=1>Regional <td><font size=1>[<b>" & RS("ds_cliente") & "</b>]"
+        w_filtro = w_filtro & "<tr valign=""top""><td align=""right""><font size=1>Subordinação <td><font size=1>[<b>" & RS("ds_cliente") & "</b>]"
         DesconectaBD
      End If
      If p_escola > ""  Then 
@@ -136,16 +141,17 @@ Sub Gerencial
            "            else        'Erro' " & VbCrLf & _
            "       end nm_tipo, " & VbCrLf & _
            "       IsNull(b.nome,'Consulta') nm_funcionalidade,   IsNull(b.codigo,0) cd_funcionalidade, " & VbCrLf & _
-           "       c.sq_cliente sq_escola,     c.ds_cliente nm_escola, " & VbCrLf & _
+           "       c.sq_cliente sq_escola,     case h.tipo when 1 then '* '+upper(c.ds_username) when 2 then '** '+c.ds_cliente else c.ds_cliente end nm_escola, " & VbCrLf & _
            "       d.sq_cliente sq_regional,   d.ds_cliente nm_regional, " & VbCrLf & _
-           "       e.sq_cliente sq_secretaria, e.ds_cliente nm_secretaria " & VbCrLf & _
+           "       isNull(e.sq_cliente, d.sq_cliente) sq_secretaria, isNull(e.ds_cliente, d.ds_cliente) nm_secretaria " & VbCrLf & _
            "  from escCliente_Log                    a " & VbCrLf & _
            "       left outer join escFuncionalidade b on (a.sq_funcionalidade = b.sq_funcionalidade and " & VbCrLf & _
            "                                               b.tipo              = 2 " & VbCrLf & _
            "                                              ) " & VbCrLf & _
            "       inner      join escCliente        c on (a.sq_cliente        = c.sq_cliente) " & VbCrLf & _
-           "         inner   join escCliente         d on (c.sq_cliente_pai    = d.sq_cliente) " & VbCrLf & _
-           "           inner join escCliente         e on (d.sq_cliente_pai    = e.sq_cliente), " & VbCrLf & _
+           "         inner   join escTipo_Cliente    h on (c.sq_tipo_cliente   = h.sq_tipo_cliente) " & VbCrLf & _
+           "         inner   join escCliente         d on (IsNull(c.sq_cliente_pai,0)    = d.sq_cliente) " & VbCrLf & _
+           "           left  join escCliente         e on (d.sq_cliente_pai    = e.sq_cliente), " & VbCrLf & _
            "       escCliente                        f " & VbCrLf & _
            "         inner   join escTipo_Cliente    g on (f.sq_tipo_cliente   = g.sq_tipo_cliente) " & VbCrLf & _
            " where f.sq_cliente = " & replace(cl,"sq_cliente=","") & " " & VbCrLf & _
@@ -176,7 +182,6 @@ Sub Gerencial
            w_TP = TP & "Histórico de acessos por bloco de dados"
      End Select
   End If
-  
   If w_ea = "W" Then
      HeaderWord
      w_pag   = 1
@@ -429,13 +434,22 @@ Sub Gerencial
     ShowHTML "         <tr valign=""top""><td colspan=2><table border=0 width=""100%"" cellpadding=0 cellspacing=0><tr valign=""top"">"
     ShowHTML "          <td><font size=""1""><b><U>A</U>gregar por:<br><SELECT ACCESSKEY=""O"" " & w_Disabled & " class=""STS"" name=""p_agrega"" size=""1"">"
     
-    Select case p_agrega
-       Case "SECRETARIA"  ShowHTML " <option value=""SECRETARIA"" selected>Secretaria <option value=""REGIONAL"">Regional          <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
-       Case "REGIONAL"    ShowHTML " <option value=""SECRETARIA"">Secretaria          <option value=""REGIONAL"" selected>Regional <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
-       Case "ESCOLA"      ShowHTML " <option value=""SECRETARIA"">Secretaria          <option value=""REGIONAL"">Regional          <option value=""ESCOLA"" selected>Escola <option value=""BLOCODADOS"">Bloco de Dados"
-       Case "BLOCODADOS"  ShowHTML " <option value=""SECRETARIA"">Secretaria          <option value=""REGIONAL"">Regional          <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"" selected>Bloco de Dados"
-       Case Else          ShowHTML " <option value=""SECRETARIA"" selected>Secretaria <option value=""REGIONAL"">Regional          <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
-    End Select
+    If w_tipo = 2 Then
+       Select case p_agrega
+          Case "REGIONAL"    ShowHTML " <option value=""REGIONAL"" selected>Regional <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
+          Case "ESCOLA"      ShowHTML " <option value=""REGIONAL"">Regional          <option value=""ESCOLA"" selected>Escola <option value=""BLOCODADOS"">Bloco de Dados"
+          Case "BLOCODADOS"  ShowHTML " <option value=""REGIONAL"">Regional          <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"" selected>Bloco de Dados"
+          Case Else          ShowHTML " <option value=""REGIONAL"" selected>Regional <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
+       End Select
+    Else
+       Select case p_agrega
+          Case "SECRETARIA"  ShowHTML " <option value=""SECRETARIA"" selected>Secretaria <option value=""REGIONAL"">Regional          <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
+          Case "REGIONAL"    ShowHTML " <option value=""SECRETARIA"">Secretaria          <option value=""REGIONAL"" selected>Regional <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
+          Case "ESCOLA"      ShowHTML " <option value=""SECRETARIA"">Secretaria          <option value=""REGIONAL"">Regional          <option value=""ESCOLA"" selected>Escola <option value=""BLOCODADOS"">Bloco de Dados"
+          Case "BLOCODADOS"  ShowHTML " <option value=""SECRETARIA"">Secretaria          <option value=""REGIONAL"">Regional          <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"" selected>Bloco de Dados"
+          Case Else          ShowHTML " <option value=""SECRETARIA"" selected>Secretaria <option value=""REGIONAL"">Regional          <option value=""ESCOLA"">Escola          <option value=""BLOCODADOS"">Bloco de Dados"
+       End Select
+    End If
     
     ShowHTML "          </select></td>"
     ShowHTML "           </table>"
@@ -558,9 +572,9 @@ Sub Log
            "       left outer join escFuncionalidade b on (a.sq_funcionalidade = b.sq_funcionalidade and " & VbCrLf & _
            "                                               b.tipo              = 2 " & VbCrLf & _
            "                                              ) " & VbCrLf & _
-           "       inner      join escCliente        c on (a.sq_cliente        = c.sq_cliente) " & VbCrLf & _
-           "         inner   join escCliente         d on (c.sq_cliente_pai    = d.sq_cliente) " & VbCrLf & _
-           "           inner join escCliente         e on (d.sq_cliente_pai    = e.sq_cliente), " & VbCrLf & _
+           "       inner     join escCliente         c on (a.sq_cliente        = c.sq_cliente) " & VbCrLf & _
+           "         inner   join escCliente         d on (IsNull(c.sq_cliente_pai,0)    = d.sq_cliente) " & VbCrLf & _
+           "           left  join escCliente         e on (d.sq_cliente_pai    = e.sq_cliente), " & VbCrLf & _
            "       escCliente                        f " & VbCrLf & _
            "         inner   join escTipo_Cliente    g on (f.sq_tipo_cliente   = g.sq_tipo_cliente) " & VbCrLf & _
            " where f.sq_cliente = " & replace(cl,"sq_cliente=","") & " " & VbCrLf & _
@@ -620,7 +634,7 @@ Sub Log
     ShowHTML "          <td><font size=""1""><b>Data</font></td>"
     ShowHTML "          <td><font size=""1""><b>Hora</font></td>"
     ShowHTML "          <td><font size=""1""><b>Origem</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Escola</font></td>"
+    ShowHTML "          <td><font size=""1""><b>Regional / Escola</font></td>"
     ShowHTML "          <td><font size=""1""><b>Ocorrência</font></td>"
     ShowHTML "          <td><font size=""1""><b>Operações</font></td>"
     ShowHTML "        </tr>"
@@ -684,16 +698,11 @@ Sub Log
            "       left outer join escFuncionalidade b on (a.sq_funcionalidade = b.sq_funcionalidade and " & VbCrLf & _
            "                                               b.tipo              = 2 " & VbCrLf & _
            "                                              ) " & VbCrLf & _
-           "       inner      join escCliente        c on (a.sq_cliente        = c.sq_cliente and " & VbCrLf & _
-           "                                               c.sq_tipo_cliente   = 6 " & VbCrLf & _
-           "                                              ) " & VbCrLf & _
-           "         inner   join escCliente         d on (c.sq_cliente_pai    = d.sq_cliente) " & VbCrLf & _
-           "           inner join escCliente         e on (d.sq_cliente_pai    = e.sq_cliente), " & VbCrLf & _
-           "       escCliente                        f " & VbCrLf & _
-           "         inner   join escTipo_Cliente    g on (f.sq_tipo_cliente   = g.sq_tipo_cliente) " & VbCrLf & _
+           "       inner      join escCliente        c on (a.sq_cliente        = c.sq_cliente) " & VbCrLf & _
+           "         inner    join escCliente         d on (IsNull(c.sq_cliente_pai,0)    = d.sq_cliente) " & VbCrLf & _
+           "           left  join escCliente         e on (d.sq_cliente_pai    = e.sq_cliente) " & VbCrLf & _
            " where sq_cliente_log = " & w_chave
     ConectaBD SQL
-
     ShowHTML "<tr bgcolor=""" & "#EFEFEF" & """><td align=""center"">"
     ShowHTML "    <table width=""95%"" border=""0"">"
     ShowHTML "        <tr><td colspan=2><font size=""2""><b>" & RS("nm_escola")

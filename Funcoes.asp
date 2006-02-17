@@ -388,41 +388,23 @@ REM -------------------------------------------------------------------------
 Sub SelecaoEscola (label, accesskey, hint, chave, chaveAux, campo, restricao, atributo)
 
     
-    If restricao > "" Then
-       sql = "SELECT d.sq_cliente cliente, d.ds_cliente, g.tipo " & VbCrLf & _ 
-             "  from escCliente                                 d " & VbCrLf & _ 
-             "       INNER      JOIN escCliente_Site            f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
-             "       INNER      JOIN escTipo_Cliente            g ON (d.sq_tipo_cliente  = g.sq_tipo_cliente and " & VbCrLf & _
-             "                                                        g.tipo             in (2,3) " & VbCrLf & _
-             "                                                       ) " & VbCrLf & _
-             "ORDER BY g.tipo, d.ds_cliente " & VbCrLf
-    Else
-       SQL = "SELECT a.sq_cliente cliente, a.sq_tipo_cliente, a.ds_cliente, b.tipo " & VbCrLf & _
-             "  FROM escCLIENTE            a" & VbCrLf & _
-             "  inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
-             " WHERE b.tipo = 3 " & VbCrLf
-       If chaveAux > "" Then
-          SQL = SQL & "   and sq_cliente_pai = " & chaveAux & VbCrLf
-       End If
-       SQL = SQL & "ORDER BY ds_cliente" & VbCrLf
+    SQL = "SELECT a.sq_cliente cliente, a.sq_tipo_cliente, case b.tipo when 1 then upper(a.ds_username) else a.ds_cliente end ds_cliente, b.tipo " & VbCrLf & _
+          "  FROM escCLIENTE            a" & VbCrLf & _
+          "      inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
+          " WHERE upper(a.ds_username) <> 'SBPI' "
+    If chaveAux > "" Then
+       SQL = SQL & "   and IsNull(sq_cliente_pai,0) = " & chaveAux & VbCrLf
     End If
+    SQL = SQL & "ORDER BY b.tipo, ds_cliente" & VbCrLf
     ConectaBD SQL
-    If restricao > "" Then
-       If IsNull(hint) Then
-          ShowHTML "          <td align=""right""><font size=""2""><b>" & Label & "</b><td><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""sts"" NAME=""" & campo & """ " & w_Disabled & ">"
-       Else
-          ShowHTML "          <td align=""right"" ONMOUSEOVER=""popup('" & hint & "','white')""; ONMOUSEOUT=""kill()""><font size=""1""><b>" & Label & "</b><td><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""sts"" NAME=""" & campo & """ " & w_Disabled & ">"
-       End If
+    If IsNull(hint) Then
+       ShowHTML "          <td valign=""top""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
     Else
-       If IsNull(hint) Then
-          ShowHTML "          <td valign=""top""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
-       Else
-          ShowHTML "          <td valign=""top"" ONMOUSEOVER=""popup('" & hint & "','white')""; ONMOUSEOUT=""kill()""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
-       End If
+       ShowHTML "          <td valign=""top"" ONMOUSEOVER=""popup('" & hint & "','white')""; ONMOUSEOUT=""kill()""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
     End If
     ShowHTML "          <option value="""">---"
     While Not RS.EOF
-       If cDbl(nvl(RS("cliente"),0)) = cDbl(nvl(chave,0)) Then
+       If cDbl(nvl(RS("cliente"),-1)) = cDbl(nvl(chave,-1)) Then
           ShowHTML "          <option value=""" & RS("cliente") & """ SELECTED>" & RS("ds_cliente")
        Else
           ShowHTML "          <option value=""" & RS("cliente") & """>" & RS("ds_cliente")

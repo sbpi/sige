@@ -70,11 +70,12 @@ Private Sub MainBody
    ShowHTML "  <TR><TD align=""center""><br><font size=1>Usuário:<b>" & Session("username") & "</TD></TR>"
    ShowHTML "  <TR><TD><font size=1><br>"
 
+   ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""_blank"" CLASS=""SS"" HREF=""manuais/operacao/"" Title=""Exibe manual de operação do SIGE-WEB"">Manual SIGE-WEB</A><BR>"
    If Session("username") = "ADMINISTRATIVO" or Session("username") = "SEDF" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=A&w_ew=" & conWhatAdmin & "&w_ee=1"" Title=""Preenche dados administrativos da unidade de ensino!"">Administrativo</A><BR>"
    End If
 
-   If Session("username") = "SEDF" or Session("username") = "IMPRENSA" or Mid(Session("username"),1,2) = "RE" or Session("username") = "SBPI" Then
+   If Session("username") = "SEDF" or Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatDocumento & "&w_ee=1"" Title=""Cadastra arquivos para download!"">Arquivos</A><br> "
    End If
 
@@ -107,7 +108,7 @@ Private Sub MainBody
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatMensagem & "&w_ee=1"" Title=""Cadastra mensagens dirigidas seus alunos!"">Mensagens a alunos</A><br>"
    End If
 
-   If Session("username") = "SEDF" or Mid(Session("username"),1,2) = "RE" OR Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
+   If Session("username") = "SEDF" OR Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatNotCliente & "&w_ee=1"" Title=""Cadastra notícias da rede de ensino!"">Notícias</A><br>"
    End If
 
@@ -121,7 +122,7 @@ Private Sub MainBody
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=senhaesp&w_ee=1"" Title=""Exibe a lista de senhas de regionais e outros usuários (menos escolas)!"">Senhas especiais</A><br>"
    End If
 
-   If Session("username") = "SEDF" or Mid(Session("username"),1,2) = "RE" or Session("username") = "SBPI" Then
+   If Session("username") = "SEDF" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""GR_Log.asp?CL=" & CL & "&w_sq_cliente=" & replace(CL,"sq_cliente=","") & "&w_ea=A&w_ew=Gerencial&w_ee=1"" Title=""Consulta ao Log!"">Log</A><BR>"
    End If
       

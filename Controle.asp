@@ -2735,6 +2735,21 @@ Sub LogOn
   ShowHTML "          <tr><td align=""right""><font size=""2""><b>Senha:<td><input class=""sti"" type=""Password"" name=""Password1"" size=""19"">"
   ShowHTML "          <tr><td align=""right""><td><font size=""2""><b><input class=""stb"" type=""submit"" value=""OK"" name=""Botao""> "
   ShowHTML "          </font></td> </tr> "
+  ShowHTML "          <TR><TD colspan=2 align=""center""><br><table border=0 cellpadding=0 cellspacing=0><tr><td>"
+  ShowHTML "              <P><IMG height=37 src=""img/ajuda.jpg"" width=629><br>"
+  ShowHTML "              <font face=""Arial"" size=1><b>PARA ACESSAR A PÁGINA DE ATUALIZAÇÃO</b></font><br>"
+  ShowHTML "              <FONT face=""Verdana, Arial, Helvetica, sans-serif"" size=1>"
+  ShowHTML "              . Nome de usuário - Informe seu nome de usuário.<BR>"
+  ShowHTML "              . Senha - Informe sua senha de acesso.<br>"
+  ShowHTML "              . Se esqueceu ou não foi informado dos dados acima, favor entrar em contato com a Diretoria de Apoio Pedagógico.<br>"
+  ShowHTML "              <br></FONT></P>"
+  ShowHTML "              <P><font face=""Arial"" size=1><b>DOCUMENTAÇÃO - LEIA COM ATENÇÃO</b></font><br>"
+  ShowHTML "              <FONT face=""Verdana"" size=1>"
+  ShowHTML "              . <a class=""SS"" href=""sedf/Orientacoes_Acesso.pdf"" target=""_blank"" title=""Abre arquivo que descreve as novas características e funcionalidades do SIGE-WEB."">Apresentação da nova versão do SIGE-WEB (PDF - 130KB - 4 páginas)</a><BR>"
+  ShowHTML "              . <a class=""SS"" href=""manuais/operacao/"" target=""_blank"" title=""Exibe manual de operação do SIGE-WEB"">Manual SIGE-WEB (HTML)</A><BR>"
+  ShowHTML "              <br></FONT></P>"
+  ShowHTML "              </TD></TR>"
+  ShowHTML "          </table> "
   ShowHTML "        </table> "
   ShowHTML "    </tr> "
   ShowHTML "  </table>"
@@ -2800,17 +2815,19 @@ Sub Valida
      w_cliente           = RS("sq_cliente")
      DesconectaBD
      
-     ' Grava o acesso na tabela de log
-     SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql) " & VbCrLf & _
-           "values ( " & VbCrLf & _
-           "         " & w_cliente & ", " & VbCrLf & _
-           "         getdate(), " & VbCrLf & _
-           "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-           "         0, " & VbCrLf & _
-           "         'Usuário """ & w_uid & """ - acesso à tela de manutenção dos dados da rede de ensino.', " & VbCrLf & _
-           "         null " & VbCrLf & _
-           "       ) " & VbCrLf
-     ExecutaSQL(SQL)
+     If Session("username") <> "SBPI" Then
+        ' Grava o acesso na tabela de log
+        SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql) " & VbCrLf & _
+              "values ( " & VbCrLf & _
+              "         " & w_cliente & ", " & VbCrLf & _
+              "         getdate(), " & VbCrLf & _
+              "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+              "         0, " & VbCrLf & _
+              "         'Usuário """ & w_uid & """ - acesso à tela de manutenção dos dados da rede de ensino.', " & VbCrLf & _
+              "         null " & VbCrLf & _
+              "       ) " & VbCrLf
+        ExecutaSQL(SQL)
+     End If
 
      ShowHTML "  location.href='Controle.asp?w_ew=frames&w_in=1&cl=sq_cliente=" & w_cliente & "';"
   End If
@@ -2981,18 +2998,20 @@ Public Sub Grava
              "where " & CL & VbCrLf
        ExecutaSQL(SQL)
 
-       w_sql = SQL
-       SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-             "values ( " & VbCrLf & _
-             "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-             "         getdate(), " & VbCrLf & _
-             "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-             "         2, " & VbCrLf & _
-             "         'Usuário """ & uCase(Session("username")) & """ - atualização da senha de acesso.', " & VbCrLf & _
-             "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-             "         " & w_funcionalidade & " " & VbCrLf & _
-             "       ) " & VbCrLf
-       ExecutaSQL(SQL)
+       If Session("username") <> "SBPI" Then
+          w_sql = SQL
+          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                "values ( " & VbCrLf & _
+                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                "         getdate(), " & VbCrLf & _
+                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                "         2, " & VbCrLf & _
+                "         'Usuário """ & uCase(Session("username")) & """ - atualização da senha de acesso.', " & VbCrLf & _
+                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                "         " & w_funcionalidade & " " & VbCrLf & _
+                "       ) " & VbCrLf
+          ExecutaSQL(SQL)
+       End If
        dbms.CommitTrans()
           
        ScriptOpen "JavaScript"
@@ -3021,19 +3040,21 @@ Public Sub Grava
              "where " & CL & VbCrLf
        ExecutaSQL(SQL)
 
-       ' Grava o acesso na tabela de log
-       w_sql = SQL
-       SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-             "values ( " & VbCrLf & _
-             "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-             "         getdate(), " & VbCrLf & _
-             "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-             "         2, " & VbCrLf & _
-             "         'Usuário """ & uCase(Session("username")) & """ - atualização da tela de dados adicionais.', " & VbCrLf & _
-             "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-             "         " & w_funcionalidade & " " & VbCrLf & _
-             "       ) " & VbCrLf
-       ExecutaSQL(SQL)
+       If Session("username") <> "SBPI" Then
+          ' Grava o acesso na tabela de log
+          w_sql = SQL
+          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                "values ( " & VbCrLf & _
+                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                "         getdate(), " & VbCrLf & _
+                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                "         2, " & VbCrLf & _
+                "         'Usuário """ & uCase(Session("username")) & """ - atualização da tela de dados adicionais.', " & VbCrLf & _
+                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                "         " & w_funcionalidade & " " & VbCrLf & _
+                "       ) " & VbCrLf
+          ExecutaSQL(SQL)
+       End If
        dbms.CommitTrans()
           
        ScriptOpen "JavaScript"
@@ -3056,19 +3077,21 @@ Public Sub Grava
              "where " & CL & VbCrLf
        ExecutaSQL(SQL)
 
-       ' Grava o acesso na tabela de log
-       w_sql = SQL
-       SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-             "values ( " & VbCrLf & _
-             "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-             "         getdate(), " & VbCrLf & _
-             "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-             "         2, " & VbCrLf & _
-             "         'Usuário """ & uCase(Session("username")) & """ - atualização da tela de dados do site.', " & VbCrLf & _
-             "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-             "         " & w_funcionalidade & " " & VbCrLf & _
-             "       ) " & VbCrLf
-       ExecutaSQL(SQL)
+       If Session("username") <> "SBPI" Then
+          ' Grava o acesso na tabela de log
+          w_sql = SQL
+          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                "values ( " & VbCrLf & _
+                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                "         getdate(), " & VbCrLf & _
+                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                "         2, " & VbCrLf & _
+                "         'Usuário """ & uCase(Session("username")) & """ - atualização da tela de dados do site.', " & VbCrLf & _
+                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                "         " & w_funcionalidade & " " & VbCrLf & _
+                "       ) " & VbCrLf
+          ExecutaSQL(SQL)
+       End If
        dbms.CommitTrans()
           
        ScriptOpen "JavaScript"
@@ -3099,18 +3122,20 @@ Public Sub Grava
           w_sql = w_sql & SQL & VbCrLf
        Next
 
-       ' Grava o acesso na tabela de log
-       SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-             "values ( " & VbCrLf & _
-             "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-             "         getdate(), " & VbCrLf & _
-             "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-             "         2, " & VbCrLf & _
-             "         'Usuário """ & uCase(Session("username")) & """ - tela de modalidades de ensino.', " & VbCrLf & _
-             "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-             "         " & w_funcionalidade & " " & VbCrLf & _
-             "       ) " & VbCrLf
-       ExecutaSQL(SQL)
+       If Session("username") <> "SBPI" Then
+          ' Grava o acesso na tabela de log
+          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                "values ( " & VbCrLf & _
+                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                "         getdate(), " & VbCrLf & _
+                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                "         2, " & VbCrLf & _
+                "         'Usuário """ & uCase(Session("username")) & """ - tela de modalidades de ensino.', " & VbCrLf & _
+                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                "         " & w_funcionalidade & " " & VbCrLf & _
+                "       ) " & VbCrLf
+          ExecutaSQL(SQL)
+       End If
        dbms.CommitTrans()
           
        ScriptOpen "JavaScript"
@@ -3164,20 +3189,22 @@ Public Sub Grava
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                " values ( " & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
-          SQL = SQL & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         1, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - atualização de inclusão de arquivos.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   " values ( " & VbCrLf
+             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
+             SQL = SQL & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         1, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - atualização de inclusão de arquivos.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "A" Then
           ' Remove o arquivo físico
           SQL = "select ln_arquivo arquivo from escCliente_Arquivo where sq_arquivo = " & ul.Form("w_chave")
@@ -3195,20 +3222,22 @@ Public Sub Grava
                 "where sq_arquivo = " & ul.Form("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                " values (" & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
-          SQL = SQL & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         2, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - alteração de arquivo.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   " values (" & VbCrLf
+             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
+             SQL = SQL & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         2, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - alteração de arquivo.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
 
           If ul.Files("w_ln_arquivo").Size > 0 Then 
              ' Remove o arquivo físico
@@ -3235,20 +3264,22 @@ Public Sub Grava
           SQL = " delete escCliente_Arquivo where sq_arquivo = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                " values (" & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
-          SQL = SQL & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         3, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - exclusão de arquivo.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   " values (" & VbCrLf
+             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             SQL = SQL & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         3, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - exclusão de arquivo.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        End If
        
        dbms.CommitTrans()
@@ -3276,19 +3307,21 @@ Public Sub Grava
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         1, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - inclusão de data no calendário base.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         1, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - inclusão de data no calendário base.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "A" Then
           SQL = " update escCalendario_Base set " & VbCrLf & _
                 "     dt_ocorrencia  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
@@ -3296,36 +3329,40 @@ Public Sub Grava
                 "where sq_ocorrencia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         2, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - alteração de data no calendário base.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         2, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - alteração de data no calendário base.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "E" Then
           SQL = " delete escCalendario_Base where sq_ocorrencia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         3, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - exclusão de data no calendário base.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         3, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - exclusão de data no calendário base.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        End If
        dbms.CommitTrans()
           
@@ -3472,19 +3509,21 @@ Public Sub Grava
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         1, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - inclusão de data no calendário da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         1, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - inclusão de data no calendário da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "A" Then
           SQL = " update escCalendario_Cliente set " & VbCrLf & _
                 "     dt_ocorrencia  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
@@ -3492,36 +3531,40 @@ Public Sub Grava
                 "where sq_ocorrencia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         2, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - alteração de data no calendário da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         2, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - alteração de data no calendário da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "E" Then
           SQL = " delete escCalendario_Cliente where sq_ocorrencia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         3, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - exclusão de data no calendário da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         3, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - exclusão de data no calendário da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        End If
        dbms.CommitTrans()
           
@@ -3615,20 +3658,22 @@ Public Sub Grava
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
-          SQL = SQL & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         1, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - inclusão de notícia da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf
+             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             SQL = SQL & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         1, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - inclusão de notícia da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "A" Then
           SQL = " update escNoticia_Cliente set " & VbCrLf & _
                 "     dt_noticia  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_noticia"),2)) & "',103), " & VbCrLf & _
@@ -3638,38 +3683,42 @@ Public Sub Grava
                 "where sq_noticia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
-          SQL = SQL & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         2, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - alteração de notícia da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf
+             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             SQL = SQL & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         2, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - alteração de notícia da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "E" Then
           SQL = " delete escNoticia_Cliente where sq_noticia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
-          SQL = SQL & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         3, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - exclusão de notícia da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf
+             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             SQL = SQL & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         3, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - exclusão de notícia da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        End If
        dbms.CommitTrans()
           
@@ -3919,19 +3968,21 @@ Public Sub Grava
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         1, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - inclusão de mensagem para aluno da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         1, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - inclusão de mensagem para aluno da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "A" Then
           SQL = " update escMensagem_Aluno set " & VbCrLf & _
                 "     dt_mensagem  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_mensagem"),2)) & "',103), " & VbCrLf & _
@@ -3939,36 +3990,40 @@ Public Sub Grava
                 "where sq_mensagem = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         2, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - alteração de mensagem para aluno da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         2, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - alteração de mensagem para aluno da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "E" Then
           SQL = " delete escMensagem_Aluno where sq_mensagem = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         3, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - exclusão de mensagem para aluno da rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         3, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - exclusão de mensagem para aluno da rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        End If
        dbms.CommitTrans()
           
@@ -3995,19 +4050,21 @@ Public Sub Grava
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         1, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - inclusão de modalidade de ensino na rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         1, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - inclusão de modalidade de ensino na rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "A" Then
           SQL = " update escEspecialidade set " & VbCrLf & _
                 "     ds_especialidade  = '" & Request("w_ds_especialidade") & "', " & VbCrLf & _
@@ -4015,53 +4072,59 @@ Public Sub Grava
                 "where sq_especialidade = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         2, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - alteração de modalidade de ensino na rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         2, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - alteração de modalidade de ensino na rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        ElseIf w_ea = "E" Then
           SQL = " delete escEspecialidade_Cliente where sq_codigo_espec = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         3, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - exclusão de modalidade de ensino na rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         3, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - exclusão de modalidade de ensino na rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
 
           SQL = " delete escEspecialidade where sq_especialidade = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
-          ' Grava o acesso na tabela de log
-          w_sql = SQL
-          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                "values ( " & VbCrLf & _
-                "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "         getdate(), " & VbCrLf & _
-                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                "         3, " & VbCrLf & _
-                "         'Usuário """ & uCase(Session("username")) & """ - exclusão de modalidade de ensino na rede.', " & VbCrLf & _
-                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                "         " & w_funcionalidade & " " & VbCrLf & _
-                "       ) " & VbCrLf
-          ExecutaSQL(SQL)
+          If Session("username") <> "SBPI" Then
+             ' Grava o acesso na tabela de log
+             w_sql = SQL
+             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                   "values ( " & VbCrLf & _
+                   "         " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "         getdate(), " & VbCrLf & _
+                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                   "         3, " & VbCrLf & _
+                   "         'Usuário """ & uCase(Session("username")) & """ - exclusão de modalidade de ensino na rede.', " & VbCrLf & _
+                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                   "         " & w_funcionalidade & " " & VbCrLf & _
+                   "       ) " & VbCrLf
+             ExecutaSQL(SQL)
+          End If
        End If
        dbms.CommitTrans()
           
@@ -4526,9 +4589,7 @@ Public Sub ShowEscolas
         End If
      End If
 
-     If Nvl(Request("p_regional"),-1) = -1  Then
-        sql = sql + "    and g.tipo = 2 and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf
-     ElseIf Request("p_regional") > "" Then 
+     If Request("p_regional") > "" Then 
         sql = sql + "    and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf
      Else
         sql = sql + "    and g.tipo = 3" & VbCrLf

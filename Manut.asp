@@ -207,6 +207,7 @@ Sub LogOn
   ShowHTML "              <P><font face=""Arial"" size=1><b>DOCUMENTAÇÃO - LEIA COM ATENÇÃO</b></font><br>"
   ShowHTML "              <FONT face=""Verdana"" size=1>"
   ShowHTML "              . <a class=""SS"" href=""sedf/Orientacoes_Acesso.pdf"" target=""_blank"" title=""Abre arquivo que descreve as novas características e funcionalidades do SIGE-WEB."">Apresentação da nova versão do SIGE-WEB (PDF - 130KB - 4 páginas)</a><BR>"
+  ShowHTML "              . <a class=""SS"" href=""manuais/operacao/"" target=""_blank"" title=""Exibe manual de operação do SIGE-WEB"">Manual SIGE-WEB (HTML)</A><BR>"
   ShowHTML "              <br></FONT></P>"
   ShowHTML "              </TD></TR>"
   ShowHTML "          </table> "
@@ -1857,13 +1858,13 @@ Sub ShowLog
   P3        = Request("P3")
   P4        = Request("P4")
 
+  ' Recupera o nome da escola
+  SQL = "select * from escCliente where " & CL & ""
+  ConectaBD SQL
+  w_ds_cliente = RS("ds_cliente")
+  DesconectaBD
+  
   If w_ea = "L" Then
-     ' Recupera o nome da escola
-     SQL = "select * from escCliente where " & CL & ""
-     ConectaBD SQL
-     w_ds_cliente = RS("ds_cliente")
-     DesconectaBD
-
      ' Recupera todos os registros para a listagem
      SQL = "select * from escCliente_Log where " & CL & " order by year(data) desc, month(data) desc, data desc"
      ConectaBD SQL
