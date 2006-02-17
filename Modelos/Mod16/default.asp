@@ -87,7 +87,7 @@ ShowHTML "      <script language=""JavaScript"" src=""inc/mm_menu.js"" type=""te
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=110&CL=" & replace(CL,"sq_cliente=","") & """ >Inicial</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=113&CL=" & replace(CL,"sq_cliente=","") & """ id=""link1"">Quem somos</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=117&CL=" & replace(CL,"sq_cliente=","") & """ >Fale conosco </a></li>"
-ShowHTML "      <li><a href=""" & w_dir & "Default.Asp?EW=116&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Proposta pedagógica</a></li>"
+ShowHTML "      <li><a href=""" & w_dir & "Default.Asp?EW=116&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Projeto</a></li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & """ id=""link2"">Notícias</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=115&CL=" & replace(CL,"sq_cliente=","") & """ id=""link5"">Calendário</a>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & """ >Arquivos</a></li>"
@@ -113,7 +113,7 @@ Select Case sstrEW
   Case conWhatExCalend    ShowHTML "      <li><b>Calendário</b></li>"
   Case conWhatValida
      If sstrIN > 0 Then
-        ShowHTML "      <li><b>Proposta pedagógica</b></li>"
+        ShowHTML "      <li><b>Projeto</b></li>"
      Else
         ShowHTML "      <li><b>Alunos</b></li>"
      End If
@@ -697,7 +697,7 @@ Public Sub ShowValida
         ShowHTML "    </iframe>"
         ShowHTML "</table>"
      Else
-        ShowHTML "    <font size=1><b>Proposta pedagógica não informada."
+        ShowHTML "    <font size=1><b>Projeto não informado."
      End If
   Else
      strLabel = "Alunos"

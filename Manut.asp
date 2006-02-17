@@ -1419,7 +1419,7 @@ Sub GetSite
      If w_tipo = 2 Then ' Se for regional
         Validate "w_pedagogica", "Composição administrativa", "1", "", "5", "100", "1", "1"
      Else
-        Validate "w_pedagogica", "Proposta pedagógica", "1", "", "5", "100", "1", "1"
+        Validate "w_pedagogica", "Projeto", "1", "", "5", "100", "1", "1"
      End If
      ShowHTML " if (theForm.w_pedagogica.value > """"){"
      ShowHTML "    if((theForm.w_pedagogica.value.lastIndexOf('.PDF')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.pdf')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.DOC')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.doc')==-1)) {"
@@ -1479,13 +1479,13 @@ Sub GetSite
      ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
      ShowHTML "      <tr><td><font size=""1""><b>Composição adminis<u>t</u>rativa (arquivo Word ou PDF):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém a composição administrativa da regional. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
   Else
-     ShowHTML "      <tr><td valign=""top"" align=""center"" bgcolor=""#D0D0D0""><font size=""1""><b>Página ""Proposta pedagógica""</td></td></tr>"
+     ShowHTML "      <tr><td valign=""top"" align=""center"" bgcolor=""#D0D0D0""><font size=""1""><b>Página ""Projeto""</td></td></tr>"
      ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-     ShowHTML "      <tr><td><font size=1>Informe o arquivo Word ou PDF a ser exibido na página ""Proposta pedagógica"" do site."
+     ShowHTML "      <tr><td><font size=1>Informe o arquivo Word ou PDF a ser exibido na página ""Projeto"" do site."
      ShowHTML "          <br><font color=""red""><b>IMPORTANTE: <a href=""sedf/orientacoes_word.pdf"" class=""hl"" target=""_blank"">Para documentos Word, clique aqui para ler as orientações sobre a formatação e a proteção do texto</a></b></font>."
      ShowHTML "      </font></td></tr>"
      ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-     ShowHTML "      <tr><td><font size=""1""><b>Propos<u>t</u>a pedagógica (arquivo Word):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém a proposta pedagógica da escola. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
+     ShowHTML "      <tr><td><font size=""1""><b>Proje<u>t</u>o (arquivo Word):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém o projeto da escola. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
   End If
   If w_pedagogica > "" Then
      ShowHTML "              <b><a class=""SS"" href=""http://" & Replace(lCase(w_ds_diretorio),lCase("http://"),"") & "/" & w_pedagogica & """ target=""_blank"" title=""Clique para abrir o arquivo atual."">Exibir</a></b>"
