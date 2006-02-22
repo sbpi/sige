@@ -2,13 +2,11 @@
 /Constants.inc -text
 /Constants_ADO.inc -text
 /Controle.asp -text
-/ControleMenu.asp -text
 /Funcoes.asp -text
 /FuncoesGR.asp -text
 /GR_Log.asp -text
 /GeraDiretorio.asp -text
 /Manut.asp -text
-/ManutMenu.asp -text
 /Mensagem.asp -text
 Modelos/Constants.inc -text
 Modelos/Mod14/Aluno.asp -text
