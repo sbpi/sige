@@ -20,7 +20,7 @@ REM -------------------------------------------------------------------------
   Const conSessionTimeout   = 300
   'Const conConnectionString ="Provider=sqloledb.1;Data Source=(local);UID=sbpi;PWD=ipbs2001;Database=sbpi;Language=Português"
   'Const conConnectionString ="Provider=SQLOLEDB.1;Data Source=(local);UID=intweb;PWD=xyz345aix;Database=integrare;Language=Português"
-  Const conConnectionString ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=INTEGRARE;Data Source=jupiter"
+  Const conConnectionString ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=INTEGRARE;Data Source=192.168.222.7"
   Const conProduto			= "SIGE-WEB"
   Const conSite				= "http://www2.sbpi.com.br/sige"
   Const conMail				= "sbpir@sbpi.com.br"
