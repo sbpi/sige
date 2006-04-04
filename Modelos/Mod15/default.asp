@@ -357,17 +357,17 @@ Public Sub ShowExFale
   RS.Open sql, dbms, adOpenForwardOnly
   
   'Validação dos campos do formulário de envio de email
-  ScriptOpen "JavaScript"
-  ValidateOpen "Validacao"
-  Validate "w_nome", "Nome", "1", "1", "3", "60", "1", "1"
-  Validate "w_email", "e-Mail", "1", "1", "3", "60", "1", "1"
-  Validate "w_endereco", "Endereço", "1", "1", "3", "60" , "1", "1"
-  Validate "w_telefone", "Telefone", "1", "1", "7", "30" , "1", "1"
-  Validate "w_assunto", "Assunto", "1", "1", "5", "80" , "1", "1"
-  Validate "w_mensagem", "Mensagem", "1", "1", "5", "1000" , "1", "1"
-  ShowHTML "  theForm.Botao.disabled=true;"
-  ValidateClose
-  ScriptClose
+  'ScriptOpen "JavaScript"
+  'ValidateOpen "Validacao"
+  'Validate "w_nome", "Nome", "1", "1", "3", "60", "1", "1"
+  'Validate "w_email", "e-Mail", "1", "1", "3", "60", "1", "1"
+  'Validate "w_endereco", "Endereço", "1", "1", "3", "60" , "1", "1"
+  'Validate "w_telefone", "Telefone", "1", "1", "7", "30" , "1", "1"
+  'Validate "w_assunto", "Assunto", "1", "1", "5", "80" , "1", "1"
+  'Validate "w_mensagem", "Mensagem", "1", "1", "5", "1000" , "1", "1"
+  'ShowHTML "  theForm.Botao.disabled=true;"
+  'ValidateClose
+  'ScriptClose
   
   
   ShowHTML "<tr><td>"
@@ -426,23 +426,23 @@ Public Sub ShowExFale
   ShowHTML "  </tr>"
   ShowHTML "</table>"
   
-  If Nvl(RS("ds_email_internet"),"") > "" Then
-     ShowHTML "<FORM action=""" & w_dir & sstrSN & "?EW=PreparaMail"" method=""POST"" name=""Form"" onSubmit=""return(Validacao(this));"">"
-     ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
-     ShowHTML "<p align=""justify""><li>Se desejar, envie uma mensagem de e-mail usando o formulário abaixo:"
-     ShowHTML "<table border=""1"" bgcolor=""#DAEABD"" style=""border: 1px solid rgb(0,0,0);""><tr><td>"
-     ShowHTML "  <table border=""0"" cellspacing=""3"">"
-     ShowHTML "    <tr><td><font size=""1""><b>Nome: </b><br><input type=""text"" name=""w_nome"" class=""STI"" size=""60"" maxlength=""60"" value="""" title=""Informe o nome do remetente"">"
-     ShowHTML "    <tr><td><font size=""1""><b>e-Mail: </b><br><input type=""text"" name=""w_email"" class=""STI"" size=""60"" maxlength=""60"" value="""" title=""Informe o email do remetente"">"
-     ShowHTML "    <tr><td><font size=""1""><b>Endereço: </b><br><input type=""text"" name=""w_endereco"" class=""STI"" size=""60"" maxlength=""60"" value="""" title=""Informe o endereco do remetente"">"
-     ShowHTML "    <tr><td><font size=""1""><b>Telefone: </b><br><input type=""text"" name=""w_telefone"" class=""STI"" size=""13"" maxlength=""30"" value="""" title=""Informe o telefone do remetente"">"
-     ShowHTML "    <tr><td><font size=""1""><b>Assunto: </b><br><input type=""text"" name=""w_assunto"" class=""STI"" size=""66"" maxlength=""80"" value="""" title=""Informe o assunto do E-mail"">"
-     ShowHTML "    <tr><td><font size=""1""><b>Mensagem: </b><br><TEXTAREA class=""STI"" type=""text"" name=""w_mensagem"" ROWS=4 COLS=50></TEXTAREA ></td>"
-     ShowHTML "    <tr><td align=""center""><font size=""1""><input class=""STB"" type=""submit"" name=""Botao"" value=""Enviar"">"
-     ShowHTML "  </table>"
-     ShowHTML "</table>"
-     ShowHTML "</FORM>"  
-  End If
+  'If Nvl(RS("ds_email_internet"),"") > "" Then
+  '   ShowHTML "<FORM action=""" & w_dir & sstrSN & "?EW=PreparaMail"" method=""POST"" name=""Form"" onSubmit=""return(Validacao(this));"">"
+  '   ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
+  '   ShowHTML "<p align=""justify""><li>Se desejar, envie uma mensagem de e-mail usando o formulário abaixo:"
+  '   ShowHTML "<table border=""1"" bgcolor=""#DAEABD"" style=""border: 1px solid rgb(0,0,0);""><tr><td>"
+  '   ShowHTML "  <table border=""0"" cellspacing=""3"">"
+  '   ShowHTML "    <tr><td><font size=""1""><b>Nome: </b><br><input type=""text"" name=""w_nome"" class=""STI"" size=""60"" maxlength=""60"" value="""" title=""Informe o nome do remetente"">"
+  '   ShowHTML "    <tr><td><font size=""1""><b>e-Mail: </b><br><input type=""text"" name=""w_email"" class=""STI"" size=""60"" maxlength=""60"" value="""" title=""Informe o email do remetente"">"
+  '   ShowHTML "    <tr><td><font size=""1""><b>Endereço: </b><br><input type=""text"" name=""w_endereco"" class=""STI"" size=""60"" maxlength=""60"" value="""" title=""Informe o endereco do remetente"">"
+  '   ShowHTML "    <tr><td><font size=""1""><b>Telefone: </b><br><input type=""text"" name=""w_telefone"" class=""STI"" size=""13"" maxlength=""30"" value="""" title=""Informe o telefone do remetente"">"
+  '   ShowHTML "    <tr><td><font size=""1""><b>Assunto: </b><br><input type=""text"" name=""w_assunto"" class=""STI"" size=""66"" maxlength=""80"" value="""" title=""Informe o assunto do E-mail"">"
+  '   ShowHTML "    <tr><td><font size=""1""><b>Mensagem: </b><br><TEXTAREA class=""STI"" type=""text"" name=""w_mensagem"" ROWS=4 COLS=50></TEXTAREA ></td>"
+  '   ShowHTML "    <tr><td align=""center""><font size=""1""><input class=""STB"" type=""submit"" name=""Botao"" value=""Enviar"">"
+  '   ShowHTML "  </table>"
+  '   ShowHTML "</table>"
+  '   ShowHTML "</FORM>"  
+  'End If
      
   ShowHTML "</tr>"
   RS.Close
