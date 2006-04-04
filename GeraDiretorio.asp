@@ -85,6 +85,8 @@ While Not sobjRS.EOF
     Set FS = CreateObject("Scripting.FileSystemObject")
     If (Not FS.FolderExists (strDir)) or w_unidade > "" then
        If (Not FS.FolderExists (strDir)) Then
+          'Response.Write strdir
+          'Response.End()
           Set f1 = FS.CreateFolder(strDir)
           wCriado = wCriado + 1
        End If
