@@ -4481,7 +4481,7 @@ Public Sub ShowEscolas
   SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
   ConectaBD SQL
   If p_tipo = "H" Then
-     ShowHTML "          <tr valign=""top""><td><td><font size=""1""><br><b>Tipo de escola:</b><br><SELECT CLASS=""STI"" NAME=""p_tipo_cliente"">"
+     ShowHTML "          <tr valign=""top""><td><td><font size=""1""><br><b>Tipo de instituição:</b><br><SELECT CLASS=""STI"" NAME=""p_tipo_cliente"">"
      If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
      While Not RS.EOF
         If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("p_tipo_cliente"),0)) Then
@@ -4493,7 +4493,7 @@ Public Sub ShowEscolas
      Wend
      ShowHTML "          </select>"
   ElseIf nvl(Request("p_tipo_cliente"),0) > 0 Then
-     ShowHTML "          <li><font size=""1""><b>Tipo de escola: "
+     ShowHTML "          <li><font size=""1""><b>Tipo de instituição: "
      While Not RS.EOF
         If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("p_tipo_cliente"),0)) Then ShowHTML RS("ds_tipo_cliente") End If
         RS.MoveNext
@@ -4558,6 +4558,8 @@ Public Sub ShowEscolas
                  ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Etapas/Modalidades de ensino:</b>"
               ElseIf wAtual = "R" Then
                  ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Em Regime de Intercomplementaridade:</b>"
+              Else
+                 ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Outras:</b>"
               End If
            End If
            
@@ -4686,9 +4688,9 @@ Public Sub ShowEscolas
         sql = sql + "    and g.tipo = 3" & VbCrLf
      End If
           
-     If Nvl(Request("p_regional"),-1) <> -1 and Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
+     If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
 
-     if Nvl(Request("p_regional"),-1) <> -1 and sql1 > "" then
+     if sql1 > "" then
         sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
      end if
      sql = sql + "ORDER BY d.ds_cliente " & VbCrLf
@@ -4884,7 +4886,7 @@ Sub CadastroEscolas
   ShowHTML "}"
   ValidateOpen "Validacao"
   Validate "w_sq_cliente_pai"       , "Subordinação"      , "SELECT" , "1" , "1"  , "18" , "1" , "1"
-  Validate "w_sq_tipo_cliente"      , "Tipo de escola"          , "SELECT" , "1" , "1"  , "18" , "1" , "1"
+  Validate "w_sq_tipo_cliente"      , "Tipo de instituição"          , "SELECT" , "1" , "1"  , "18" , "1" , "1"
   Validate "w_ds_cliente"           , "Nome da escola"          , "1"      , "1" , "3"  , "60" , "1" , "1"
   Validate "w_ds_apelido"           , "Apelido"                 , "1"      ,  "" , "3"  , "30" , "1" , "1"
   Validate "w_ds_username"          , "Username"                , "1"      , "1" , "3"  , "14" , "1" , "1"
@@ -4959,7 +4961,7 @@ Sub CadastroEscolas
   SelecaoRegional "<u>S</u>ubordinação:", "S", "Indique a subordinação da escola.", w_sq_cliente_pai, null, "w_sq_cliente_pai", "CADASTRO", null
   SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
   ConectaBD SQL  
-  ShowHTML "              <td valign=""top""><font size=""1""><b>Tipo de e<u>s</u>cola:</b><br><SELECT accesskey=""S"" class=""STI"" NAME=""w_sq_tipo_cliente"">"
+  ShowHTML "              <td valign=""top""><font size=""1""><b>Tipo de in<u>s</u>tituição:</b><br><SELECT accesskey=""S"" class=""STI"" NAME=""w_sq_tipo_cliente"">"
   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">---" End If
   While Not RS.EOF
      If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(w_sq_tipo_cliente,0)) Then
@@ -5126,6 +5128,8 @@ Sub CadastroEscolas
               ShowHTML "            <TR><TD colspan=2><font size=""1"" CLASS=""BTM""><b>Etapas/Modalidades de ensino:</b>"
            ElseIf wAtual = "R" Then
               ShowHTML "            <TR><TD colspan=2><font size=""1"" CLASS=""BTM""><b>Em Regime de Intercomplementaridade:</b>"
+           Else
+              ShowHTML "            <TR><TD colspan=2><font size=""1"" CLASS=""BTM""><b>Outras:</b>"
            End If
         End If
            

@@ -137,7 +137,7 @@ Public Sub ShowPesquisa
   DesconectaBD
   SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
   ConectaBD SQL
-  ShowHTML "          <tr><td colspan=2><b>Tipo de escola:</b><br><SELECT class=""texto"" NAME=""Q"">"
+  ShowHTML "          <tr><td colspan=2><b>Tipo de instituição:</b><br><SELECT class=""texto"" NAME=""Q"">"
   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
   While Not RS.EOF
      If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("Q"),0)) Then
@@ -173,6 +173,8 @@ Public Sub ShowPesquisa
              ShowHTML "          <TR><TD colspan=2><b>Etapas / Modalidades de ensino</b>:"
           ElseIf wAtual = "R" Then
              ShowHTML "          <TR><TD colspan=2><b>Em Regime de Intercomplementaridade</b>:"
+          Else
+             ShowHTML "          <TR><TD colspan=2><b>Outras</b>:"
           End If
        End If
        ShowHTML "          <TR>"

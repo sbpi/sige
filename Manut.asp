@@ -600,6 +600,8 @@ Sub GetEspecialidadeCliente
           ShowHTML "          <TR><TD><font size=1><b>Etapas / Modalidades de ensino</b>:"
        ElseIf wAtual = "R" Then
           ShowHTML "          <TR><TD><font size=1><b>Em Regime de Intercomplementaridade</b>:"
+       Else
+          ShowHTML "          <TR><TD><font size=1><b>Outras</b>:"
        End If
     End If
     If cDbl(Nvl(RS("sq_codigo_cli"),0)) > 0 Then
