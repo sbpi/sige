@@ -2390,7 +2390,7 @@ Public Sub Grava
              " where b.sq_cliente_pai is null " & VbCrLf & _
              "   and a." & CL
        ConectaBD SQL
-       w_diretorio = conFilePhysical & RS("pai") &  "\" & RS("ds_username") & "\"
+       w_diretorio = replace(conFilePhysical & "\" & RS("pai") &  "\" & RS("ds_username") & "\","\\","\")
 
        dbms.BeginTrans()
        SQL = "update escCliente_Site set " & VbCrLf & _
@@ -2550,7 +2550,7 @@ Public Sub Grava
              " where b.sq_cliente_pai is null " & VbCrLf & _
              "   and a." & CL
        ConectaBD SQL
-       w_diretorio = conFilePhysical & RS("pai") &  "\" & RS("ds_username") & "\"
+       w_diretorio = replace(conFilePhysical & "\" & RS("pai") &  "\" & RS("ds_username") & "\","\\","\")
        DesconectaBD
 
        dbms.BeginTrans()
@@ -2946,7 +2946,7 @@ Public Sub Grava
              " where b.sq_cliente_pai is null " & VbCrLf & _
              "   and a." & CL
        ConectaBD SQL
-       w_diretorio = conFilePhysical & RS("pai") &  "\" & RS("ds_username") & "\"
+       w_diretorio = replace(conFilePhysical & "\" & RS("pai") &  "\" & RS("ds_username") & "\","\\","\")
        DesconectaBD
        dbms.BeginTrans()
        If w_ea = "I" Then

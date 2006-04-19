@@ -957,7 +957,7 @@ Public Sub Grava
      w_assunto   = RS("assunto")
      w_texto     = RS("texto")
      w_lista     = RS("envia_lista")
-     w_diretorio = conFilePhysical & "sedf\" & RS("ds_username")
+     w_diretorio = replace(conFilePhysical & "\sedf\" & RS("ds_username"),"\\","\")
      w_maximo    = 20
      w_cont      = 0
      DesconectaBD

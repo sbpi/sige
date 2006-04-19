@@ -3237,17 +3237,17 @@ Public Sub Grava
        If Session("username") = "IMPRENSA" Then
           SQL = "select a.ds_username from escCliente a where a.sq_cliente = 0"
           ConectaBD SQL
-          w_diretorio = conFilePhysical & RS("ds_username") &  "\" & RS("ds_username") & "\"
+          w_diretorio = replace(conFilePhysical & "\" & RS("ds_username") &  "\" & RS("ds_username") & "\","\\","\")
           DesconectaBD
        Else If Mid(Session("username"),1,2) = "RE" Then
           SQL = "select a.ds_username from escCliente a where a." & CL
           ConectaBD SQL
-          w_diretorio = conFilePhysical&"sedf\" & RS("ds_username") & "\"
+          w_diretorio = replace(conFilePhysical&"\sedf\" & RS("ds_username") & "\","\\","\")
           DesconectaBD
        Else
           SQL = "select a.ds_username from escCliente a where a." & CL
           ConectaBD SQL
-          w_diretorio = conFilePhysical & RS("ds_username") &  "\" & RS("ds_username") & "\"
+          w_diretorio = replace(conFilePhysical & "\" & RS("ds_username") &  "\" & RS("ds_username") & "\","\\","\")
           DesconectaBD
        End If
        End If       
@@ -3884,7 +3884,7 @@ Public Sub Grava
     Case "VERSAO"
        dbms.BeginTrans()
        
-       w_diretorio = conFilePhysical & "sge\"
+       w_diretorio = replace(conFilePhysical & "\sge\","\\","\")
        
        If w_ea = "I" Then
           w_arquivo = extractFileName(ul.Files("w_no_arquivo").OriginalPath)
@@ -4621,7 +4621,7 @@ Public Sub ShowEscolas
      End If
      ShowHTML "     <table width=""100%"" border=0>"
      ShowHTML "       <tr valign=""top"">"
-     If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" Then
+     If Session("username") = "SEDF" or Session("username") = "SBPI" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" Then
         If Instr(p_campos,"username")    > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""username"" CLASS=""BTM"" checked>Username"           Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""username"" CLASS=""BTM"">Username"          End If
         If Instr(p_campos,"senha")       > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""senha"" CLASS=""BTM"" checked>Senha"                 Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""senha"" CLASS=""BTM"">Senha"                End If
      End If
