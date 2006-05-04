@@ -568,13 +568,13 @@ Sub GetDocumento
     ShowHTML "          <td><font size=""1""><b><u>N</u>r. de ordem:</b><br><input " & w_Disabled & " accesskey=""N"" type=""text"" name=""w_nr_ordem"" class=""STI"" SIZE=""2"" MAXLENGTH=""2"" VALUE=""" & w_nr_ordem & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a posição em que este arquivo deve aparecer na lista de arquivos disponíveis. Ex: 1, 2, 3 etc.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td><font size=""1""><b><u>D</u>estinatários:</b><br><select " & w_Disabled & " accesskey=""D"" name=""w_in_destinatario"" class=""STS"" SIZE=""1"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o público ao qual o arquivo destina-se.','white')""; ONMOUSEOUT=""kill()"">"
     If w_in_destinatario = "A" Then
-       ShowHTML "            <OPTION VALUE=""A"" SELECTED>Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"">Professores e alunos <OPTION VALUE=""E"">Escola"
+       ShowHTML "            <OPTION VALUE=""A"" SELECTED>Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"">Professores e alunos"
     ElseIf w_in_destinatario = "E" Then
-       ShowHTML "            <OPTION VALUE=""A"">Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"">Professores e alunos <OPTION VALUE=""E"" SELECTED>Escola"
+       ShowHTML "            <OPTION VALUE=""A"">Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"">Professores e alunos"
     ElseIf w_in_destinatario = "P" Then
-       ShowHTML "            <OPTION VALUE=""A"">Apenas alunos <OPTION VALUE=""P"" SELECTED>Apenas professores <OPTION VALUE=""T"">Professores e alunos <OPTION VALUE=""E"">Escola"
+       ShowHTML "            <OPTION VALUE=""A"">Apenas alunos <OPTION VALUE=""P"" SELECTED>Apenas professores <OPTION VALUE=""T"">Professores e alunos"
     Else
-       ShowHTML "            <OPTION VALUE=""A"">Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"" SELECTED>Professores e alunos <OPTION VALUE=""E"">Escola"
+       ShowHTML "            <OPTION VALUE=""A"">Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"" SELECTED>Professores e alunos"
     End If
     ShowHTML "            </SELECTED></TD>"
     MontaRadioSN "<b>Exibir no site?</b>", w_in_ativo, "w_in_ativo"
