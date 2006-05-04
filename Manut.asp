@@ -74,6 +74,7 @@ REM -------------------------------------------------------------------------
      DesconectaBD
      Main
   Else
+     AbreSessao
      ShowHTML "<HTML>" & chr(13) & chr(10)
      ShowHTML "<BODY>" & chr(13) & chr(10)
      ShowHTML "<SCRIPT LANGUAGE='JAVASCRIPT'>" & chr(13) & chr(10)
@@ -173,7 +174,12 @@ Sub showMenu
    ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatDocumento & "&w_ee=1"" Title=""Cadastra arquivos para download!"">Arquivos</A><br> "
    If w_tipo = 3 Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatCalendario & "&w_ee=1"" Title=""Cadastra datas especiais da unidade!"">Calendário</A><br>"
-      ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatMensagem & "&w_ee=1"" Title=""Cadastra mensagens da unidade dirigidas seus alunos!"">Mensagens</A><br>"
+      SQL = "select b.ds_especialidade from escEspecialidade_Cliente a inner join escEspecialidade b on (a.sq_codigo_espec = b.sq_especialidade and a." & CL & ")"
+      ConectaBD SQL
+      If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
+         ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatMensagem & "&w_ee=1"" Title=""Cadastra mensagens da unidade dirigidas seus alunos!"">Mensagens</A><br>"
+      End If
+      DesconectaBD
    End If
    ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatNotCliente & "&w_ee=1"" Title=""Cadastra notícias da unidade de ensino!"">Notícias</A><br>"
    If w_tipo = 2 Then
@@ -198,6 +204,9 @@ REM =========================================================================
 REM Rotina de criação da tela de logon
 REM -------------------------------------------------------------------------
 Sub LogOn
+  
+  Dim wAno
+  
   ShowHTML "<HTML>"
   ShowHTML "<HEAD>"
   ShowHTML "<TITLE>SigeWeb - Autenticação</TITLE>"
@@ -268,14 +277,83 @@ Sub LogOn
   ShowHTML "              <FONT face=""Verdana"" size=1>"
   ShowHTML "              . <a class=""SS"" href=""sedf/Orientacoes_Acesso.pdf"" target=""_blank"" title=""Abre arquivo que descreve as novas características e funcionalidades do SIGE-WEB."">Apresentação da nova versão do SIGE-WEB (PDF - 130KB - 4 páginas)</a><BR>"
   ShowHTML "              . <a class=""SS"" href=""manuais/operacao/"" target=""_blank"" title=""Exibe manual de operação do SIGE-WEB"">Manual SIGE-WEB (HTML)</A><BR>"
-  ShowHTML "              <br></FONT></P>"
+  ShowHTML "              </FONT></P></TD></TR>"
+  ShowHTML "</table>"
   ShowHTML "              </TD></TR>"
-  ShowHTML "          </table> "
+  ShowHTML "          </table> "  
+  wAno =  Request.QueryString("wAno")
+  
+  If wAno = "" Then
+     wAno = Year(Date())
+  End If
+
+  sql = "SELECT case in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
+        "       dt_arquivo, ds_titulo, nr_ordem, ds_arquivo, ln_arquivo, 'SEDF' AS Origem, x.ln_internet diretorio " & VbCrLf & _
+        "From escCliente_Arquivo AS a INNER JOIN escCliente AS x ON (a.sq_site_cliente = x.sq_cliente)" & VbCrLf & _
+        "WHERE in_ativo = 'Sim'" & VbCrLf & _
+        "  AND x.sq_cliente = 0" & VbCrLf & _
+        "  AND in_destinatario = 'E'" & VbCrLf & _
+        "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
+        "ORDER BY origem, nr_ordem, dt_arquivo desc, in_destinatario " & VbCrLf 
+  ConectaBD SQL
+  ShowHTML " <tr><td><table width=""100%"" border=""0"">"
+  ShowHTML "          <TR><TD align=""center""><br><table border=0 cellpadding=0 cellspacing=0><tr><td>"
+  ShowHTML "              <P><font face=""Arial"" size=1><b>ARQUIVOS INSERIDOS PELA SEDF</b></font><br>"  
+  ShowHTML "<tr><td><TABLE border=0 cellSpacing=5 width=""95%"">"
+  ShowHTML "  <TR>"
+  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Origem"
+  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Alvo"
+  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Data"
+  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Componente curricular"
+  ShowHTML "  </TR>"
+  ShowHTML "  <TR>"
+  ShowHTML "    <TD COLSPAN=""4"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
+  ShowHTML "  </TR>"
+  wCont = 0
+     
+  If Not RS.EOF Then
+     wCont = 1
+     Do While Not RS.EOF
+        ShowHTML "  <TR valign=""top"">"
+        ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & RS("origem")
+        ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & RS("in_destinatario")
+        ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
+        ShowHTML "    <TD><FONT face=""Verdana"" size=1><a href=""http://" & replace(RS("diretorio"),"http://","") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
+        ShowHTML "  </TR>"
+
+        RS.MoveNext
+     Loop
+  Else
+     ShowHTML "  <TR><TD COLSPAN=4 ALIGN=CENTER><FONT face=""Verdana"" size=1>Não há arquivos disponíveis no momento para o ano de " & wAno & " </TR>"
+  End If
+  RS.Close
+
+  SQL = "SELECT year(dt_arquivo) ano " & VbCrLf & _
+        "From escCliente_Arquivo a INNER JOIN escCliente AS x ON (a.sq_site_cliente = x.sq_cliente)" & VbCrLf & _
+        "WHERE in_ativo = 'Sim'" & VbCrLf & _
+        "  AND x.sq_cliente = 0" & VbCrLf & _
+        "  AND in_destinatario = 'E'" & VbCrLf & _
+        "  and YEAR(a.dt_arquivo) <> " & wAno & VbCrLf & _
+        "ORDER BY year(dt_arquivo) desc " & VbCrLf 
+  ConectaBD SQL
+    If Not RS.EOF Then
+       ShowHTML "  <TR><TD COLSPAN=4 ><FONT face=""Verdana"" size=1><b>Arquivos de outros anos</b><br>"
+       While Not RS.EOF
+          ShowHTML "     <li><a href=""" & w_dir & "Manut.asp?wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a></TR>"
+          RS.MoveNext
+       Wend
+       ShowHTML "  </TD></TR>"
+    End If
+    RS.Close
+  ShowHTML "</table>"
+  ShowHTML "              </FONT></P>"
+  ShowHTML "              </TD></TR>"
+  ShowHTML "          </table> "  
   ShowHTML "        </table> "
   ShowHTML "    </tr> "
   ShowHTML "  </table>"
-  ShowHTML "</table>"
-  ShowHTML "</form> "
+  ShowHTML "</table>"   
+  ShowHTML "</form> "  
   ShowHTML "</CENTER>"
   ShowHTML "</body>"
   ShowHTML "</html>"
@@ -1541,13 +1619,18 @@ Sub GetSite
      ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
      ShowHTML "      <tr><td><font size=""1""><b>Composição adminis<u>t</u>rativa (arquivo Word ou PDF):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém a composição administrativa da regional. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
   Else
-     ShowHTML "      <tr><td valign=""top"" align=""center"" bgcolor=""#D0D0D0""><font size=""1""><b>Página ""Projeto""</td></td></tr>"
-     ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-     ShowHTML "      <tr><td><font size=1>Informe o arquivo Word ou PDF a ser exibido na página ""Projeto"" do site."
-     ShowHTML "          <br><font color=""red""><b>IMPORTANTE: <a href=""sedf/orientacoes_word.pdf"" class=""hl"" target=""_blank"">Para documentos Word, clique aqui para ler as orientações sobre a formatação e a proteção do texto</a></b></font>."
-     ShowHTML "      </font></td></tr>"
-     ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-     ShowHTML "      <tr><td><font size=""1""><b>Proje<u>t</u>o (arquivo Word):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém o projeto da escola. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
+     SQL = "select b.ds_especialidade from escEspecialidade_Cliente a inner join escEspecialidade b on (a.sq_codigo_espec = b.sq_especialidade and a." & CL & ")"
+     ConectaBD SQL
+     If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
+        ShowHTML "      <tr><td valign=""top"" align=""center"" bgcolor=""#D0D0D0""><font size=""1""><b>Página ""Projeto""</td></td></tr>"
+        ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
+        ShowHTML "      <tr><td><font size=1>Informe o arquivo Word ou PDF a ser exibido na página ""Projeto"" do site."
+        ShowHTML "          <br><font color=""red""><b>IMPORTANTE: <a href=""sedf/orientacoes_word.pdf"" class=""hl"" target=""_blank"">Para documentos Word, clique aqui para ler as orientações sobre a formatação e a proteção do texto</a></b></font>."
+        ShowHTML "      </font></td></tr>"
+        ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
+        ShowHTML "      <tr><td><font size=""1""><b>Proje<u>t</u>o (arquivo Word):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém o projeto da escola. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
+     End If
+     DesconectaBD
   End If
   If w_pedagogica > "" Then
      ShowHTML "              <b><a class=""SS"" href=""http://" & Replace(lCase(w_ds_diretorio),lCase("http://"),"") & "/" & w_pedagogica & """ target=""_blank"" title=""Clique para abrir o arquivo atual."">Exibir</a></b>"

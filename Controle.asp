@@ -4714,7 +4714,7 @@ Public Sub ShowEscolas
         ShowHTML "<table border=""1"" cellspacing=""0"" cellpadding=""0"" width=""100%"">"
         ShowHTML "<tr align=""center"" valign=""top"">"
         ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Escola</b></td>"
-        If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" Then
+        If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" or Session("username") = "SBPI" Then
            If Instr(p_campos,"username") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Username</b></td>" End If
            If Instr(p_campos,"senha") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Senha</b></td>" End If
         End If
@@ -4745,7 +4745,7 @@ Public Sub ShowEscolas
           Else
              ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
           End If
-          If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" Then
+          If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" or Session("username") = "SBPI" Then
              If Instr(p_campos,"username") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_USERNAME") & "</font></td>" End If
              If Instr(p_campos,"senha") > 0 Then ShowHTML "    <td align=""center""><font face=""Verdana"" size=""1"">" & RS("DS_SENHA_ACESSO") & "</font></td>" End If
           End If
