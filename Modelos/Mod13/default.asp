@@ -39,7 +39,7 @@ CL = Request.QueryString("CL")
 sstrEF = "sq_cliente=" & CL
 sstrEW = Request.QueryString("EW")
 sstrIN = Request.QueryString("IN")
-w_dir  = "Modelos/Mod16/"
+w_dir  = "Modelos/Mod13/"
 
 Private sstrData
 
@@ -87,11 +87,9 @@ ShowHTML "      <script language=""JavaScript"" src=""inc/mm_menu.js"" type=""te
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=110&CL=" & replace(CL,"sq_cliente=","") & """ >Inicial</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=113&CL=" & replace(CL,"sq_cliente=","") & """ id=""link1"">Quem somos</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=117&CL=" & replace(CL,"sq_cliente=","") & """ >Fale conosco </a></li>"
-ShowHTML "      <li><a href=""" & w_dir & "Default.Asp?EW=116&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Projeto</a></li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & """ id=""link2"">Notícias</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=115&CL=" & replace(CL,"sq_cliente=","") & """ id=""link5"">Calendário</a>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & """ >Arquivos</a></li>"
-ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=116&IN=0&CL=" & replace(CL,"sq_cliente=","") & """ >Alunos</a></li>"
 ShowHTML "	    </ul>"
 ShowHTML "      <div id=""menusep""><hr /></div>"
 ShowHTML "      <div id=""menunav"">"
@@ -194,7 +192,6 @@ Public Sub ShowArquivo
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
         "ORDER BY origem, nr_ordem, dt_arquivo desc, in_destinatario " & VbCrLf 
   RS.Open sql, sobjConn, adOpenForwardOnly
-
   ShowHTML "<tr><td><TABLE border=0 cellSpacing=5 width=""95%"">"
   ShowHTML "  <TR>"
   ShowHTML "    <TD><b>Origem"
@@ -239,7 +236,7 @@ Public Sub ShowArquivo
         "                             INNER JOIN escCliente_Site AS d ON (b.sq_cliente = d.sq_site_cliente) " & VbCrLf & _
         "WHERE a.in_ativo = 'Sim'" & VbCrLf & _
         "  AND e." & sstrEF & " " & VbCrLf & _
-        "  and in_destinatario <> 'E'" & VbCrLf & _
+        "  and in_destinatario <> 'E'" & VbCrLf & _        
         "  and YEAR(a.dt_arquivo) <> " & wAno & VbCrLf & _
         "UNION " & VbCrLf & _
         "SELECT year(dt_arquivo) ano " & VbCrLf & _
@@ -479,7 +476,6 @@ Public Sub ShowNoticia
            "  and YEAR(a.dt_noticia) = " & wAno & VbCrLf & _
            "ORDER BY data desc, ocorrencia" & VbCrLf
      RS.Open sql, sobjConn, adOpenForwardOnly
-     
      ShowHTML "<tr><td><TABLE align=""center"" width=""95%""border=0 cellSpacing=1>"
      ShowHTML "  <TR valign=""top"" align=""center"">"
      ShowHTML "    <TD width=""2%"">&nbsp;"
@@ -674,208 +670,17 @@ REM Final da Página Calendário
 REM =========================================================================
 
 REM =========================================================================
-REM Monta a tela de Validação de Senha
-REM -------------------------------------------------------------------------
-Public Sub ShowValida
-
-  Dim strLabel, strTexto, strAction, strCampo
-  
-  If sstrIN > 0 Then
-     sql = "SELECT b.ds_diretorio, b.ln_prop_pedagogica " & _
-           "From escCliente as a INNER JOIN escCLIENTE_SITE as b on (a.sq_cliente = b.sq_cliente) " & _
-           "                     INNER JOIN escModelo as c on (b.sq_modelo = c.sq_modelo) " & _
-           "                     INNER JOIN escCliente_Dados as d on (a.sq_cliente = d.sq_cliente) " & _
-           "WHERE a." & sstrEF 
-
-     RS.Open sql, sobjConn, adOpenForwardOnly
-     ShowHTML "<tr><td>"
-     If Nvl(RS("ln_prop_pedagogica"),"") > "" Then
-        ShowHTML "    <font size=1><b>"
-        If InStr(lCase(RS("ln_prop_pedagogica")),lCase(".pdf")) > 0 Then
-           ShowHTML "        A exibição do arquivo exige que o Acrobat Reader tenha sido instalado em seu computador."
-           ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, clique <a href=""http://www.adobe.com.br/products/acrobat/readstep2.html"" target=""_blank"">aqui</a> para instalar ou atualizar o Acrobat Reader."
-        Else
-           ShowHTML "        A exibição do arquivo exige o editor de textos Word ou equivalente. "
-           ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, verifique se o Word foi corretamente instalado em seu computador."        
-        End If
-        ShowHTML "<table align=""center"" width=""100%"" cellspacing=0 style=""border: 1px solid rgb(0,0,0);""><tr><td>"
-        ShowHTML "    <iframe src=""http://" & replace(RS("ds_diretorio"),"http://","") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
-        ShowHTML "    </iframe>"
-        ShowHTML "</table>"
-     Else
-        ShowHTML "    <font size=1><b>Projeto não informado."
-     End If
-  Else
-     strLabel = "Alunos"
-     strTexto = "Informe nos campos abaixo sua Matrícula e Senha de Acesso, conforme informado pela escola. Se você não recebeu esses dados, clique no botão <i>Fale Conosco</I>, acima, para ver como entrar em contato com a escola e consegui-los."
-     strAction = sstrSN & "?EW=" & conWhatSenha & "&EF=" & sstrEF & "&CL=" & CL & "&IN=" & sstrIN
-     strCampo = "Matrícula"
-
-     ShowHTML "<script Language=""JavaScript"">" & chr(13)
-     ShowHTML "<!--" & chr(13)
-     ShowHTML "function Validacao(theForm)" & chr(13)
-     ShowHTML "{" & chr(13)
-     ShowHTML "  var checkOK = ""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"";" & chr(13)
-     ShowHTML "  var checkStr = theForm.UID.value;" & chr(13)
-     ShowHTML "  var allValid = true;" & chr(13)
-     ShowHTML "  for (i = 0;  i < checkStr.length;  i++)" & chr(13)
-     ShowHTML "  {" & chr(13)
-     ShowHTML "    ch = checkStr.charAt(i);" & chr(13)
-     ShowHTML "    for (j = 0;  j < checkOK.length;  j++)" & chr(13)
-     ShowHTML "      if (ch == checkOK.charAt(j))" & chr(13)
-     ShowHTML "        break;" & chr(13)
-     ShowHTML "    if (j == checkOK.length)" & chr(13)
-     ShowHTML "    {" & chr(13)
-     ShowHTML "      allValid = false;" & chr(13)
-     ShowHTML "      break;" & chr(13)
-     ShowHTML "    }" & chr(13)
-     ShowHTML "  }" & chr(13)
-     ShowHTML "  if (!allValid)" & chr(13)
-     ShowHTML "  {" & chr(13)
-     ShowHTML "    alert(""Informe apenas letras e números no campo \""Nome de Usuário\""."");" & chr(13)
-     ShowHTML "    theForm.UID.focus();" & chr(13)
-     ShowHTML "    return (false);" & chr(13)
-     ShowHTML "  }" & chr(13)
-     ShowHTML "  var checkOK = ""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"";" & chr(13)
-     ShowHTML "  var checkStr = theForm.PWD.value;" & chr(13)
-     ShowHTML "  var allValid = true;" & chr(13)
-     ShowHTML "  for (i = 0;  i < checkStr.length;  i++)" & chr(13)
-     ShowHTML "  {" & chr(13)
-     ShowHTML "    ch = checkStr.charAt(i);" & chr(13)
-     ShowHTML "    for (j = 0;  j < checkOK.length;  j++)" & chr(13)
-     ShowHTML "      if (ch == checkOK.charAt(j))" & chr(13)
-     ShowHTML "        break;" & chr(13)
-     ShowHTML "    if (j == checkOK.length)" & chr(13)
-     ShowHTML "    {" & chr(13)
-     ShowHTML "      allValid = false;" & chr(13)
-     ShowHTML "      break;" & chr(13)
-     ShowHTML "    }" & chr(13)
-     ShowHTML "  }" & chr(13)
-     ShowHTML "  if (!allValid)" & chr(13)
-     ShowHTML "  {" & chr(13)
-     ShowHTML "    alert(""Informe apenas letras e números no campo \""Senha\""."");" & chr(13)
-     ShowHTML "    theForm.PWD.focus();" & chr(13)
-     ShowHTML "    return (false);" & chr(13)
-     ShowHTML "  }" & chr(13)
-     ShowHTML "  return (true);" & chr(13)
-     ShowHTML "}" & chr(13)
-     ShowHTML "//-->" & chr(13)
-     ShowHTML "</script>" & chr(13)
-     ShowHTML "<form method=""POST"" action=""" & w_dir & strAction & """ onsubmit=""return Validacao(this)"" name=""Form1"">"
-
-     ShowHTML "<tr><td><table align=""center"" width=""95%"">"
-     ShowHTML "<tr><td colspan=""3""><p align=""justify"">" & strTexto & "<p>&nbsp"
-     ShowHTML "<tr><td align=""right""><b>" & strCampo & ":</b><td>&nbsp;<td><input type=""text"" class=""texto"" lenght=""14"" maxsize=""14"" name=""UID"" value="""">"
-     ShowHTML "<tr><td align=""right""><b>Senha de acesso:</b><td>&nbsp;<td><input type=""password"" class=""texto"" lenght=""14"" maxsize=""14"" name=""PWD"" value="""">"
-     ShowHTML "<tr><td align=""right"">&nbsp;<td>&nbsp;<td><input type=""submit"" name=""BTN"" class=""botao"" value=""Encontrar"">&nbsp;<input type=""reset"" class=""botao"" name=""CLR"" value=""Limpar"">"
-     ShowHTML "</table>"
-
-     ShowHTML "</form>"
-  End If
-
-End Sub
-REM -------------------------------------------------------------------------
-REM Final da Página de Validação de Senha
-REM =========================================================================
-
-REM =========================================================================
-REM Monta a tela de Verificação de Senha
-REM -------------------------------------------------------------------------
-Public Sub ShowSenha
-
-  Dim sql, strNome, strDestino, w_uid, w_pwd
-  
-  w_uid = replace(replace(Trim(uCase(Request("UID"))),"'", ""), """", "")
-  w_pwd = replace(replace(Trim(uCase(Request("PWD"))),"'", ""), """", "")
-
-  If sstrIN = "0" Then
-     sql = "SELECT * FROM escAluno " & VbCrLf & _
-           "WHERE sq_site_cliente = " & CL & VbCrLf & _
-           "  AND NR_MATRICULA   ='" & w_uid & "'" & VbCrLf & _
-           "  AND DS_SENHA_ACESSO='" & w_pwd & "'" & VbCrLf
-  Else
-     sql = "SELECT * from escCliente " & VbCrLf & _
-           "WHERE sq_cliente     = " & CL & VbCrLf & _
-           "  AND DS_USERNAME    ='" & w_uid & "'" & VbCrLf & _
-           "  AND DS_SENHA_ACESSO='" & w_pwd & "'" & VbCrLf
-  End If
-
-  RS.Open sql, sobjConn, adOpenForwardOnly
-
-  If RS.EOF Then
-
-    ShowHTML "<tr><td align=""right""><b><font size=2>Validação</font></b></td></tr>"
-
-    ShowHTML "<tr><td><p align=""justify"">Nome de usuário ou senha de acesso inválida. Volte à página anterior para tentar novamente.</p>"
-    ShowHTML "<p><center><img src=""Img/bt_voltar.gif"" border=0 valign=""center"" onClick=""history.go(-1)"" alt=""Volta"">"
-    ShowHTML "</tr>"
-
-  Else
-    If sstrIN = "0" Then
-       ' Grava o acesso na tabela de log
-       w_chave = RS("sq_aluno")
-       SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql) " & VbCrLf & _
-             "values ( " & VbCrLf & _
-             "         " & CL & ", " & VbCrLf & _
-             "         getdate(), " & VbCrLf & _
-             "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-             "         0, " & VbCrLf & _
-             "         'Acesso à tela do aluno " & RS("no_aluno") & " (" & RS("nr_matricula") & ").', " & VbCrLf & _
-             "         null " & VbCrLf & _
-             "       ) " & VbCrLf
-       AbreSessao
-       ExecutaSQL(SQL)
-       ShowHTML "<SCRIPT LANGUAGE=""JAVASCRIPT"">" & VbCrLf
-       ShowHTML "   window.open('aluno.asp?EW=118&EF=" & sstrEF & "&EA=sq_aluno=" & w_chave & "&CL=" & CL & "&IN=10" & "', 'aluno', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=780,height=500,left=10,top=10');" & VbCrLf
-       ShowHTML "   history.go(-1);" & VbCrLf
-       ShowHTML "</SCRIPT>" & VbCrLf
-    Else
-       ' Grava o acesso na tabela de log
-       SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql) " & VbCrLf & _
-             "values ( " & VbCrLf & _
-             "         " & CL & ", " & VbCrLf & _
-             "         getdate(), " & VbCrLf & _
-             "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-             "         0, " & VbCrLf & _
-             "         'Acesso à tela de atualização da escola.', " & VbCrLf & _
-             "         null " & VbCrLf & _
-             "       ) " & VbCrLf
-       AbreSessao
-       ExecutaSQL(SQL)
-       ShowHTML "<SCRIPT LANGUAGE=""JAVASCRIPT"">" & VbCrLf
-       ShowHTML "   window.open('../../Manut.asp?CL=" & sstrEF & "&w_in=" & sstrIN & "', 'cliente', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=780,height=580,left=10,top=10');" & VbCrLf
-       ShowHTML "   history.go(-1);" & VbCrLf
-       ShowHTML "</SCRIPT>" & VbCrLf
-    End If
-    FechaSessao
-
-  End If
-
-  ShowHTML "</tr></center>"
-
-End Sub
-REM -------------------------------------------------------------------------
-REM Final da Página de Verificação de Senha
-REM =========================================================================
-
-REM =========================================================================
 REM Corpo Principal do programa
 REM -------------------------------------------------------------------------
 Private Sub Main
 
-  If Request.QueryString("EW") = conWhatSenha Then
-      ShowSenha
-  End If
-
   Select Case sstrEW
     Case conWhatPrincipal   ShowPrincipal
-    Case conWhatManut       ShowAluno
     Case conWhatQuem        ShowQuem
     Case conWhatExFale      ShowExFale
     Case conWhatArquivo     ShowArquivo
     Case conWhatExNoticia   ShowNoticia
     Case conWhatExCalend    ShowCalend
-    Case conWhatValida      ShowValida
   End Select
 End Sub
 REM -------------------------------------------------------------------------

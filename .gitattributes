@@ -9,6 +9,8 @@
 /Manut.asp -text
 /Mensagem.asp -text
 Modelos/Constants.inc -text
+Modelos/Mod13/default.asp -text
+Modelos/Mod13/default_cliente.asp -text
 Modelos/Mod14/Aluno.asp -text
 Modelos/Mod14/default.asp -text
 Modelos/Mod14/default_cliente.asp -text

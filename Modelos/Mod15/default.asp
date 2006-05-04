@@ -175,6 +175,7 @@ Public Sub ShowArquivo
         "WHERE in_ativo = 'Sim'" & VbCrLf & _
         "  AND x." & sstrEF & " " & VbCrLf & _
         "  AND a." & replace(sstrEF,"sq_cliente","sq_site_cliente") & " " & VbCrLf & _
+        "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
         "UNION " & VbCrLf & _
         "SELECT case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
@@ -184,6 +185,7 @@ Public Sub ShowArquivo
         "                             INNER JOIN escCliente_Site AS d ON (c.sq_cliente = d.sq_cliente) " & VbCrLf & _
         "WHERE a.in_ativo = 'Sim'" & VbCrLf & _
         "  AND e." & sstrEF & " " & VbCrLf & _
+        "  and in_destinatario <> 'E'" & VbCrLf & _        
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
         "ORDER BY origem, nr_ordem, dt_arquivo desc, in_destinatario " & VbCrLf 
   RS.Open sql, dbms, adOpenForwardOnly
@@ -222,6 +224,7 @@ Public Sub ShowArquivo
         "WHERE in_ativo = 'Sim'" & VbCrLf & _
         "  AND x." & sstrEF & " " & VbCrLf & _
         "  AND a." & replace(sstrEF,"sq_cliente","sq_site_cliente") & " " & VbCrLf & _
+        "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) <> " & wAno & VbCrLf & _
         "UNION " & VbCrLf & _
         "SELECT year(dt_arquivo) ano " & VbCrLf & _
@@ -239,6 +242,7 @@ Public Sub ShowArquivo
         "                             INNER JOIN escCliente_Site AS d ON (c.sq_cliente = d.sq_cliente) " & VbCrLf & _
         "WHERE a.in_ativo = 'Sim'" & VbCrLf & _
         "  AND e." & sstrEF & " " & VbCrLf & _
+        "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) <> " & wAno & VbCrLf & _
         "ORDER BY year(dt_arquivo) desc " & VbCrLf 
     RS.Open sql, dbms, adOpenForwardOnly
