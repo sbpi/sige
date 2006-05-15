@@ -3,6 +3,7 @@
 <!-- #INCLUDE FILE="Constants.inc" -->
 <!-- #INCLUDE FILE="jScript.asp" -->
 <!-- #INCLUDE FILE="Funcoes.asp" -->
+<!--#INCLUDE FILE="FuncoesGR.asp"-->
 <%
 Response.Expires = 0
 REM =========================================================================
@@ -118,7 +119,7 @@ Sub Inicial
 
   If O = "L" Then
      SQL = "select a.sq_cliente_mail, a.enviada, a.assunto, substring(a.texto,1,200) texto, " & VbCrLf & _
-           "       convert(varchar, a.data_inclusao, 103) data_inclusao, " & VbCrLf & _
+           "       convert(varchar, a.data_inclusao, 103) data_inclusao, a.data_inclusao dt_inclusao," & VbCrLf & _
            "       case when a.data_envio is null then '---' else convert(varchar, a.data_envio, 103) end data_envio, " & VbCrLf & _
            "       a.envia_lista, case a.envia_lista when 'S' then 'Sim' else 'Não' end nm_envia_lista, " & VbCrLf & _
            "       (select count(*) Itens from escMail_Destinatario where sq_cliente_mail = a.sq_cliente_mail) Itens " & VbCrLf & _
@@ -130,8 +131,7 @@ Sub Inicial
         SQL = SQL & "where a.sq_cliente  = " & replace(CL,"sq_cliente=","") & " " & VbCrLf
       End If
      
-     SQL = SQL & _
-           "order by a.data_inclusao desc "
+     SQL = SQL & "order by a.dt_inclusao desc"
      ConectaBD SQL
   ElseIf InStr("AEV",O) > 0 Then
      w_sq_cliente_mail = Request("w_sq_cliente_mail")
@@ -557,32 +557,13 @@ Sub Item
        ShowHTML "<tr bgcolor=""" & conTrBgColor & """><td><div align=""justify""><font size=1><b><ul>Instruções</b>:<li>Informe os parâmetros desejados para recuperar a lista de possíveis destinatários.<li>Quando a relação for exibida, selecione os destinatários desejados clicando sobre a caixa ao lado do nome.<li>Após informar os parâmetros desejados, clique sobre o botão <i>Aplicar filtro</i>. Clicando sobre o botão <i>Limpar campos</i>, os parâmetros serão apagados.</ul><hr><b>Filtro</b></div>"
        ShowHTML "<tr bgcolor=""" & conTrBgColor & """><td align=""center"">"
        ShowHTML "    <table width=""100%"" border=""0"">"
-
        ShowHTML "          <TR><TD valign=""top""><br><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
-       SQL = "SELECT a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
-             "  FROM escCLIENTE a " & VbCrLf & _
-             "       inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
-             " WHERE b.tipo = 2 " & VbCrLf & _
-             "ORDER BY a.ds_cliente" & VbCrLf
-       ConectaBD SQL
-       ShowHTML "          <tr valign=""top""><td><td valign=""top""><font size=""1""><b>Listar escolas da regional de ensino:</b><br><SELECT CLASS=""STI"" NAME=""p_regional"">"
-       If RS.RecordCount > 1 Then 
-          If Nvl(p_regional,-1) < 0 Then ShowHTML "          <option value="""" selected>Listar todas as escolas"  Else ShowHTML "          <option value="""">Listar todas as escolas"  End If
-          If Nvl(p_regional,-1) = 0 Then ShowHTML "          <option value=""0"" selected>Listar apenas regionais" Else ShowHTML "          <option value=""0"">Listar apenas regionais" End If
-       End If
-       While Not RS.EOF
-          If cDbl(nvl(RS("sq_cliente"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
-             ShowHTML "          <option value=""" & RS("sq_cliente") & """ SELECTED>" & RS("ds_cliente")
-          Else
-             ShowHTML "          <option value=""" & RS("sq_cliente") & """>" & RS("ds_cliente")
-          End If
-          RS.MoveNext
-       Wend
-       ShowHTML "          </select>"
-       DesconectaBD
+       ShowHTML "          <tr valign=""top""><td><td valign=""top""><font size=""1""><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
+       SelecaoRegional "<u>S</u>ubordinação:", "S", "Indique a subordinação da escola.", p_regional, null, "p_regional", null, null
+       ShowHTML "</table></td></tr>"
        SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
        ConectaBD SQL
-       ShowHTML "          <tr valign=""top""><td><td valign=""top""><font size=""1""><br><b>Tipo de escola:</b><br><SELECT CLASS=""STI"" NAME=""p_tipo_cliente"">"
+       ShowHTML "          <tr valign=""top""><td><td valign=""top""><font size=""1""><br><b>Tipo de instituição:</b><br><SELECT CLASS=""STI"" NAME=""p_tipo_cliente"">"
        If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
        While Not RS.EOF
           If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("p_tipo_cliente"),0)) Then
@@ -603,35 +584,36 @@ Sub Item
              "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
              "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
              "ORDER BY a.nr_ordem, a.ds_especialidade "
-
+ 
        ConectaBD SQL
-  
+       
        If Not RS.EOF Then
           wCont = 0
-
-          ShowHTML "          <TD valign=""top""><br><table border=""0"" align=""left"" cellpadding=0 cellspacing=0>"
-          ShowHTML "            <TR><TD colspan=2><font size=""2"" CLASS=""BTM""><b>Modalidades de ensino:</b>"
+          wAtual = ""
+          
+          ShowHTML "          <TD valign=""top""><table border=""0"" align=""left"" cellpadding=0 cellspacing=0>"
+          
           Do While Not RS.EOF
-                  
+             If wAtual = "" or wAtual <> RS("tp_especialidade") Then
+                wAtual = RS("tp_especialidade")
+                If wAtual = "M" Then
+                   ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Etapas/Modalidades de ensino:</b>"
+                ElseIf wAtual = "R" Then
+                   ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Em Regime de Intercomplementaridade:</b>"
+                Else
+                   ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Outras:</b>"
+                End If
+             End If
              wCont = wCont + 1
              marcado = "N"
              For i = 1 to Request("p_modalidade").Count
-                 If cDbl(RS("sq_especialidade")) = cDbl(Request("p_modalidade")(i)) Then marcado = "S" End If
+                 If cDbl(RS("sq_especialidade")) = cDbl(Nvl(Request("p_modalidade")(i),0)) Then marcado = "S" End If
              Next
-             
-             If marcado = "S" Then
-                ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """ checked><td><font size=2>" & RS("ds_especialidade")
-                sql1 = Request("p_modalidade")
-                wIN = 1
-             Else
-                ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """><td><font size=2>" & RS("ds_especialidade")
-             End If
-             RS.MoveNext
-
+                ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """><td><font size=1>" & RS("ds_especialidade")
+             RS.MoveNext     
              If (wCont Mod 2) = 0 Then 
                 wCont = 0
              End If
-
           Loop
           DesconectaBD
        End If
@@ -664,12 +646,8 @@ Sub Item
                 "                         where sq_cliente_mail = " & Request("w_sq_cliente_mail") & " " & VbCrLf & _
                 "                        group by destinatario " & VbCrLf & _
                 "                       )                          h ON (d.sq_cliente       = h.destinatario) " & VbCrLf & _
-                " where (CharIndex('@', IsNull(d.ds_email,'---')) > 0 or " & VbCrLf & _
-                "        CharIndex('@', IsNull(e.ds_email_contato,'---')) > 0 or " & VbCrLf & _
-                "        CharIndex('@', IsNull(f.ds_email_internet,'---')) > 0 " & VbCrLf & _
-                "       ) " & VbCrLf & _
+                " where (CharIndex('@', IsNull(d.ds_email,'---')) > 0) " & VbCrLf & _
                 "   and IsNull(h.existe,0) = 0 " & VbCrLf
-
           If Nvl(Request("p_regional"),-1) = 0  Then
              sql = sql + "    and g.tipo = 2 and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf
           ElseIf Request("p_regional") > "" Then 
@@ -957,7 +935,7 @@ Public Sub Grava
      w_assunto   = RS("assunto")
      w_texto     = RS("texto")
      w_lista     = RS("envia_lista")
-     w_diretorio = replace(conFilePhysical & "\sedf\" & RS("ds_username"),"\\","\")
+     w_diretorio = replace(conFilePhysical & "\sedf\sedf\","\\","\")
      w_maximo    = 20
      w_cont      = 0
      DesconectaBD
@@ -1014,7 +992,6 @@ Public Sub Grava
        Wend
      End If
      DesconectaBD
-
      On Error Resume Next
      Mail.Send
      If Err <> 0 Then 
