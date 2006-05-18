@@ -646,8 +646,7 @@ Sub Item
                 "                         where sq_cliente_mail = " & Request("w_sq_cliente_mail") & " " & VbCrLf & _
                 "                        group by destinatario " & VbCrLf & _
                 "                       )                          h ON (d.sq_cliente       = h.destinatario) " & VbCrLf & _
-                " where (CharIndex('@', IsNull(d.ds_email,'---')) > 0) " & VbCrLf & _
-                "   and IsNull(h.existe,0) = 0 " & VbCrLf
+                "   where IsNull(h.existe,0) = 0 " & VbCrLf
           If Nvl(Request("p_regional"),-1) = 0  Then
              sql = sql + "    and g.tipo = 2 and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf
           ElseIf Request("p_regional") > "" Then 
@@ -693,7 +692,7 @@ Sub Item
             ShowHTML "        </tr>"
             While Not RS.EOF
               ShowHTML "      <tr bgcolor=""" & conTrBgColor & """ valign=""top"">"
-              If (Instr(RS("ds_email"),"@") > 0 or Instr(RS("ds_email_contato"),"@") > 0 or Instr(RS("ds_email_internet"),"@") > 0) Then 
+              If Instr(RS("ds_email"),"@") > 0 Then 
                  ShowHTML "        <td align=""center""><input type=""checkbox"" name=""w_sq_cliente"" value=""" & RS("sq_cliente") & """>"
               Else
                  ShowHTML "        <td align=""center""><input disabled type=""checkbox"" name=""w_sq_cliente"" value=""" & RS("sq_cliente") & """>"
