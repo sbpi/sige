@@ -161,7 +161,7 @@ Sub showMenu
    End If
 
    If Session("username") = "SEDF" or Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
-      ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatDocumento & "&w_ee=1"" Title=""Cadastra arquivos para download!"">Arquivos</A><br> "
+      ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatDocumento & "&w_ee=1"" Title=""Cadastra arquivos para download!"">Arquivos (<i>download</i>)</A><br> "
    End If
 
    If Session("username") = "GESTORVERSAO" or Session("username") = "SBPI" Then

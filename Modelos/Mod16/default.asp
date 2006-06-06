@@ -90,7 +90,7 @@ ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=117&CL=" & replace(CL,
 ShowHTML "      <li><a href=""" & w_dir & "Default.Asp?EW=116&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Projeto</a></li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & """ id=""link2"">Notícias</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=115&CL=" & replace(CL,"sq_cliente=","") & """ id=""link5"">Calendário</a>"
-ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & """ >Arquivos</a></li>"
+ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & """ >Arquivos (<i>download</i>)</a></li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=116&IN=0&CL=" & replace(CL,"sq_cliente=","") & """ >Alunos</a></li>"
 ShowHTML "	    </ul>"
 ShowHTML "      <div id=""menusep""><hr /></div>"

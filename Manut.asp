@@ -171,7 +171,7 @@ Sub showMenu
    If w_tipo = 3 Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatEspecialidadeCliente & "&w_ee=1"" Title=""Cadastra modalidades de ensino oferecidas pela unidade!"">Áreas de atuação</A><br> "
    End If
-   ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatDocumento & "&w_ee=1"" Title=""Cadastra arquivos para download!"">Arquivos</A><br> "
+   ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatDocumento & "&w_ee=1"" Title=""Cadastra arquivos para download!"">Arquivos (<i>download</i>)</A><br> "
    If w_tipo = 3 Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatCalendario & "&w_ee=1"" Title=""Cadastra datas especiais da unidade!"">Calendário</A><br>"
       SQL = "select b.ds_especialidade from escEspecialidade_Cliente a inner join escEspecialidade b on (a.sq_codigo_espec = b.sq_especialidade and a." & CL & ")"
