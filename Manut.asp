@@ -176,8 +176,10 @@ Sub showMenu
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatCalendario & "&w_ee=1"" Title=""Cadastra datas especiais da unidade!"">Calendário</A><br>"
       SQL = "select b.ds_especialidade from escEspecialidade_Cliente a inner join escEspecialidade b on (a.sq_codigo_espec = b.sq_especialidade and a." & CL & ")"
       ConectaBD SQL
-      If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
-         ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatMensagem & "&w_ee=1"" Title=""Cadastra mensagens da unidade dirigidas seus alunos!"">Mensagens</A><br>"
+      If Not RS.EOF Then
+         If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
+            ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Manut.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatMensagem & "&w_ee=1"" Title=""Cadastra mensagens da unidade dirigidas seus alunos!"">Mensagens</A><br>"
+         End If
       End If
       DesconectaBD
    End If
@@ -812,7 +814,7 @@ Sub GetDadosAdicionais
   ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
   ShowHTML "        <tr valign=""top"">"
   ShowHTML "          <td><font size=""1""><b><u>B</u>airro:</b><br><INPUT ACCESSKEY=""B"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_no_bairro"" size=""30"" maxlength=""30"" value=""" & w_no_bairro & """ ONMOUSEOVER=""popup('OPCIONAL. Informe o bairro de funcionamento da unidade.','white')""; ONMOUSEOUT=""kill()""></td>"
-  ShowHTML "          <td><font size=""1""><b>C<u>E</u>P:</b><br><INPUT ACCESSKEY=""C"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_nr_cep"" size=""9"" maxlength=""9"" value=""" & w_nr_cep & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o CEP da unidade.','white')""; ONMOUSEOUT=""kill()""></td>"
+  ShowHTML "          <td><font size=""1""><b>C<u>E</u>P:</b><br><INPUT ACCESSKEY=""C"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_nr_cep"" size=""9"" maxlength=""9"" value=""" & w_nr_cep & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o CEP da unidade.','white')""; ONMOUSEOUT=""kill()"" onKeyDown=""FormataCEP(this,event);""></td>"
   ShowHTML "        </table>"
   ShowHTML "      <tr><td align=""center"" height=""2"" bgcolor=""#000000""></td></tr>"
   ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
@@ -1621,14 +1623,16 @@ Sub GetSite
   Else
      SQL = "select b.ds_especialidade from escEspecialidade_Cliente a inner join escEspecialidade b on (a.sq_codigo_espec = b.sq_especialidade and a." & CL & ")"
      ConectaBD SQL
-     If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
-        ShowHTML "      <tr><td valign=""top"" align=""center"" bgcolor=""#D0D0D0""><font size=""1""><b>Página ""Projeto""</td></td></tr>"
-        ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-        ShowHTML "      <tr><td><font size=1>Informe o arquivo Word ou PDF a ser exibido na página ""Projeto"" do site."
-        ShowHTML "          <br><font color=""red""><b>IMPORTANTE: <a href=""sedf/orientacoes_word.pdf"" class=""hl"" target=""_blank"">Para documentos Word, clique aqui para ler as orientações sobre a formatação e a proteção do texto</a></b></font>."
-        ShowHTML "      </font></td></tr>"
-        ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-        ShowHTML "      <tr><td><font size=""1""><b>Proje<u>t</u>o (arquivo Word):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém o projeto da escola. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
+     If Not RS.EOF Then
+        If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
+           ShowHTML "      <tr><td valign=""top"" align=""center"" bgcolor=""#D0D0D0""><font size=""1""><b>Página ""Projeto""</td></td></tr>"
+           ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
+           ShowHTML "      <tr><td><font size=1>Informe o arquivo Word ou PDF a ser exibido na página ""Projeto"" do site."
+           ShowHTML "          <br><font color=""red""><b>IMPORTANTE: <a href=""sedf/orientacoes_word.pdf"" class=""hl"" target=""_blank"">Para documentos Word, clique aqui para ler as orientações sobre a formatação e a proteção do texto</a></b></font>."
+           ShowHTML "      </font></td></tr>"
+           ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
+           ShowHTML "      <tr><td><font size=""1""><b>Proje<u>t</u>o (arquivo Word):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém o projeto da escola. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
+        End If
      End If
      DesconectaBD
   End If
@@ -2403,12 +2407,12 @@ Public Sub Grava
                 " ) values ( " & VbCrLf &_   
                 "     " & w_chave & "," & VbCrLf & _
                 "     " & w_chave & "," & VbCrLf
-          'If Request("w_nr_cnpj") > ""          Then SQL = SQL & "   '" & Request("w_nr_cnpj") & "', "                 & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
-          'If Request("w_tp_registro") > ""      Then SQL = SQL & "   '" & Request("w_tp_registro") & "', "             & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
-          'If Request("w_ds_ato") > ""           Then SQL = SQL & "   '" & trim(Request("w_ds_ato")) & "', "            & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
-          'If Request("w_nr_ato") > ""           Then SQL = SQL & "   '" & trim(Request("w_nr_ato")) & "', "            & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
-          'If Request("w_dt_ato") > ""           Then SQL = SQL & "   '" & cDate(trim(Request("w_dt_ato"))) & "', "     & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
-          'If Request("w_ds_orgao") > ""         Then SQL = SQL & "   '" & trim(Request("w_ds_orgao")) & "', "          & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
+          If Request("w_nr_cnpj") > ""          Then SQL = SQL & "   '" & Request("w_nr_cnpj") & "', "                 & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
+          If Request("w_tp_registro") > ""      Then SQL = SQL & "   '" & Request("w_tp_registro") & "', "             & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
+          If Request("w_ds_ato") > ""           Then SQL = SQL & "   '" & trim(Request("w_ds_ato")) & "', "            & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
+          If Request("w_nr_ato") > ""           Then SQL = SQL & "   '" & trim(Request("w_nr_ato")) & "', "            & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
+          If Request("w_dt_ato") > ""           Then SQL = SQL & "   '" & cDate(trim(Request("w_dt_ato"))) & "', "     & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
+          If Request("w_ds_orgao") > ""         Then SQL = SQL & "   '" & trim(Request("w_ds_orgao")) & "', "          & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
           If Request("w_no_bairro") > ""        Then SQL = SQL & "   '" & trim(Request("w_no_bairro")) & "', "         & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
           If Request("w_ds_email_contato") > "" Then SQL = SQL & "   '" & trim(Request("w_ds_email_contato")) & "', "  & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
           If Request("w_nr_fax_contato") > ""   Then SQL = SQL & "   '" & trim(Request("w_nr_fax_contato")) & "', "    & VbCrLf Else SQL = SQL & "   null, " & VbCrLf End If
