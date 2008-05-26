@@ -242,8 +242,8 @@ Sub GetDocumento
      w_nr_ordem        = Request("w_nr_ordem")    
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     If Session("username") = "IMPRENSA" Then
-        SQL = "select * from escCliente_Arquivo where sq_site_cliente = 0 order by in_ativo, nr_ordem"
+     If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
+        SQL = "select * from escCliente_Arquivo where sq_site_cliente = 0 order by nr_ordem, ltrim(upper(ds_titulo))"
      Else
         SQL = "select * from escCliente_Arquivo where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by in_ativo, nr_ordem"
      End If
@@ -274,6 +274,13 @@ Sub GetDocumento
         Validate "w_ln_arquivo", "Link"        , "", "",  "2", "200" , "1", "1"
         Validate "w_nr_ordem"  , "Nr. de ordem", "", "1", "1", "2"   , "1", "0123546789"
      End If
+     ShowHTML " if (theForm.w_ln_arquivo.value > """"){"
+     ShowHTML "    if((theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.DLL')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.SH')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.BAT')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.EXE')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.ASP')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.PHP')!=-1)) {"
+     ShowHTML "       alert('Tipo de arquivo não permitido!');"
+     ShowHTML "       theForm.w_ln_arquivo.focus(); "
+     ShowHTML "       return false;"
+     ShowHTML "    }"
+     ShowHTML "  }"           
      ShowHTML "  theForm.Botao[0].disabled=true;"
      ShowHTML "  theForm.Botao[1].disabled=true;"
      ValidateClose
@@ -354,7 +361,6 @@ Sub GetDocumento
     ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>D</u>escrição:</b><br><textarea " & w_Disabled & " accesskey=""D"" name=""w_ds_arquivo"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a finalidade do arquivo.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_arquivo & "</TEXTAREA></td>"
     ShowHTML "      <tr>"
     ShowHTML "      </tr>"
-    'ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>L</u>ínk:</b><br><input " & w_Disabled & " accesskey=""L"" type=""text"" name=""w_ln_arquivo"" class=""STI"" SIZE=""80"" MAXLENGTH=""80"" VALUE=""" & w_ln_arquivo & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o nome físico (nome e extensão) do arquivo, a ser usado como link. Este arquivo deve ser enviado ao responsável pelo site, com o mesmo nome indicado neste campo. Ex: TextoDePortugues.doc, ProvaHistoria5aSerie.doc etc.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>L</u>ink:</b><br><input " & w_Disabled & " accesskey=""L"" type=""file"" name=""w_ln_arquivo"" class=""STI"" SIZE=""80"" MAXLENGTH=""100"" VALUE="""" ONMOUSEOVER=""popup('OBRIGATÓRIO. Clique no botão ao lado para localizar o arquivo. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
     If w_ln_arquivo > "" Then
        ShowHTML "              <b><a class=""SS"" href=""http://" & w_ds_diretorio & "/" & w_ln_arquivo & """ target=""_blank"" title=""Clique para exibir o arquivo atual."">Exibir</a></b>"
@@ -912,7 +918,7 @@ Sub GetNoticiaCliente
      w_in_exibe   = Request("w_in_exibe")    
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     If Session("username") = "IMPRENSA" Then
+     If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
         SQL = "select * from escNoticia_Cliente where sq_site_cliente = 0 order by dt_noticia desc"
       Else
         SQL = "select * from escNoticia_Cliente where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by dt_noticia desc"
@@ -1713,7 +1719,7 @@ Sub GetNewsletter
      w_tipo       = Request("w_tipo")
      w_envia_mail = Request("w_envia_mail")
   ElseIf w_ea = "L" or w_ea = "G" Then
-     If Session("username") = "IMPRENSA" Then
+     If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
         SQL = "select sq_newsletter, nome, email, tipo, envia_mail, data_inclusao, data_alteracao, " & VbCrLf & _
               "       case tipo when 1 then 'Responsável' " & VbCrLf & _
               "                 when 2 then 'Aluno' " & VbCrLf & _
@@ -2828,12 +2834,12 @@ Sub LogOn
   ShowHTML "          </font></td> </tr> "
   ShowHTML "          <TR><TD colspan=2 align=""center""><br><table border=0 cellpadding=0 cellspacing=0><tr><td>"
   ShowHTML "              <P><IMG height=37 src=""img/ajuda.jpg"" width=629><br>"
-  ShowHTML "              <font face=""Arial"" size=1><b>PARA ACESSAR A PÁGINA DE ATUALIZAÇÃO</b></font><br>"
+  ShowHTML "              <font face=""Arial"" size=1><b>PARA ACESSAR A PÁGINA DE ATUALIZAÇÃO</b></font>"
   ShowHTML "              <FONT face=""Verdana, Arial, Helvetica, sans-serif"" size=1>"
-  ShowHTML "              . Nome de usuário - Informe seu nome de usuário.<BR>"
-  ShowHTML "              . Senha - Informe sua senha de acesso.<br>"
-  ShowHTML "              . Se esqueceu ou não foi informado dos dados acima, favor entrar em contato com a Diretoria de Apoio Pedagógico.<br>"
-  ShowHTML "              <br></FONT></P>"
+  ShowHTML "              <li>Nome de usuário - Informe seu nome de usuário"
+  ShowHTML "              <li>Senha - Informe sua senha de acesso"
+  ShowHTML "              <li>Se esqueceu ou não foi informado dos dados acima, favor entrar em contato com a SEDF / SUBIP / Diretoria de Sistemas de Informação Educacional - DSIE"
+  ShowHTML "              </FONT></P>"
   ShowHTML "              <P><font face=""Arial"" size=1><b>DOCUMENTAÇÃO - LEIA COM ATENÇÃO</b></font><br>"
   ShowHTML "              <FONT face=""Verdana"" size=1>"
   ShowHTML "              . <a class=""SS"" href=""sedf/Orientacoes_Acesso.pdf"" target=""_blank"" title=""Abre arquivo que descreve as novas características e funcionalidades do SIGE-WEB."">Apresentação da nova versão do SIGE-WEB (PDF - 130KB - 4 páginas)</a><BR>"
@@ -3234,12 +3240,12 @@ Public Sub Grava
        ScriptClose
 
     Case conWhatDocumento
-       If Session("username") = "IMPRENSA" Then
+       If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
           SQL = "select a.ds_username from escCliente a where a.sq_cliente = 0"
           ConectaBD SQL
           w_diretorio = replace(conFilePhysical & "\" & RS("ds_username") &  "\" & RS("ds_username") & "\","\\","\")
           DesconectaBD
-       Else If Mid(Session("username"),1,2) = "RE" Then
+       Elseif Mid(Session("username"),1,2) = "RE" Then
           SQL = "select a.ds_username from escCliente a where a." & CL
           ConectaBD SQL
           w_diretorio = replace(conFilePhysical&"\sedf\" & RS("ds_username") & "\","\\","\")
@@ -3249,11 +3255,11 @@ Public Sub Grava
           ConectaBD SQL
           w_diretorio = replace(conFilePhysical & "\" & RS("ds_username") &  "\" & RS("ds_username") & "\","\\","\")
           DesconectaBD
-       End If
        End If       
        
        dbms.BeginTrans()
        If w_ea = "I" Then
+
           ul.Files("w_ln_arquivo").SaveAs(w_diretorio & extractFileName(ul.Files("w_ln_arquivo").OriginalPath))
           w_imagem = extractFileName(ul.Files("w_ln_arquivo").OriginalPath)
 
@@ -3268,7 +3274,7 @@ Public Sub Grava
                 "    (sq_arquivo, sq_site_cliente, dt_arquivo, ds_arquivo, ln_arquivo, " & VbCrLf & _
                 "     in_ativo,   in_destinatario, nr_ordem,   ds_titulo) " & VbCrLf & _
                 " values ( " & w_chave & ", " & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
+          If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
           SQL = SQL & _
                 "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Date(),2)) & "',103), " & VbCrLf & _
                 "     '" & ul.Form("w_ds_arquivo") & "', " & VbCrLf & _
@@ -3280,22 +3286,20 @@ Public Sub Grava
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
-          If Session("username") <> "SBPI" Then
-             ' Grava o acesso na tabela de log
-             w_sql = SQL
-             SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
-                   " values ( " & VbCrLf
-             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
-             SQL = SQL & _
-                   "         getdate(), " & VbCrLf & _
-                   "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
-                   "         1, " & VbCrLf & _
-                   "         'Usuário """ & uCase(Session("username")) & """ - atualização de inclusão de arquivos.', " & VbCrLf & _
-                   "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
-                   "         " & w_funcionalidade & " " & VbCrLf & _
-                   "       ) " & VbCrLf
-             ExecutaSQL(SQL)
-          End If
+          ' Grava o acesso na tabela de log
+          w_sql = SQL
+          SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
+                " values ( " & VbCrLf
+          If Session("username") = "IMPRENSA" OR Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
+          SQL = SQL & _
+                "         getdate(), " & VbCrLf & _
+                "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
+                "         1, " & VbCrLf & _
+                "         'Usuário """ & uCase(Session("username")) & """ - atualização de inclusão de arquivos.', " & VbCrLf & _
+                "         '" & replace(w_sql,"'", "''") & "', " & VbCrLf & _
+                "         " & w_funcionalidade & " " & VbCrLf & _
+                "       ) " & VbCrLf
+          ExecutaSQL(SQL)
        ElseIf w_ea = "A" Then
           ' Remove o arquivo físico
           SQL = "select ln_arquivo arquivo from escCliente_Arquivo where sq_arquivo = " & ul.Form("w_chave")
@@ -3318,7 +3322,7 @@ Public Sub Grava
              w_sql = SQL
              SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
                    " values (" & VbCrLf
-             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
+             If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf End If
              SQL = SQL & _
                    "         getdate(), " & VbCrLf & _
                    "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
@@ -3360,7 +3364,7 @@ Public Sub Grava
              w_sql = SQL
              SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
                    " values (" & VbCrLf
-             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
              SQL = SQL & _
                    "         getdate(), " & VbCrLf & _
                    "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
@@ -3740,7 +3744,7 @@ Public Sub Grava
           SQL = " insert into escNoticia_Cliente " & VbCrLf & _
                 "    (sq_noticia, sq_site_cliente, dt_noticia, ds_titulo, ds_noticia, in_ativo) " & VbCrLf & _
                 " values ( " & w_chave & ", " & VbCrLf
-          If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+          If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
           SQL = SQL & _
                 "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_noticia"),2)) & "',103), " & VbCrLf & _
                 "     '" & Request("w_ds_titulo") & "', " & VbCrLf & _
@@ -3754,7 +3758,7 @@ Public Sub Grava
              w_sql = SQL
              SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
                    "values ( " & VbCrLf
-             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
              SQL = SQL & _
                    "         getdate(), " & VbCrLf & _
                    "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
@@ -3779,7 +3783,7 @@ Public Sub Grava
              w_sql = SQL
              SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
                    "values ( " & VbCrLf
-             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
              SQL = SQL & _
                    "         getdate(), " & VbCrLf & _
                    "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
@@ -3799,7 +3803,7 @@ Public Sub Grava
              w_sql = SQL
              SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql, sq_funcionalidade) " & VbCrLf & _
                    "values ( " & VbCrLf
-             If Session("username") = "IMPRENSA" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
+             If Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then SQL = SQL & "0," & VbCrLf Else SQL = SQL & "     " & Request("w_sq_cliente") & ", " & VbCrLf End If
              SQL = SQL & _
                    "         getdate(), " & VbCrLf & _
                    "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
@@ -4880,7 +4884,7 @@ Sub CadastroEscolas
   checkbranco
   FormataCEP  
   ShowHTML "function montaLink() {"
-  ShowHTML "  var link = 'http://" & Request.ServerVariables("SERVER_NAME") & conVirtualPath & w_diretorio & "';"
+  ShowHTML "  var link = '" & conSite & conVirtualPath & w_diretorio & "';"
   ShowHTML "  document.Form.w_ln_internet.value = link + document.Form.w_ds_username.value;"
   ShowHTML "  document.Form.w_ds_diretorio.value = link + document.Form.w_ds_username.value;"
   ShowHTML "}"

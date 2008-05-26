@@ -1,8 +1,8 @@
 <%@ LANGUAGE="VBSCRIPT" %>
-<!--#INCLUDE FILE="../../Constants_ADO.inc"-->
-<!--#INCLUDE FILE="../Constants.inc"-->
-<!--#INCLUDE FILE="../../esc.inc"-->
-<!--#INCLUDE FILE="../../Funcoes.asp"-->
+<!--#INCLUDE VIRTUAL="/Constants_ADO.inc"-->
+<!--#INCLUDE VIRTUAL="/modelos/Constants.inc"-->
+<!--#INCLUDE VIRTUAL="/esc.inc"-->
+<!--#INCLUDE VIRTUAL="/Funcoes.asp"-->
 <%
 Response.Expires = 0
 REM =========================================================================
@@ -77,8 +77,8 @@ ShowHTML "<head>"
 ShowHTML "   <title>Secretaria de Estado de Educa&ccedil;&atilde;o</title>"
 ShowHTML "   <meta http-equiv=""Content-Type"" content=""text/html; charset=iso-8859-1"" /> "
 If sstrEW <> "conWhatExBoletimImp" Then  
-   ShowHTML "   <link href=""../../css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
-   ShowHTML "   <link href=""../../css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
+   ShowHTML "   <link href=""/css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
+   ShowHTML "   <link href=""/css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
    ShowHTML "   <script language=""javascript"" src=""inc/scripts.js""> </script>"
 End If
 ShowHTML "</head>"

@@ -1,8 +1,8 @@
 <%@ LANGUAGE="VBSCRIPT" %>
-<!--#INCLUDE FILE="../../Constants_ADO.inc"-->
-<!--#INCLUDE FILE="../../Modelos/Constants.inc"-->
-<!--#INCLUDE FILE="../../esc.inc"-->
-<!--#INCLUDE FILE="../../Funcoes.asp"-->
+<!--#INCLUDE VIRTUAL="/Constants_ADO.inc"-->
+<!--#INCLUDE VIRTUAL="/Modelos/Constants.inc"-->
+<!--#INCLUDE VIRTUAL="/esc.inc"-->
+<!--#INCLUDE VIRTUAL="/Funcoes.asp"-->
 <%
 Response.Expires = 0
 REM =========================================================================
@@ -24,7 +24,7 @@ REM -------------------------------------------------------------------------
   Private sstrSN
   Private sstrCL
 
-  sstrSN = "../../Modelos/Mod15/Default.Asp"
+  sstrSN = "/Modelos/Mod15/Default.Asp"
 
   Public sstrEW
   Public sstrIN

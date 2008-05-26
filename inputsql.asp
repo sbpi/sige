@@ -1,3 +1,4 @@
+<%@ LANGUAGE="VBSCRIPT" %>
 <html>
 <head>
 </head>
@@ -5,8 +6,14 @@
 <body bgcolor="#FFFFFF" background="bg.jpg" bgproperties="fixed">
 <STYLE> .BTM{font: 8pt Arial}</STYLE>
 <center>
+<%
+if mid(Request.ServerVariables("REMOTE_HOST"),1,9)<>"192.168.0" and _ 
+   mid(Request.ServerVariables("REMOTE_HOST"),1,11)<>"200.162.126" Then
+%>ACESSO NÃO AUTORIZADO<%
+Else
+%>
 	<form name='AcceptQuery' action='results.asp' method='POST' target='content'>
-	<p align="center"><font face="Times New Roman" size="5"><b>Controle Central BD</b></font></p>
+	<center><font face="Times New Roman" size="3"><b>Controle Central BD</b></font></center>
 		<table width="100%">
 		<tr><td valign="top"><table>
 		<tr>
@@ -36,4 +43,5 @@
 	</form>
 </body>
 </html>
-
+<%End If
+%>

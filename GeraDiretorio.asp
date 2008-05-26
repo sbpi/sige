@@ -3,6 +3,7 @@
 <!--#INCLUDE FILE="Constants.inc"-->
 <!--#INCLUDE FILE="Funcoes.asp"-->
 <%
+Server.ScriptTimeout = 300
 REM =========================================================================
 REM  /Controle.asp
 REM ------------------------------------------------------------------------
@@ -25,7 +26,7 @@ Private sstrCA
 Private sstrCL
 Private strTitulo
 
-sstrSN = "default.asp"
+sstrSN = "GeraDiretorio.asp"
 
 Public sstrEF
 Public sstrEW
@@ -39,7 +40,6 @@ Set sobjConn  = Server.CreateObject("ADODB.Connection")
 
 sobjConn.ConnectionTimeout = 300
 sobjConn.CommandTimeout = 300
-Server.ScriptTimeout = 300
 sobjConn.Open conConnectionString
 Server.ScriptTimeOut = Session("ScriptTimeOut")
 
@@ -57,6 +57,7 @@ CONST TristateFalse = 0 'Abre o arquivo como ASCII
 DIM   sql, wCont, wCriado, wAlterado, w_unidade
 
 w_unidade = Request("unidade")
+w_todos   = Request("todos")
   
 ' Recupera as usernames de escCliente
 If w_unidade > "" Then
@@ -83,7 +84,7 @@ While Not sobjRS.EOF
     strDir = replace(conFilePhysical & "\" & strDir,"\\","\")
     strMod = replace(conFilePhysical & "\" & "Modelos\Mod" & strMod & "\Default_cliente.asp","\\","\")
     Set FS = CreateObject("Scripting.FileSystemObject")
-    If (Not FS.FolderExists (strDir)) or w_unidade > "" then
+    If (Not FS.FolderExists (strDir)) or w_unidade > "" or w_todos = "Sim" then
        If (Not FS.FolderExists (strDir)) Then
           'Response.Write strdir
           'Response.End()

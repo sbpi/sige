@@ -13,16 +13,17 @@ REM Companhia: 2000 by SBPI
 REM -------------------------------------------------------------------------
 
   Const conFilePhysical           = "c:\inetpub\wwwroot\sige\"
+  'Const conFilePhysical           = "\\\\192.168.0.8\sigeweb\"
 
-  Const conVirtualPath = "/sige/"
+  Const conVirtualPath = "/"
   Const conSMTPServer = "smtp.cabonet.com.br"
   Const conScriptTimeout    = 300
   Const conSessionTimeout   = 300
   'Const conConnectionString ="Provider=sqloledb.1;Data Source=(local);UID=sbpi;PWD=ipbs2001;Database=sbpi;Language=Português"
-  'Const conConnectionString ="Provider=SQLOLEDB.1;Data Source=(local);UID=intweb;PWD=xyz345aix;Database=integrare;Language=Português"
-  Const conConnectionString ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=INTEGRARE;Data Source=192.168.222.7"
+  'Const conConnectionString ="Provider=SQLOLEDB.1;Data Source=(local);UID=intweb;PWD=xyz345aix;Database=SIGE;Language=Português"
+  Const conConnectionString ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=SIGE;Data Source=jupiter"
   Const conProduto			= "SIGE-WEB"
-  Const conSite				= "http://www2.sbpi.com.br/sige"
+  Const conSite				= "http://netuno:8080"
   Const conMail				= "sbpir@sbpi.com.br"
   Const conHead				= "SIGE Web"
   Const conLogo				= "logoescola.jpg"

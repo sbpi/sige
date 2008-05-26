@@ -1,9 +1,9 @@
 <%@ LANGUAGE="VBSCRIPT" %>
-<!--#INCLUDE FILE="../../Constants_ADO.inc"-->
-<!--#INCLUDE FILE="../Constants.inc"-->
-<!--#INCLUDE FILE="../../esc.inc"-->
-<!--#INCLUDE FILE="../../Funcoes.asp"-->
-<!--#INCLUDE FILE="../../JScript.asp"-->
+<!--#INCLUDE VIRTUAL="/Constants_ADO.inc"-->
+<!--#INCLUDE VIRTUAL="/modelos/Constants.inc"-->
+<!--#INCLUDE VIRTUAL="/esc.inc"-->
+<!--#INCLUDE VIRTUAL="/Funcoes.asp"-->
+<!--#INCLUDE VIRTUAL="/JScript.asp"-->
 <%
 Response.Expires = -1500
 REM =========================================================================
@@ -61,8 +61,8 @@ ShowHTML "<html xmlns=""http://www.w3.org/1999/xhtml"">"
 ShowHTML "<head>"
 ShowHTML "   <title>Secretaria de Estado de Educa&ccedil;&atilde;o</title>"
 ShowHTML "   <meta http-equiv=""Content-Type"" content=""text/html; charset=iso-8859-1"" /> "
-ShowHTML "   <link href=""../../css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
-ShowHTML "   <link href=""../../css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
+ShowHTML "   <link href=""/css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
+ShowHTML "   <link href=""/css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
 ShowHTML "   <script language=""javascript"" src=""inc/scripts.js""> </script>"
 ShowHTML "</head>"
 

@@ -1,8 +1,8 @@
 <%@ LANGUAGE="VBSCRIPT" %>
-<!--#INCLUDE FILE="../../Constants_ADO.inc"-->
-<!--#INCLUDE FILE="../Constants.inc"-->
-<!--#INCLUDE FILE="../../esc.inc"-->
-<!--#INCLUDE FILE="../../Funcoes.asp"-->
+<!--#INCLUDE VIRTUAL="/Constants_ADO.inc"-->
+<!--#INCLUDE VIRTUAL="/modelos/Constants.inc"-->
+<!--#INCLUDE VIRTUAL="/esc.inc"-->
+<!--#INCLUDE VIRTUAL="/Funcoes.asp"-->
 <%
 Response.Expires = -1500
 REM =========================================================================
@@ -18,7 +18,7 @@ REM Local    : Brasília - DF
 REM Companhia: 2000 by SBPI - Sociedade Brasileira para a Pesquisa em Informática
 REM -------------------------------------------------------------------------
 
-Private RS, sql
+Private RS, RS1, sql
 Private RSCabecalho
 Private RSRodape
 
@@ -44,6 +44,7 @@ w_dir  = "Modelos/Mod16/"
 Private sstrData
 
 Set RS = Server.CreateObject("ADODB.RecordSet")
+Set RS1 = Server.CreateObject("ADODB.RecordSet")
 Set RSCabecalho = Server.CreateObject("ADODB.RecordSet")
 Set RSRodape = Server.CreateObject("ADODB.RecordSet")
 Set sobjConn  = Server.CreateObject("ADODB.Connection")
@@ -59,12 +60,11 @@ ShowHTML "<html xmlns=""http://www.w3.org/1999/xhtml"">"
 ShowHTML "<head>"
 ShowHTML "   <title>Secretaria de Estado de Educa&ccedil;&atilde;o</title>"
 ShowHTML "   <meta http-equiv=""Content-Type"" content=""text/html; charset=iso-8859-1"" /> "
-ShowHTML "   <link href=""../../css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
-ShowHTML "   <link href=""../../css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
+ShowHTML "   <link href=""/css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
+ShowHTML "   <link href=""/css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
 ShowHTML "   <script language=""javascript"" src=""inc/scripts.js""> </script>"
 ShowHTML "</head>"
-
-ShowHTML "<BASE HREF=""http://" & Request.ServerVariables("server_name") & conVirtualPath & """>"
+ShowHTML "<BASE HREF=""" & conSite & "/"">"
 ShowHTML "<body>"
 ShowHTML "<div id=""container"">"
 ShowHTML "  <div id=""cab"">"
@@ -76,7 +76,7 @@ ShowHTML "    </div>"
 sql = "SELECT a.sq_cliente, a.ds_cliente, b.ds_mensagem FROM escCliente a inner join esccliente_site b on (a.sq_cliente = b.sq_cliente)WHERE a." & sstrEF
 RS.Open sql, sobjConn, adOpenForwardOnly, adLockReadOnly
 ShowHTML "    <div id=""cabbase"">"
-ShowHTML "      <div id=""busca"" valign=""center""><marquee width=""100%"" align=""middle""><font color=""white"" face=""Arial"" size=""2""><b>" & RS("ds_mensagem") & "</b></font></marquee></div> "
+ShowHTML "      <div id=""busca"" valign=""center""><marquee width=""100%"" align=""middle""><font color=""white"" face=""Arial"" size=""2""><b>" & server.HTMLEncode(nvl(RS("ds_mensagem"),"Brasília - Patrimônio Cultural da Humanidade")) & "</b></font></marquee></div> "
 ShowHTML "    </div>"
 ShowHTML "  </div>"
 ShowHTML "  <div id=""corpo"">"
@@ -192,7 +192,7 @@ Public Sub ShowArquivo
         "  AND e." & sstrEF & " " & VbCrLf & _
         "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
-        "ORDER BY origem, nr_ordem, dt_arquivo desc, in_destinatario " & VbCrLf 
+        "ORDER BY dt_arquivo desc, origem, nr_ordem, in_destinatario " & VbCrLf 
   RS.Open sql, sobjConn, adOpenForwardOnly
 
   ShowHTML "<tr><td><TABLE border=0 cellSpacing=5 width=""95%"">"
@@ -223,6 +223,7 @@ Public Sub ShowArquivo
      ShowHTML "  <TR><TD COLSPAN=4 ALIGN=CENTER>Não há arquivos disponíveis no momento para o ano de " & wAno & " </TR>"
   End If
   RS.Close
+  ShowHTML "  </TABLE>"
 
   sql = "SELECT year(dt_arquivo) ano " & VbCrLf & _
         "From escCliente_Arquivo a, escCliente x " & VbCrLf & _
@@ -253,9 +254,9 @@ Public Sub ShowArquivo
         "ORDER BY year(dt_arquivo) desc " & VbCrLf 
     RS.Open sql, sobjConn, adOpenForwardOnly
     If Not RS.EOF Then
-       ShowHTML "  <TR><TD COLSPAN=4 ><b>Arquivos de outros anos</b><br>"
+       ShowHTML "  <TR><TD><b>Arquivos de outros anos</b><br>"
        While Not RS.EOF
-          ShowHTML "     <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a></TR>"
+          ShowHTML "     <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a>"
           RS.MoveNext
        Wend
        ShowHTML "  </TD></TR>"
@@ -288,7 +289,7 @@ Public Sub ShowPrincipal
 
   If Not RS.EOF Then
     If RS("ds_texto_abertura") > "" Then
-       ShowHTML "        <P align=justify>" & replace(RS("ds_texto_abertura"),chr(13)&chr(10), "<br>")
+       ShowHTML "        <P align=justify>" & replace(server.HTMLEncode(RS("ds_texto_abertura")),chr(13)&chr(10), "<br>")
     Else
        ShowHTML "        <P align=justify>"
     End If
@@ -330,7 +331,7 @@ Public Sub ShowQuem
   
   If Not RS.EOF Then
     If RS("ds_institucional") > "" Then
-       ShowHTML "        <p align=""left"" style=""margin-top: 0; margin-bottom: 0"">" & replace(RS("ds_institucional"),chr(13)&chr(10), "<br>")
+       ShowHTML "        <p align=""left"" style=""margin-top: 0; margin-bottom: 0"">" & replace(server.HTMLEncode(RS("ds_institucional")),chr(13)&chr(10), "<br>")
     Else
        ShowHTML "        <P align=justify>"
     End If
@@ -556,7 +557,7 @@ Public Sub ShowNoticia
      RS.Open sql, sobjConn, adOpenForwardOnly
 
      ShowHTML "<tr><td><p align=""center""><font size=""4""><b>" & RS("ds_titulo") & "</b></font><p align=""left"">"
-     ShowHTML replace(RS("ds_noticia"),chr(13)&chr(10), "<br>")
+     ShowHTML replace(server.HTMLEncode(RS("ds_noticia")),chr(13)&chr(10), "<br>")
      ShowHTML "<p><center><img src=""Img/bt_voltar.gif"" border=0 valign=""center"" onClick=""history.go(-1)"" alt=""Volta"">"
      RS.Close
   End If
@@ -587,22 +588,24 @@ Public Sub ShowCalend
         "  AND YEAR(dt_ocorrencia)= " & wAno & " " & VbCrLf & _
         "ORDER BY data, origem desc, ocorrencia" & VbCrLf 
 
-  RS.Open sql, sobjConn, adOpenForwardOnly
+  RS1.Open sql, sobjConn, adOpenForwardOnly
+  
   
   If sstrIN = "" then
-     If Not RS.EOF Then
-        Do While Not RS.EOF
-           If RS("origem") = "E" then
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Escola)"
-              wCores(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("cor")
-           ElseIf RS("origem") = "R" then
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: SEDF)"
-              wCores(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("cor")
+     If Not RS1.EOF Then
+        Do While Not RS1.EOF
+           If RS1("origem") = "E" then
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: Escola)"
+              wCores(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("cor")
+           ElseIf RS1("origem") = "R" then
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: SEDF)"
+              wCores(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("cor")
            Else
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Oficial)"
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: Oficial)"
            End If
-           RS.MoveNext
+           RS1.MoveNext
         Loop
+        RS1.MoveFirst
      End If
      ShowHTML "<tr><td><TABLE align=""center"" width=""100%"" border=0 cellSpacing=1>"
      ShowHTML "<tr valign=""top"">"
@@ -634,32 +637,31 @@ Public Sub ShowCalend
      ShowHTML "    <TD COLSPAN=""6"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
      ShowHTML "  </TR>"
      wCont = 0
-     RS.MoveFirst
-     If Not RS.EOF Then
+     If Not RS1.EOF Then
         wCont = 1
-        Do While Not RS.EOF
+        Do While Not RS1.EOF
 
            ShowHTML "  <TR>"
            ShowHTML "    <TD>&nbsp;"
-           If RS("origem") = "E" then
+           If RS1("origem") = "E" then
               ShowHTML "    <TD>Escola"
-              ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
-              ShowHTML "    <TD colspan=2><font color=""#0000FF"">" & RS("ocorrencia")
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Escola)"
-           ElseIf RS("origem") = "R" then
+              ShowHTML "    <TD>" & Mid(100+Day(RS1("data")),2,2) & "/" & Mid(100+Month(RS1("data")),2,2) & "/" &Year(RS1("data"))
+              ShowHTML "    <TD colspan=2><font color=""#0000FF"">" & RS1("ocorrencia")
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: Escola)"
+           ElseIf RS1("origem") = "R" then
               ShowHTML "    <TD>SEDF"
-              ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
-              ShowHTML "    <TD colspan=2>" & RS("ocorrencia")
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: SEDF)"
+              ShowHTML "    <TD>" & Mid(100+Day(RS1("data")),2,2) & "/" & Mid(100+Month(RS1("data")),2,2) & "/" &Year(RS1("data"))
+              ShowHTML "    <TD colspan=2>" & RS1("ocorrencia")
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: SEDF)"
            Else
               ShowHTML "    <TD>Oficial"
-              ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
-              ShowHTML "    <TD colspan=2>" & RS("ocorrencia")
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Oficial)"
+              ShowHTML "    <TD>" & Mid(100+Day(RS1("data")),2,2) & "/" & Mid(100+Month(RS1("data")),2,2) & "/" &Year(RS1("data"))
+              ShowHTML "    <TD colspan=2>" & RS1("ocorrencia")
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: Oficial)"
            End If
            ShowHTML "  </TR>"
            wCont = wCont + 1
-           RS.MoveNext
+           RS1.MoveNext
         Loop
 
      End If
@@ -667,7 +669,7 @@ Public Sub ShowCalend
      ShowHTML "    </TABLE>"
  
   End If
-  RS.Close
+  RS1.Close
 End Sub
 REM -------------------------------------------------------------------------
 REM Final da Página Calendário
@@ -843,7 +845,7 @@ Public Sub ShowSenha
        AbreSessao
        ExecutaSQL(SQL)
        ShowHTML "<SCRIPT LANGUAGE=""JAVASCRIPT"">" & VbCrLf
-       ShowHTML "   window.open('../../Manut.asp?CL=" & sstrEF & "&w_in=" & sstrIN & "', 'cliente', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=780,height=580,left=10,top=10');" & VbCrLf
+       ShowHTML "   window.open('/Manut.asp?CL=" & sstrEF & "&w_in=" & sstrIN & "', 'cliente', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=780,height=580,left=10,top=10');" & VbCrLf
        ShowHTML "   history.go(-1);" & VbCrLf
        ShowHTML "</SCRIPT>" & VbCrLf
     End If

@@ -15,10 +15,11 @@ REM -------------------------------------------------------------------------
   Const conSMTPServer = "smtp.cabonet.com.br"
   Const conHead	      = "SIGE Web"
 
-  Const conScriptTimeout  = 60
-  Const conSessionTimeout = 300
-  Const conConnectionString ="Provider=sqloledb.1;Data Source=jupiter;UID=intweb;PWD=xyz345aix;Catalog=integrare"
-  Const conVirtualPath = "/sige/"
+  Const conScriptTimeout    = 60
+  Const conSessionTimeout   = 300
+  Const conConnectionString ="Provider=sqloledb.1;Data Source=jupiter;UID=intweb;PWD=xyz345aix;Initial Catalog=SIGE"
+  Const conVirtualPath      = "/sige/"
+  Const conSite	            = "http://netuno:8080"
 
   Const conWhatPrincipal  = "110"
   Const conWhatCabecalho  = "111"
