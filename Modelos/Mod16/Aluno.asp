@@ -647,7 +647,7 @@ Public Sub ShowBoletim
   ShowHTML "    <TD COLSPAN=""14"" HEIGHT=""1"" BGCOLOR=""##DAEABD"">"
   ShowHTML "  </TR>"
 
-  sql = "SELECT a.*, b.sg_disciplina, c.ds_mensagem_boletim " & VbCrLf & _
+  sql = "SELECT a.*, b.sg_disciplina, b.ds_disciplina, c.ds_mensagem_boletim " & VbCrLf & _
         "FROM escBoletim AS a " & VbCrLf & _
         "     INNER JOIN escDisciplina AS b on (a.sq_disciplina = b.sq_disciplina) " & VbCrLf & _
         "     INNER JOIN escAluno AS c on (a.sq_aluno = c.sq_aluno) " & VbCrLf & _
@@ -662,7 +662,7 @@ Public Sub ShowBoletim
     
      While Not RS.EOF
 	   ShowHTML "    <TR>"
-	   ShowHTML "    <TD><center><b>" & RS("sg_disciplina")
+	   ShowHTML "    <TD title=""" & RS("ds_disciplina") & """><center><b>" & RS("sg_disciplina")
 	   ShowHTML "    <TD>" & trocaNulo(RS("b1_nota"))
    '	ShowHTML "    <TD>" & trocaNulo(RS("b1_recup"))
 	   ShowHTML "    <TD>" & trocaNulo(RS("b1_falta"))
@@ -699,9 +699,17 @@ Public Sub ShowBoletim
   End If
   ShowHTML "</FORM>"
   ShowHTML "    </TABLE>"
-	 
-  RS.Close
 
+  ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+  ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
+  RS.MoveFirst
+  While Not RS.EOF
+    ShowHTML "  <TR><TD><FONT FACE=VERDANA SIZE=1>" & RS("sg_disciplina") & ":"
+    ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
+    RS.MoveNext
+  Wend
+  ShowHTML "    </TABLE>"
+  RS.Close
 End Sub
 REM -------------------------------------------------------------------------
 REM Final da Página de Boletim
@@ -842,7 +850,7 @@ Public Sub ShowBoletimImp
   ShowHTML "    <TD COLSPAN=""14"" HEIGHT=""1"" BGCOLOR=""##DAEABD"">"
   ShowHTML "  </TR>"
 
-  sql = "SELECT a.*, b.sg_disciplina, c.ds_mensagem_boletim " & VbCrLf & _
+  sql = "SELECT a.*, b.sg_disciplina, b.ds_disciplina, c.ds_mensagem_boletim " & VbCrLf & _
         "FROM escBoletim AS a " & VbCrLf & _
         "     INNER JOIN escDisciplina AS b on (a.sq_disciplina = b.sq_disciplina) " & VbCrLf & _
         "     INNER JOIN escAluno AS c on (a.sq_aluno = c.sq_aluno) " & VbCrLf & _
@@ -895,6 +903,16 @@ Public Sub ShowBoletimImp
   ShowHTML "</FORM>"
   ShowHTML "    </TABLE>"
 	 
+  ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+  ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
+  RS.MoveFirst
+  While Not RS.EOF
+    ShowHTML "  <TR><TD><FONT FACE=VERDANA SIZE=1>" & RS("sg_disciplina") & ":"
+    ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
+    RS.MoveNext
+  Wend
+  ShowHTML "    </TABLE>"
+
   RS.Close
 
 End Sub
@@ -911,6 +929,7 @@ Public Sub ShowGrade
   Dim i, j
   Dim Linha,Coluna
   Dim grade(11, 8)
+  Dim title(11, 8)
 
   Linha  = 11
   Coluna = 8
@@ -1024,7 +1043,7 @@ Public Sub ShowGrade
   'Loop
   'ShowHTML "       </SELECT></TD></TR>"
 
-  sql = "SELECT b.*, lower(c.ds_disciplina) ds_disciplina " & VbCrLf & _
+  sql = "SELECT b.*, c.sg_disciplina, c.ds_disciplina " & VbCrLf & _
         "  FROM escAluno_Turma              a " & VbCrLf & _
         "       INNER JOIN escGrade_horaria b ON (a.sq_turma        = b.sq_turma and  " & VbCrLf & _
         "                                         a.sq_site_cliente = b.sq_site_cliente and " & VbCrLf & _
@@ -1038,7 +1057,8 @@ Public Sub ShowGrade
 
   If Not RS.EOF Then
      Do While Not RS.EOF
-        grade(RS("DS_HORARIO"), RS("DS_DIA_SEMANA")) = RS("DS_DISCIPLINA")
+        grade(RS("DS_HORARIO"), RS("DS_DIA_SEMANA")) = RS("SG_DISCIPLINA")
+        title(RS("DS_HORARIO"), RS("DS_DIA_SEMANA")) = RS("DS_DISCIPLINA")
         If RS("DS_DIA_SEMANA") > Coluna Then Coluna = RS("DS_DIA_SEMANA") End If
         If RS("DS_HORARIO")    > Linha  Then Linha = RS("DS_HORARIO")     End If
         RS.MoveNext
@@ -1052,7 +1072,7 @@ Public Sub ShowGrade
      For I = 1 TO Linha-1
         ShowHTML "  <TR valign=""top"" align=""center"">"
         FOR J = 0 TO Coluna
-	        ShowHTML "    <TD>" & grade(I,J)
+	        ShowHTML "    <TD TITLE=""" & title(I,J) & """>" & grade(I,J)
 	    NEXT
      ShowHTML "  </TR>"
      Next
@@ -1060,7 +1080,30 @@ Public Sub ShowGrade
      ShowHTML "    <TR><TD colspan=14><b>A grade horária não foi informada.</b>"
   End If
   ShowHTML "    </TABLE>"
-	 
+
+  RS.Close
+
+  ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+  ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
+  sql = "SELECT distinct c.sg_disciplina, c.ds_disciplina " & VbCrLf & _
+        "  FROM escAluno_Turma              a " & VbCrLf & _
+        "       INNER JOIN escGrade_horaria b ON (a.sq_turma        = b.sq_turma and  " & VbCrLf & _
+        "                                         a.sq_site_cliente = b.sq_site_cliente and " & VbCrLf & _
+        "                                         a.ano_letivo      = b.ano_letivo and " & VbCrLf & _
+        "                                         a.ano_letivo      = " & w_ano_letivo & VbCrLf & _
+        "                                        ) " & VbCrLf & _
+        "       INNER JOIN escDisciplina    c ON (b.sq_disciplina = c.sq_disciplina) " & VbCrLf & _
+        "WHERE a." & sstrEA & " " & VbCrLf & _
+        "ORDER BY c.sg_disciplina" & VbCrLf
+  RS.Open sql, sobjConn, adOpenForwardOnly
+  While Not RS.EOF
+    ShowHTML "  <TR><TD><FONT FACE=VERDANA SIZE=1>" & RS("sg_disciplina") & ":"
+    ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
+    RS.MoveNext
+  Wend
+  ShowHTML "    </TABLE>"
+
+
   RS.Close
 
 End Sub

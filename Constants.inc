@@ -21,7 +21,7 @@ REM -------------------------------------------------------------------------
   Const conSessionTimeout   = 300
   'Const conConnectionString ="Provider=sqloledb.1;Data Source=(local);UID=sbpi;PWD=ipbs2001;Database=sbpi;Language=Português"
   'Const conConnectionString ="Provider=SQLOLEDB.1;Data Source=(local);UID=intweb;PWD=xyz345aix;Database=SIGE;Language=Português"
-  Const conConnectionString ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=SIGE;Data Source=jupiter"
+  Const conConnectionString ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=SIGE;Data Source=NETUNO\NETUNO"
   Const conProduto			= "SIGE-WEB"
   Const conSite				= "http://netuno:8080"
   Const conMail				= "sbpir@sbpi.com.br"

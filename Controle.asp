@@ -207,6 +207,10 @@ Sub showMenu
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=senhaesp&w_ee=1"" Title=""Exibe a lista de senhas de regionais e outros usuários (menos escolas)!"">Senhas especiais</A><br>"
    End If
 
+   If Session("username") = "SBPI" Then
+      ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=VerifArq&w_ee=1"" Title=""Verificação de Arquivos"">Verif. Arquivos</A><BR>"
+   End If
+   
    If Session("username") = "SEDF" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""GR_Log.asp?CL=" & CL & "&w_sq_cliente=" & replace(CL,"sq_cliente=","") & "&w_ea=A&w_ew=Gerencial&w_ee=1"" Title=""Consulta ao Log!"">Log</A><BR>"
    End If
@@ -3065,6 +3069,508 @@ REM Fim da tela de dados administrativos
 REM -------------------------------------------------------------------------
 
 REM =========================================================================
+REM Monta a tela de Pesquisa
+REM -------------------------------------------------------------------------
+Public Sub GetVerifArquivo
+
+  Dim RS1, sobjConn, p_regional
+
+  Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade
+  
+  Set RS1 = Server.CreateObject("ADODB.RecordSet")
+  Set sobjConn  = Server.CreateObject("ADODB.Connection")
+  sobjConn.Open conConnectionString
+  
+  p_regional = Request("p_regional")
+
+  If p_tipo = "W" Then
+      Response.ContentType = "application/msword"
+      HeaderWord p_layout
+      ShowHTML "<TABLE WIDTH=""100%"" BORDER=0><TR><TD ROWSPAN=2><FONT SIZE=4 COLOR=""#000000"">SIGE-WEB<TD ALIGN=""RIGHT""><B><FONT SIZE=4 COLOR=""#000000"">"
+      ShowHTML "Consulta a escolas"
+      ShowHTML "</FONT><TR><TD ALIGN=""RIGHT""><B><FONT SIZE=2 COLOR=""#000000"">" & DataHora() & "</B></TD></TR>"
+      ShowHTML "</FONT></B></TD></TR></TABLE>"
+      ShowHTML "<HR>"
+  Else
+     Cabecalho
+     ShowHTML "<HEAD>"
+     ScriptOpen("JavaScript")
+     ShowHTML " function marca() {"
+     ShowHTML "   if (document.Form2.arquivo.length==undefined) {"
+     ShowHTML "      if (document.Form2.dummy.checked) {"
+     ShowHTML "         document.Form2.arquivo.checked=true;"
+     ShowHTML "      } else {"
+     ShowHTML "         document.Form2.arquivo.checked=false;"
+     ShowHTML "      }"
+     ShowHTML "   } else {"
+     ShowHTML "      for (var i = 0; i < document.Form2.arquivo.length; i++) {"
+     ShowHTML "         if (document.Form2.dummy.checked) {"
+     ShowHTML "            document.Form2.arquivo[i].checked=true;"
+     ShowHTML "         } else {"
+     ShowHTML "            document.Form2.arquivo[i].checked=false;"
+     ShowHTML "         }"
+     ShowHTML "      }"
+     ShowHTML "   }"
+     ShowHTML " }"
+     ValidateOpen "Validacao2"
+     ShowHTML "   if (document.Form2.arquivo.length==undefined) {"
+     ShowHTML "     if (!document.Form2.arquivo.checked) {"
+     ShowHTML "       alert('Indique pelo menos um arquivo a ser excluído!');"
+     ShowHTML "       return false;"
+     ShowHTML "     }"
+     ShowHTML "   } else {"
+     ShowHTML "      var w_erro = true; "
+     ShowHTML "      for (var i = 0; i < theForm.arquivo.length; i++) {"
+     ShowHTML "         if (theForm.arquivo[i].checked) {"
+     ShowHTML "            w_erro = false; "
+     ShowHTML "            break;"
+     ShowHTML "         }"
+     ShowHTML "      }"
+     ShowHTML "     if (w_erro) {"
+     ShowHTML "       alert('Indique pelo menos um arquivo a ser excluído!');"
+     ShowHTML "       return false;"
+     ShowHTML "     }"
+     ShowHTML "  }"
+     ValidateClose
+     ScriptClose
+     ShowHTML "</HEAD>"
+     If Request("pesquisa") > "" Then
+        BodyOpen " onLoad=""location.href='#lista'"""
+     Else
+        BodyOpen "onLoad='document.Form.p_regional.focus()';"
+     End If
+  End If
+  ShowHTML "<B><FONT COLOR=""#000000"">" & w_TP & "</FONT></B>"
+  ShowHTML "<div align=center><center>"
+  ShowHTML "<tr bgcolor=""" & conTrBgColor & """><td align=""center"">"
+  ShowHTML "    <table width=""95%"" border=""0"">"
+  If p_tipo = "H" Then
+     Showhtml "<FORM ACTION=""controle.asp"" name=""Form"" METHOD=""POST"">"
+     ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""w_ew"" VALUE=""" & w_ew &  """>"
+     ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""CL"" VALUE=""" & CL &  """>"
+     ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""pesquisa"" VALUE=""X"">"
+     ShowHTML "<input type=""Hidden"" name=""P3"" value=""1"">"
+     ShowHTML "<input type=""Hidden"" name=""P4"" value=""15"">"
+     ShowHTML "<tr bgcolor=""" & conTrBgColor & """><td align=""center"">"
+     ShowHTML "    <table width=""100%"" border=""0"">"
+     ShowHTML "          <TR><TD valign=""top""><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
+  Else
+     ShowHTML "<tr><td><div align=""justify""><font size=1><b>Filtro:</b><ul>"
+  End If
+  If p_tipo = "H" Then
+     ShowHTML "          <tr valign=""top""><td>"
+     SelecaoRegional "<u>S</u>ubordinação:", "S", "Indique a subordinação da escola.", p_regional, null, "p_regional", null, null
+  ElseIf Nvl(p_regional,0) > 0 Then
+     SQL = "SELECT  a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
+           "  FROM  escCLIENTE a " & VbCrLf & _
+           " WHERE  a.sq_cliente = " & p_regional & VbCrLf & _
+           "ORDER BY a.ds_cliente "
+     ConectaBD SQL
+     Response.Write "          <li><font size=""1""><b>Escolas da " & RS("ds_cliente") & "</b>"
+     DesconectaBD
+  End If
+  SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
+  ConectaBD SQL
+  If p_tipo = "H" Then
+     ShowHTML "          <tr valign=""top""><td><td><font size=""1""><br><b>Tipo de instituição:</b><br><SELECT CLASS=""STI"" NAME=""p_tipo_cliente"">"
+     If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
+     While Not RS.EOF
+        If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("p_tipo_cliente"),0)) Then
+           ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """ SELECTED>" & RS("ds_tipo_cliente")
+        Else
+           ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """>" & RS("ds_tipo_cliente")
+        End If
+        RS.MoveNext
+     Wend
+     ShowHTML "          </select>"
+  ElseIf nvl(Request("p_tipo_cliente"),0) > 0 Then
+     ShowHTML "          <li><font size=""1""><b>Tipo de instituição: "
+     While Not RS.EOF
+        If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("p_tipo_cliente"),0)) Then ShowHTML RS("ds_tipo_cliente") End If
+        RS.MoveNext
+     Wend
+     ShowHTML "</b>"
+  End If
+  If p_tipo = "H" Then
+     ShowHTML "  <TR><TD><TD><font size=""1""><br><b>Lay-out do arquivo Word:</b><br>"
+     If nvl(Request("p_layout"),"LANDSCAPE") = "LANDSCAPE" Then ShowHTML "          <input type=""radio"" name=""p_layout"" value=""LANDSCAPE"" CLASS=""BTM"" checked> Paisagem<br>"  Else ShowHTML "          <input type=""radio"" name=""p_layout"" value=""LANDSCAPE"" CLASS=""BTM""> Paisagem<br>"  End If
+     If Request("p_layout")                  = "PORTRAIT"  Then ShowHTML "          <input type=""radio"" name=""p_layout"" value=""PORTRAIT"" CLASS=""BTM"" checked> Retrato<br>"    Else ShowHTML "          <input type=""radio"" name=""p_layout"" value=""PORTRAIT"" CLASS=""BTM""> Retrato<br> "   End If
+  End If
+  If p_tipo = "H" Then
+     ShowHTML "  <TR><TD><TD><font size=""1""><br><b>Verificar arquivos que:</b><br>"
+     If nvl(Request("E"),"S") = "S" Then ShowHTML "          <input type=""radio"" name=""E"" value=""S"" CLASS=""BTM"" checked> existem somente no banco<br>"     Else ShowHTML "          <input type=""radio"" name=""E"" value=""S"" CLASS=""BTM""> existem somente no banco<br>"      End If
+     If Request("E")          = "N" Then ShowHTML "          <input type=""radio"" name=""E"" value=""N"" CLASS=""BTM"" checked> existem somente no file system<br>" Else ShowHTML "          <input type=""radio"" name=""E"" value=""N"" CLASS=""BTM""> existem somente no file system<br> " End If
+  ElseIf Request("E") > "" Then
+     ShowHTML "  <li><font size=""1""><b>"
+     If Request("E") = "S" Then ShowHTML "          Existe somente no banco</b>"        End If
+     If Request("E") = "N" Then ShowHTML "          Existe somente no file system</b> " End If
+  End If
+  If p_tipo <> "W" Then
+     ShowHTML "          </table>"
+  End If
+  DesconectaBD
+  wCont = 0
+  sql1 = ""
+
+  If p_tipo = "H" Then
+     sql = "SELECT DISTINCT a.* " & _ 
+           "from escEspecialidade AS a " & _ 
+           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
+           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
+           "ORDER BY a.nr_ordem, a.ds_especialidade "
+ 
+     ConectaBD SQL
+   
+     If Not RS.EOF Then
+        wCont = 0
+        wAtual = ""
+ 
+        ShowHTML "          <TD valign=""top""><table border=""0"" align=""left"" cellpadding=0 cellspacing=0>"
+        Do While Not RS.EOF
+           If wAtual = "" or wAtual <> RS("tp_especialidade") Then
+              wAtual = RS("tp_especialidade")
+              If wAtual = "M" Then
+                 ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Etapas/Modalidades de ensino:</b>"
+              ElseIf wAtual = "R" Then
+                 ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Em Regime de Intercomplementaridade:</b>"
+              Else
+                 ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Outras:</b>"
+              End If
+           End If
+           
+           wCont = wCont + 1
+           marcado = "N"
+           For i = 1 to Request("p_modalidade").Count
+               If cDbl(RS("sq_especialidade")) = cDbl(Nvl(Request("p_modalidade")(i),0)) Then marcado = "S" End If
+           Next
+              
+           If marcado = "S" Then
+              ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """ checked><td><font size=1>" & RS("ds_especialidade")
+              sql1 = Request("p_modalidade")
+              wIN = 1
+           Else
+              ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """><td><font size=1>" & RS("ds_especialidade")
+           End If
+           RS.MoveNext
+ 
+           If (wCont Mod 2) = 0 Then 
+              wCont = 0
+           End If
+ 
+        Loop
+        DesconectaBD
+     End If
+  ElseIf Nvl(Request("p_modalidade"), "") > "" Then
+     sql = "SELECT DISTINCT a.* " & _ 
+           "from escEspecialidade AS a " & _ 
+           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
+           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
+           "where a.sq_especialidade in (" & Request("p_modalidade") & ") " & _
+           "ORDER BY a.nr_ordem, a.ds_especialidade "
+ 
+     ConectaBD SQL
+   
+     If Not RS.EOF Then
+        wCont = 0
+ 
+        ShowHTML "          <li><b>Modalidades de ensino:</b><ul>"
+        Do While Not RS.EOF
+                    
+           ShowHTML chr(13) & "           <li><font size=1>" & RS("ds_especialidade")
+           sql1 = Request("p_modalidade")
+           wIN = 1
+           RS.MoveNext
+ 
+        Loop
+        DesconectaBD
+     End If
+  End If
+  ShowHTML "          </tr>"
+  ShowHTML "          </table>"
+  if p_tipo = "H" Then 
+     ShowHTML "      <tr><td align=""center"" colspan=""3"" height=""1"" bgcolor=""#000000"">"
+     ShowHTML "      <tr><td align=""center"" colspan=""3"">"
+     ShowHTML "            <input class=""BTM"" type=""submit"" name=""Botao"" value=""Aplicar filtro"">"
+     If Session("username") = "SBPI" Then
+        ShowHTML "            <input class=""BTM"" type=""button"" name=""Botao"" onClick=""location.href='" & w_Pagina & "CadastroEscola" & "&CL=" & CL & MontaFiltro("GET") & "&w_ea=I';"" value=""Nova escola"">"
+     End If
+     ShowHTML "          </td>"
+     ShowHTML "      </tr>"
+  End If
+  ShowHTML "    </table>"
+  ShowHTML "    </TD>"
+  ShowHTML "</tr>"
+  if p_tipo = "H" Then ShowHTML "</form>" End If
+  
+  ' INÍCIO DA VERIFICAÇÃO
+  
+  If Request("pesquisa") > "" Then
+     If Request("E") = "S" Then
+        sql = "SELECT DISTINCT 'ARQUIVO' as tipo, d.ds_username, d.sq_cliente, d.ds_cliente, d.ds_apelido, d.ln_internet, f.ds_diretorio," & VbCrLf & _
+              "       h.sq_arquivo as chave, h.ds_titulo, h.nr_ordem, h.ln_arquivo " & VbCrLf & _
+              "  from escCliente                                 d " & VbCrLf & _ 
+              "       INNER      JOIN escCliente                 b ON (b.sq_cliente       = d.sq_cliente_pai) " & VbCrLf & _
+              "       INNER      JOIN escEspecialidade_cliente   c ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
+              "       INNER      JOIN escEspecialidade           a ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
+              "       INNER      JOIN escCliente_Site            f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
+              "       INNER      JOIN escTipo_Cliente            g ON (d.sq_tipo_cliente  = g.sq_tipo_cliente) " & VbCrLf & _
+              "       INNER      JOIN escCliente_Arquivo         h ON (d.sq_cliente       = h.sq_site_cliente) " & VbCrLf & _
+              " where 1 = 1 " & VbCrLf
+        If Mid(Session("username"),1,2) = "RE" Then
+           SQL = SQL & "   and b.ds_username = '" & Session("USERNAME") & "' " & VbCrLf
+        End If
+        If Request("D") > "" Then SQL = SQL & "   and d.dt_alteracao     is not null " & VbCrLf End If
+
+        If Request("p_regional") > "" Then 
+           sql = sql + "    and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf
+        Else
+           sql = sql + "    and g.tipo = 3" & VbCrLf
+        End If
+             
+        If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
+
+        if sql1 > "" then
+           sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
+        end if
+        sql = sql & _
+              "UNION SELECT DISTINCT 'FOTO' as tipo, d.ds_username, d.sq_cliente, d.ds_cliente, d.ds_apelido, d.ln_internet, f.ds_diretorio," & VbCrLf & _
+              "       h.sq_cliente_foto as chave, h.ds_foto as ds_titulo, h.nr_ordem, h.ln_foto as ln_arquivo " & VbCrLf & _
+              "  from escCliente                                 d " & VbCrLf & _ 
+              "       INNER      JOIN escCliente                 b ON (b.sq_cliente       = d.sq_cliente_pai) " & VbCrLf & _
+              "       INNER      JOIN escEspecialidade_cliente   c ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
+              "       INNER      JOIN escEspecialidade           a ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
+              "       INNER      JOIN escCliente_Site            f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
+              "       INNER      JOIN escTipo_Cliente            g ON (d.sq_tipo_cliente  = g.sq_tipo_cliente) " & VbCrLf & _
+              "       INNER      JOIN escCliente_Foto            h ON (d.sq_cliente       = h.sq_cliente) " & VbCrLf & _
+              " where 1 = 1 " & VbCrLf
+        If Mid(Session("username"),1,2) = "RE" Then
+           SQL = SQL & "   and b.ds_username = '" & Session("USERNAME") & "' " & VbCrLf
+        End If
+        If Request("D") > "" Then SQL = SQL & "   and d.dt_alteracao     is not null " & VbCrLf End If
+
+        If Request("p_regional") > "" Then 
+           sql = sql + "    and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf
+        Else
+           sql = sql + "    and g.tipo = 3" & VbCrLf
+        End If
+             
+        If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
+
+        if sql1 > "" then
+           sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
+        end if
+        sql = sql + "ORDER BY d.ds_cliente, tipo desc, h.nr_ordem, h.ds_titulo " & VbCrLf
+        ConectaBD SQL
+        
+        'Response.Write(SQL)
+        'Response.End()
+        
+        ShowHTML "<TR><TD valign=""top""><br><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
+        If Not RS.EOF Then
+
+           If p_tipo = "H" Then 
+              If Request("P4") > "" Then RS.PageSize = cDbl(Request("P4")) Else RS.PageSize = 15 End If
+              rs.AbsolutePage = Nvl(Request("P3"),1)
+           Else
+              RS.PageSize = RS.RecordCount + 1
+              rs.AbsolutePage = 1
+           End If
+         
+
+           ShowHTML "<tr><td><td align=""right""><b><font face=Verdana size=1></font></b>"
+           If p_Tipo = "H" Then ShowHTML "     &nbsp;&nbsp;<A TITLE=""Clique aqui para gerar arquivo Word com a listagem abaixo"" class=""SS"" href=""#""  onClick=""window.open('controle.asp?p_tipo=W&w_ew=" & w_ew & "&Q=" & Request("Q") & "&C=" & Request("C") & "&D=" & Request("D") & "&U=" & Request("U") & w_especialidade & MontaFiltro("GET") & "','MetaWord','width=600, height=350, top=65, left=65, menubar=yes, scrollbars=yes, resizable=yes, status=no');"">Gerar Word<IMG ALIGN=""CENTER"" border=0 SRC=""img/word.gif""></A>" End If
+           ShowHTML "<tr><td><td>"
+           ShowHTML "<table border=""1"" cellspacing=""0"" cellpadding=""0"" width=""100%"">"
+		   AbreForm "Form2", w_Pagina & "Grava", "POST", "return(Validacao2(this));", null
+		   ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""R"" VALUE=""VERIFBANCO"">"
+           ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""CL"" VALUE=""" & CL &  """>"
+           ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""pesquisa"" VALUE=""X"">"
+           ShowHTML "<input type=""Hidden"" name=""P3"" value=""1"">"
+           ShowHTML "<input type=""Hidden"" name=""P4"" value=""15"">"
+		   
+           ShowHTML "<tr align=""center"" valign=""top"">"
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Escola</b></td>"
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Tipo</b></td>"
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Ordem</b></td>"
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Título</b></td>"
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Link</b></td>"
+		   ShowHTML "    <td id=""checkbox""><font face=""Verdana"" size=""1""><input type=""CHECKBOX"" name=""dummy"" value=""none"" onClick=""marca()""></b></td>"
+		   ShowHTML "    <script>document.getElementById('checkbox').style.display='none';</script>"
+  
+           w_cor   = "#FDFDFD"
+           w_atual = ""
+		   checkbox = "unok"
+
+           Set FS = CreateObject("Scripting.FileSystemObject")
+
+           While Not RS.EOF
+             strFile = replace(conFilePhysical & "\sedf\" & RS("ds_username") & "\" & RS("ln_arquivo"),"\\","\")
+
+             ' Remove o arquivo, caso ele já exista
+             If Not FS.FileExists (strFile) then
+			 If checkbox <> "ok" Then
+					      ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
+						  checkbox = "ok"
+					  End If
+               If w_atual = "" or w_atual <> RS("DS_CLIENTE") Then
+                  If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
+                  ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+                  If p_tipo = "H" Then 
+                     ShowHTML "    <td><font face=""Verdana"" size=""1""><a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b></font></td>"
+                  Else
+                     ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
+                  End If
+                  w_atual = RS("DS_CLIENTE")
+               Else
+                  ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+                  ShowHTML "    <td><font face=""Verdana"" size=""1"">&nbsp;</font></td>"
+               End If
+              ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("tipo") 
+              ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("nr_ordem") 
+              ShowHTML "    <TD><font face=""Verdana"" size=""1"">" & RS("ds_titulo")
+              ShowHTML "    <TD><font face=""Verdana"" size=""1""><a href=""http://" & replace(RS("ln_internet"),"http://","") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ln_arquivo") & "</a>"
+              ShowHTML "<td align=""center"" width=""1%"" nowrap><input type=""checkbox"" name=""arquivo"" value=""" & RS("tipo") & "=|=" & RS("chave") & """></td>"
+             End If
+
+             RS.MoveNext
+           Wend
+    
+           ShowHTML "</table>"
+		   ShowHTML "<tr><td><td colspan=""5"" align=""center""><input type=""SUBMIT"" name=""Botao"" value=""Remover todos os registros indicados"">"
+           ShowHTML "</FORM>"
+           ShowHTML "<tr><td><td colspan=""5"" align=""center""><hr>"
+
+        Else
+
+           ShowHTML "<TR><TD><TD colspan=""3""><p align=""justify""><img src=""img/ico_educacao.gif"" width=""16"" height=""16"" border=""0"" align=""center"">&nbsp;<font size=""2""><b>Nenhuma ocorrência encontrada para as opções acima."
+
+        End If
+     Else
+        sql = "SELECT d.ds_username, d.sq_cliente, d.ds_cliente, d.ds_apelido, d.ln_internet, f.ds_diretorio " & VbCrLf & _
+              "  from escCliente                                 d " & VbCrLf & _ 
+              "       INNER      JOIN escCliente                 b ON (b.sq_cliente       = d.sq_cliente_pai) " & VbCrLf & _
+              "       INNER      JOIN escCliente_Site            f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
+              "       INNER      JOIN escTipo_Cliente            g ON (d.sq_tipo_cliente  = g.sq_tipo_cliente) " & VbCrLf & _
+              " where 1 = 1 " & VbCrLf
+        If Mid(Session("username"),1,2) = "RE" Then
+           SQL = SQL & "   and b.ds_username = '" & Session("USERNAME") & "' " & VbCrLf
+        End If
+        If Request("D") > "" Then SQL = SQL & "   and d.dt_alteracao     is not null " & VbCrLf End If
+
+        If Request("p_regional") > "" Then 
+           sql = sql + "    and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf
+        Else
+           sql = sql + "    and g.tipo = 3" & VbCrLf
+        End If
+             
+        If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
+
+        if sql1 > "" then
+           sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
+        end if
+        sql = sql + "ORDER BY d.ds_cliente " & VbCrLf
+        ConectaBD SQL
+
+        ShowHTML "<TR><TD valign=""top""><br><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
+        If Not RS.EOF Then
+
+           If p_tipo = "H" Then 
+              If Request("P4") > "" Then RS.PageSize = cDbl(Request("P4")) Else RS.PageSize = 15 End If
+              rs.AbsolutePage = Nvl(Request("P3"),1)
+           Else
+              RS.PageSize = RS.RecordCount + 1
+              rs.AbsolutePage = 1
+           End If
+         
+
+           ShowHTML "<tr><td><td align=""right""><b><font face=Verdana size=1></font></b>"
+           If p_Tipo = "H" Then ShowHTML "     &nbsp;&nbsp;<A TITLE=""Clique aqui para gerar arquivo Word com a listagem abaixo"" class=""SS"" href=""#""  onClick=""window.open('controle.asp?p_tipo=W&w_ew=" & w_ew & "&Q=" & Request("Q") & "&C=" & Request("C") & "&D=" & Request("D") & "&U=" & Request("U") & w_especialidade & MontaFiltro("GET") & "','MetaWord','width=600, height=350, top=65, left=65, menubar=yes, scrollbars=yes, resizable=yes, status=no');"">Gerar Word<IMG ALIGN=""CENTER"" border=0 SRC=""img/word.gif""></A>" End If
+           ShowHTML "<tr><td><td>"
+           ShowHTML "<table border=""1"" cellspacing=""0"" cellpadding=""0"" width=""100%"">"
+           ShowHTML "<tr align=""center"" valign=""top"">"
+           AbreForm "Form2", w_Pagina & "Grava", "POST", "return(Validacao2(this));", null
+           ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""R"" VALUE=""" & w_ew &  """>"
+           ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""CL"" VALUE=""" & CL &  """>"
+           ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""pesquisa"" VALUE=""X"">"
+           ShowHTML "<input type=""Hidden"" name=""P3"" value=""1"">"
+           ShowHTML "<input type=""Hidden"" name=""P4"" value=""15"">"
+
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Escola</b></td>"
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Arquivo</b></td>"
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>KB</b></td>"
+           ShowHTML "    <td id=""checkbox""><font face=""Verdana"" size=""1""><input type=""CHECKBOX"" name=""dummy"" value=""none"" onClick=""marca()""></b></td>"
+           ShowHTML "    <script>document.getElementById('checkbox').style.display='none';</script>"
+		   
+           w_cor   = "#FDFDFD"
+           w_atual = ""
+		   dim checkbox
+		   checkbox = "unok"
+
+           Set FS = CreateObject("Scripting.FileSystemObject")
+           While Not RS.EOF
+             strDir = replace(conFilePhysical & "\sedf\" & RS("ds_username") & "\","\\","\")             
+             
+             dim FileSystem
+             dim File
+             dim Folder
+             dim w_total
+
+             
+             set FileSystem = Server.CreateObject("Scripting.FileSystemObject")
+             set Folder = FileSystem.GetFolder(strDir)            
+
+             For each File in Folder.files
+                If File.name <> "default.asp" Then                        
+                   sqlstr = "select coalesce(a.qtd,0) + coalesce(b.qtd,0) as quantidade " & VbCrLf & _
+                            "from (select count(*) as qtd from escCliente_Foto where sq_cliente = " & RS("SQ_CLIENTE") & " and ln_foto = '" & File.name & "') as a, " & VbCrLf & _
+                            "     (select count(*) as qtd from escCliente_Arquivo where sq_site_cliente = " & RS("SQ_CLIENTE") & " and ln_arquivo = '" & File.name & "') as b " & VbCrLf
+
+                   Set RsQtd = dbms.Execute(sqlstr)
+                   If RsQtd("quantidade") = 0 Then
+				      If checkbox <> "ok" Then
+					      ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
+						  checkbox = "ok"
+					  End If
+                      If w_atual = "" or w_atual <> RS("DS_CLIENTE") Then
+                          If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
+                          ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+                          ShowHTML "<td width=""1%"" nowrap><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "<br>" & strDir & "</td>"
+                          w_atual = RS("DS_CLIENTE")
+                      Else                                            
+                          ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+                          ShowHTML "<td></td>"
+                      End If
+                                         
+                      ShowHTML "<td><font face=""Verdana"" size=""1"">" & (File.name)
+                      ShowHTML "<td align=""right"" width=""1%"" nowrap><font face=""Verdana"" size=""1"">" & formatNumber(File.size/(1024),0) & "&nbsp;&nbsp;"
+                      ShowHTML "<td align=""center"" width=""1%"" nowrap><input type=""checkbox"" name=""arquivo"" value=""" & RS("DS_USERNAME") & "=|=" & File.name & """></td>"
+                      ShowHTML "</td>"
+                      w_total = w_total + File.size
+                   End If
+				   checkbox = "unok"
+                End If
+             Next
+
+             RS.MoveNext
+           Wend
+           ShowHTML "<tr><td colspan=2 align=""right""><font face=""Verdana"" size=""1"">Total<td align=""right"" width=""1%"" nowrap><font face=""Verdana"" size=""1"">" & formatnumber(w_total/1024,0) & "&nbsp;&nbsp;</td>"
+           ShowHTML "</table>"
+           ShowHTML "<tr><td><td colspan=""5"" align=""center""><input type=""SUBMIT"" name=""Botao"" value=""Remover todos os arquivos indicados"">"
+           ShowHTML "</FORM>"
+           ShowHTML "<tr><td><td colspan=""5"" align=""center""><hr>"
+        Else
+
+           ShowHTML "<TR><TD><TD colspan=""3""><p align=""justify""><img src=""img/ico_educacao.gif"" width=""16"" height=""16"" border=""0"" align=""center"">&nbsp;<font size=""2""><b>Nenhuma ocorrência encontrada para as opções acima."
+
+        End If
+     End If
+
+  End If
+  ShowHTML "</TABLE>"
+  Set p_regional = Nothing
+End Sub
+
+REM =========================================================================
 REM Procedimento que executa as operações de BD
 REM -------------------------------------------------------------------------
 Public Sub Grava
@@ -3077,7 +3583,7 @@ Public Sub Grava
   
   
   ' Recupera o código a ser gravado na tabela de log
-  If Instr("BASE,NEWSLETTER,TIPOCLIENTE,COMPONENTE, VERSAO,CADASTROESCOLA",w_R) > 0 or w_R = conWhatAdmin or w_R = conWhatSGE Then
+  If Instr("VERIFBANCO,VERIFARQ,BASE,NEWSLETTER,TIPOCLIENTE,COMPONENTE, VERSAO,CADASTROESCOLA",w_R) > 0 or w_R = conWhatAdmin or w_R = conWhatSGE Then
      w_funcionalidade = "null"
   Else
      SQL = "select sq_funcionalidade from escFuncionalidade where tipo = 1 and codigo = '" & w_R & "'"
@@ -4409,6 +4915,43 @@ Public Sub Grava
        ShowHTML "  location.href='" & w_Pagina & conRelEscolas & "&CL=" & CL & "&w_ea=L';"
        ScriptClose
     
+    Case "VERIFARQ"
+       ' Em seguida, cria apenas as especialidades indicadas pelo cliente
+       Set FS = CreateObject("Scripting.FileSystemObject")
+       For w_cont = 1 To Request.Form("arquivo").Count
+          
+            strDir  = mid(Request.Form("arquivo")(w_cont),1,instr(Request.Form("arquivo")(w_cont),"=|=")-1)
+            strFile = mid(Request.Form("arquivo")(w_cont),instr(Request.Form("arquivo")(w_cont),"=|=")+3)
+            strFile = replace(conFilePhysical & "\sedf\" & strDir & "\" & strFile,"\\","\")
+            ' Remove o arquivo físico
+            DeleteAFile strFile
+       Next
+       Set FS = Nothing
+          
+       ScriptOpen "JavaScript"
+       ShowHTML "  location.href='" & w_pagina & Request("R") & "&w_ea=L&cl=" & cl & "';"
+       ScriptClose
+	   
+	Case "VERIFBANCO"
+       dbms.BeginTrans()
+	   For w_cont = 1 To Request.Form("arquivo").Count
+        strDir  = mid(Request.Form("arquivo")(w_cont),1,instr(Request.Form("arquivo")(w_cont),"=|=")-1) 'tipo
+        strFile = mid(Request.Form("arquivo")(w_cont),instr(Request.Form("arquivo")(w_cont),"=|=")+3) ' chave a ser removida
+		
+		If strDir = "FOTO" Then
+		  SQL = "DELETE escCliente_Foto WHERE SQ_CLIENTE_FOTO = " & strFile
+		Else
+		  SQL = "DELETE escCliente_Arquivo WHERE SQ_Arquivo = " & strFile
+        End If		
+        ExecutaSQL(SQL)
+		
+	   Next
+	   dbms.CommitTrans()
+        
+       ScriptOpen "JavaScript"
+       ShowHTML "  location.href='" & w_pagina & "VERIFARQ&w_ea=L&cl=" & cl & "';"
+       ScriptClose       
+
     Case Else
        ScriptOpen "JavaScript"
        ShowHTML "  alert('Bloco de dados não encontrado: " & SG & "');"
@@ -5306,7 +5849,8 @@ Private Sub MainBody
       Case "COMPONENTE"                 GetComponente
       Case "VERSAO"                     GetVersao
       Case "TIPOCLIENTE"                GetTipoCliente
-      Case "GRAVA"                      Grava
+      Case "VERIFARQ"                   GetVerifArquivo
+	  Case "GRAVA"                      Grava
       Case Else
            If ( Not Request.QueryString( conToMakeSystem ) > "" ) Then
               ShowFrames

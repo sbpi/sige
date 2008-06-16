@@ -722,7 +722,7 @@ Sub Log
     ShowHTML "        <tr><td colspan=2><font size=""1"">Descrição:<br><b>" & RS("abrangencia") & "</b></td>"
     If RS("sql") > "" Then
        ShowHTML "        <tr><td colspan=2><font size=""1"">&nbsp;"
-       ShowHTML "        <tr><td colspan=2><font size=""1"">Comando(s) executado(s):<br><b>" & replace(replace(RS("sql")," ","&nbsp;"),VbCrLf,"<br>") & "</b></td>"
+       ShowHTML "        <tr><td colspan=2><font size=""1"">Comando(s) executado(s):<br><b>" & replace(replace(server.HTMLEncode(nvl(RS("sql"),"nulo"))," ","&nbsp;"),VbCrLf,"<br>") & "</b></td>"
     End If
     ShowHTML "      <tr><td colspan=2 height=1 bgcolor=""#000000"">"
     ShowHTML "      <tr><td colspan=2 align=""center""><input class=""STB"" type=""button"" onClick=""history.back(1);"" name=""Botao"" value=""Voltar""></td></tr>"

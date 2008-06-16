@@ -271,12 +271,11 @@ Public Sub ShowPesquisa
         Else
            ShowHTML RS("DS_CLIENTE") & "</b>"
         End If
-        ShowHTML "<br>Endereço: " & RS("ds_logradouro")
-        If Nvl(RS("no_bairro"),"nulo") <> "nulo" Then ShowHTML " - Bairro: " & RS("no_bairro") End If
-        If Nvl(RS("nr_cep"),"nulo") <> "nulo" and len(RS("nr_cep")) > 5 Then ShowHTML " - CEP: " & RS("nr_cep") End If
-        ShowHTML "<br>Localização: " & RS("no_municipio") & "-" & RS("sg_uf")
-
 	    If RS("tipo") <> "0" Then
+          ShowHTML "<br>Endereço: " & RS("ds_logradouro")
+          If Nvl(RS("no_bairro"),"nulo") <> "nulo" Then ShowHTML " - Bairro: " & RS("no_bairro") End If
+          If Nvl(RS("nr_cep"),"nulo") <> "nulo" and len(RS("nr_cep")) > 5 Then ShowHTML " - CEP: " & RS("nr_cep") End If
+          ShowHTML "<br>Localização: " & RS("no_municipio") & "-" & RS("sg_uf")
 	       sql2 = "SELECT f.ds_especialidade " & _ 
 	             "from escEspecialidade_cliente AS e " & _
                  "     INNER JOIN escEspecialidade AS f ON (e.sq_codigo_espec = f.sq_especialidade) " & _
@@ -343,12 +342,12 @@ Sub MontaBarra (p_link, p_PageCount, p_AbsolutePage, p_PageSize, p_RecordCount)
      ShowHTML "<input type=""Hidden"" name=""H"" value=""" & Request("H")(i) & """>" & VbCrLf
   Next
   If p_PageCount = p_AbsolutePage Then
-     ShowHTML "<br>" & (p_RecordCount-((p_PageCount-1)*p_PageSize)) & " linhas apresentadas de " & p_RecordCount & " linhas" & VbCrLf
+     ShowHTML "<br>" & (p_RecordCount-((p_PageCount-1)*p_PageSize)) & " linhas apresentadas de " & p_RecordCount & " linhas." & VbCrLf
   Else
-     ShowHTML "<br>" & p_PageSize & " linhas apresentadas de " & p_RecordCount & " linhas" & VbCrLf
+     ShowHTML "<br>" & p_PageSize & " linhas apresentadas de " & p_RecordCount & " linhas." & VbCrLf
   End If
   If p_PageSize < p_RecordCount Then
-     ShowHTML "<br>na página " & p_AbsolutePage & " de " & p_PageCount & " páginas" & VbCrLf
+     ShowHTML "<br>na página " & p_AbsolutePage & " de " & p_PageCount & " páginas." & VbCrLf
      If p_AbsolutePage > 1 Then
         ShowHTML "<br>[<A TITLE=""Primeira página"" HREF=""javascript:pagina(1)"">Primeira</A>]&nbsp;" & VbCrLf
         ShowHTML "[<A TITLE=""Página anterior"" HREF=""javascript:pagina(" & p_AbsolutePage-1 & ")"">Anterior</A>]&nbsp;" & VbCrLf
@@ -364,7 +363,7 @@ Sub MontaBarra (p_link, p_PageCount, p_AbsolutePage, p_PageSize, p_RecordCount)
         ShowHTML "[<A TITLE=""Última página"" HREF=""javascript:pagina(" & p_PageCount & ")"">Última</A>]" & VbCrLf
      End If
   Else
-     ShowHTML "<br>na página " & p_AbsolutePage & " de " & p_PageCount & " página" & VbCrLf
+     ShowHTML "<br>na página " & p_AbsolutePage & " de " & p_PageCount & " páginas." & VbCrLf
   End If
   ShowHTML "</FORM></center>" & VbCrLf
 

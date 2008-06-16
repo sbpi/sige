@@ -215,7 +215,7 @@ Sub LogOn
   ScriptOpen "JavaScript"
   ValidateOpen "Validacao"
   'Validate "CL"        , "Unidade"         , ""  , "1" , "1" , "14" ,  "" , "1"
-  Validate "Login1"    , "Nome de usuário" , ""  , "1" , "4" , "14" , "1" , "1"
+  Validate "Login1"    , "Nome de usuário" , ""  , "1" , "2" , "14" , "1" , "1"
   Validate "Password1" , "Senha"           , "1" , "1" , "3" , "19" , "1" , "1"
   ShowHTML "  theForm.Password.value = theForm.Password1.value; "
   ShowHTML "  theForm.Password1.value = """"; "
@@ -269,12 +269,12 @@ Sub LogOn
   ShowHTML "          </font></td> </tr> "
   ShowHTML "          <TR><TD colspan=2 align=""center""><br><table border=0 cellpadding=0 cellspacing=0><tr><td>"
   ShowHTML "              <P><IMG height=37 src=""img/ajuda.jpg"" width=629><br>"
-  ShowHTML "              <font face=""Arial"" size=1><b>PARA ACESSAR A PÁGINA DE ATUALIZAÇÃO</b></font><br>"
+  ShowHTML "              <font face=""Arial"" size=1><b>PARA ACESSAR A PÁGINA DE ATUALIZAÇÃO</b></font>"
   ShowHTML "              <FONT face=""Verdana, Arial, Helvetica, sans-serif"" size=1>"
-  ShowHTML "              . Nome de usuário - Informe o nome de usuário da sua escola ou da sua regional de ensino.<BR>"
-  ShowHTML "              . Senha - Informe sua senha de acesso.<br>"
-  ShowHTML "              . Se esqueceu ou não foi informado dos dados acima, favor entrar em contato com a Diretoria de Apoio Pedagógico.<br>"
-  ShowHTML "              <br></FONT></P>"
+  ShowHTML "              <li>Nome de usuário - Informe o nome de usuário da sua escola ou da sua regional de ensino"
+  ShowHTML "              <li>Senha - Informe sua senha de acesso"
+  ShowHTML "              <li>Se esqueceu ou não foi informado dos dados acima, favor entrar em contato com a SEDF / SUBIP / Diretoria de Sistemas de Informação Educacional - DSIE<br>"
+  ShowHTML "              </FONT></P>"
   ShowHTML "              <P><font face=""Arial"" size=1><b>DOCUMENTAÇÃO - LEIA COM ATENÇÃO</b></font><br>"
   ShowHTML "              <FONT face=""Verdana"" size=1>"
   ShowHTML "              . <a class=""SS"" href=""sedf/Orientacoes_Acesso.pdf"" target=""_blank"" title=""Abre arquivo que descreve as novas características e funcionalidades do SIGE-WEB."">Apresentação da nova versão do SIGE-WEB (PDF - 130KB - 4 páginas)</a><BR>"
@@ -450,7 +450,7 @@ Sub GetDocumento
      w_nr_ordem        = Request("w_nr_ordem")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select * from escCliente_Arquivo where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by in_ativo, nr_ordem"
+     SQL = "select * from escCliente_Arquivo where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by nr_ordem, ltrim(upper(ds_titulo))"
      ConectaBD SQL
   ElseIf InStr("AEV",w_ea) > 0 and w_Troca = "" Then
      ' Recupera os dados do endereço informado
@@ -479,6 +479,13 @@ Sub GetDocumento
            Validate "w_ln_arquivo", "link", "", "1", "2", "100", "1", "1"
         End If
         Validate "w_nr_ordem", "Nr. de ordem", "", "1", "1", "2", "1", "0123546789"
+        ShowHTML " if (theForm.w_ln_arquivo.value > """"){"
+        ShowHTML "    if((theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.DLL')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.SH')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.BAT')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.EXE')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.ASP')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.PHP')!=-1)) {"
+        ShowHTML "       alert('Tipo de arquivo não permitido!');"
+        ShowHTML "       theForm.w_ln_arquivo.focus(); "
+        ShowHTML "       return false;"
+        ShowHTML "    }"
+        ShowHTML "  }"           
      End If
      ShowHTML "  theForm.Botao[0].disabled=true;"
      ShowHTML "  theForm.Botao[1].disabled=true;"
@@ -1571,7 +1578,7 @@ Sub GetSite
      ShowHTML "       return false;"
      ShowHTML "    }"
      ShowHTML "  }"
-     Validate "w_ds_mensagem", "\""Texto da mensagem em destaque\""", "1", "", "4", "80", "1", "1"
+     Validate "w_ds_mensagem", "\""Texto da mensagem em destaque\""", "1", "1", "4", "80", "1", "1"
   End If
   ValidateClose
   ScriptClose
@@ -1644,7 +1651,7 @@ Sub GetSite
   ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
   ShowHTML "      <tr><td><font size=1>Informe os dados abaixo de exibição geral no site.</font></td></tr>"
   ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-  ShowHTML "      <tr><td><font size=""1""><b>Texto da men<u>s</u>agem em destaque:</b><br><INPUT ACCESSKEY=""S"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_mensagem"" size=""80"" maxlength=""80"" value=""" & w_ds_mensagem & """ ONMOUSEOVER=""popup('OPCIONAL. Informe um texto que será exibido na parte inferior do site, numa barra rolante.','white')""; ONMOUSEOUT=""kill()""></td>"
+  ShowHTML "      <tr><td><font size=""1""><b>Texto da men<u>s</u>agem em destaque:</b><br><INPUT ACCESSKEY=""S"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_mensagem"" size=""80"" maxlength=""80"" value=""" & w_ds_mensagem & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe um texto que será exibido na parte superior do site, numa barra rolante.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "      <tr><td align=""center"" colspan=""3"" height=""1"" bgcolor=""#000000""></TD></TR>"
 
   ' Verifica se poderá ser feito o envio da solicitação, a partir do resultado da validação
@@ -3162,6 +3169,7 @@ Private Sub MainBody
       Case conWhatCalendario            GetCalendario
       Case conWhatMensagem              GetMensagem
       Case "LOG"                        ShowLog
+      Case "TEST"                       Response.Write "ok"
       Case "GRAVA"                      Grava
       Case Else
            If ( Not Request.QueryString( conToMakeSystem ) > "" ) Then

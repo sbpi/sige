@@ -670,9 +670,9 @@ REM Rotina de tratamento de erros
 REM -------------------------------------------------------------------------
 Sub TrataErro(p_query)
   
-  If instr(Err.description,"ORA-02292") > 0 Then ' REGISTRO TEM FILHOS
+  If instr(Err.description,"CKH_") > 0 Then ' REGISTRO TEM FILHOS
     ScriptOpen "JavaScript"
-    ShowHTML " alert('Existem registros vinculados ao que você está excluindo. Exclua-os primeiro.\n\n" & Mid(Err.Description,1,Instr(Err.Description,Chr(10))-1) & "');"
+    ShowHTML " alert('Não é permitido usar as palavras ""script"" ou "".js"" em nenhum campo.');"
     Err.clear
     ShowHTML " history.back(1);"
     ScriptClose
@@ -713,6 +713,12 @@ Sub TrataErro(p_query)
     w_html = w_html & "<DT>Descrição do erro:<DD><FONT FACE=""courier"">" & replace(Err.description,"SQL execution error, ","") & "<br><br></font>"
     w_html = w_html & "<DT>Identificado por:<DD><FONT FACE=""courier"">" & Err.Source & "<br><br></font>"
     w_html = w_html & "<DT>Dados submetidos:<DD><FONT FACE=""courier"" size=1>"
+    For Each w_Item IN Request.QueryString 
+        w_html = w_html & w_Item & " => [" & Request.QueryString(w_Item) & "]<br>"
+    Next
+    For Each w_Item IN Request.Form
+        w_html = w_html & w_Item & " => [" & Request.Form(w_Item) & "]<br>"
+    Next
     w_html = w_html & "   <br><br></font>"
     w_html = w_html & "</DT>"
     w_html = w_html & "<DT>Variáveis de servidor:<DD><FONT FACE=""courier"" size=1>"
@@ -819,6 +825,14 @@ REM Rotina de execução de queries
 REM -------------------------------------------------------------------------
 Sub ExecutaSQL(p_SQL)
    On Error Resume Next
+   If instr(uCase(p_SQL),"SCRIPT")>0 or instr(uCase(p_SQL),".JS")>0 Then ' CÓDIGO MALICIOSO
+     ScriptOpen "JavaScript"
+     ShowHTML " alert('Não é permitido usar as palavras ""script"" ou "".js"" em nenhum campo.');"
+     Err.clear
+     ShowHTML " history.back(1);"
+     ScriptClose
+     Response.End()
+   End If
    dbms.Execute(p_sql)
    If Err.Number <> 0 Then 
       'dbms.RollbackTrans()

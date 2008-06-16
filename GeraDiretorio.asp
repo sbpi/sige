@@ -41,7 +41,6 @@ Set sobjConn  = Server.CreateObject("ADODB.Connection")
 sobjConn.ConnectionTimeout = 300
 sobjConn.CommandTimeout = 300
 sobjConn.Open conConnectionString
-Server.ScriptTimeOut = Session("ScriptTimeOut")
 
 GeraDiretorio
 
@@ -108,6 +107,22 @@ While Not sobjRS.EOF
                
        f2.Close
        f1.Close
+    Elseif FS.FolderExists (strDir) Then
+       If (Not FS.FileExists (strFile)) then
+          Set f1 = FS.CreateTextFile(strFile)
+
+          Set f2 = FS.OpenTextFile(strMod, ForReading)
+
+          Do While Not f2.AtEndOfStream 
+             strLine = f2.ReadLine  
+             strLine = replace(strLine,"= *%*","= " & sqCliente)
+             f1.WriteLine strLine
+          Loop
+          wAlterado = wAlterado + 1
+                    
+          f2.Close
+          f1.Close
+       End If
     End If
     wCont = wCont + 1
     sobjRS.MoveNext
