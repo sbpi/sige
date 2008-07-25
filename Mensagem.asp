@@ -44,7 +44,7 @@ Dim R, O, w_Cont, w_Pagina, w_Disabled, w_TP
 Public Upload,File
 Private Par
 
-AbreSessao
+AbreSessaoManut
 
 ' Carrega variáveis locais com os dados dos parâmetros recebidos
 Par          = ucase(Request("Par"))
@@ -787,8 +787,6 @@ Public Sub Grava
   ShowHTML "</HEAD>"
   BodyOpen "onLoad=document.focus();"
   
-  AbreSessao
-
   If O = "I" Then
      dbms.BeginTrans()
      If SG = "DESTINO" Then ' Se for destinatário

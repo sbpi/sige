@@ -391,7 +391,7 @@ UL#menutexto LI
     FONT-SIZE: 10px;
     FLOAT: left;
     PADDING-BOTTOM: 10px;
-    WIDTH: 570px;
+    WIDTH: 580px;
     COLOR: #333333;
     PADDING-TOP: 10px;
     FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
@@ -425,7 +425,7 @@ UL#menutexto LI
 }
 #texto
 {
-    WIDTH: 440px
+    WIDTH: 580px
 }
 #texto A:link
 {

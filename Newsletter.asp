@@ -19,7 +19,6 @@ REM -------------------------------------------------------------------------
 
 Private RS
 Private RS1
-Private sobjConn
 Private sstrSN
 Private sstrCL
 Private strTitulo
@@ -39,11 +38,7 @@ w_IN = uCase(Request("IN"))
 
 Set RS = Server.CreateObject("ADODB.RecordSet")
 Set RS1 = Server.CreateObject("ADODB.RecordSet")
-Set sobjConn  = Server.CreateObject("ADODB.Connection")
 
-sobjConn.ConnectionTimeout = 300
-sobjConn.CommandTimeout = 300
-sobjConn.Open conConnectionString
 Server.ScriptTimeOut = Session("ScriptTimeOut")
 
 ShowHTML "<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Transitional//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"">"
@@ -392,7 +387,6 @@ Private Sub Main
 
   Set RS = nothing
   Set RS1 = nothing
-  Set sobjConn  = nothing
 
 End Sub
 REM -------------------------------------------------------------------------

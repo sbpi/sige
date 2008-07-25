@@ -64,7 +64,7 @@ ShowHTML "   <link href=""/css/print.css""  media=""print""  rel=""stylesheet"" 
 ShowHTML "   <script language=""javascript"" src=""inc/scripts.js""> </script>"
 ShowHTML "</head>"
 
-ShowHTML "<BASE HREF=""http://" & Request.ServerVariables("server_name") & conVirtualPath & """>"
+ShowHTML "<BASE HREF=""" & conSite & "/"">"
 ShowHTML "<body>"
 ShowHTML "<div id=""container"">"
 ShowHTML "  <div id=""cab"">"
@@ -211,7 +211,7 @@ Public Sub ShowArquivo
         ShowHTML "    <TD>" & RS("origem")
         ShowHTML "    <TD>" & RS("in_destinatario")
         ShowHTML "    <TD>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
-        ShowHTML "    <TD><a href=""http://" & replace(RS("diretorio"),"http://","") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
+        ShowHTML "    <TD><a href=""" & RS("diretorio") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
         ShowHTML "  </TR>"
 
         RS.MoveNext
@@ -293,7 +293,7 @@ Public Sub ShowPrincipal
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "        <td align=""right"">"
        Do While Not RS.EOF
-          ShowHTML "        <img class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),lCase("http://"),"") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
+          ShowHTML "        <img class=""foto"" src=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
           RS.MoveNext
        Loop
     End If
@@ -335,7 +335,7 @@ Public Sub ShowQuem
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "    <td align=""right""><font size=""1""><b>Fotografias</b><font size=1></b><br>"
        Do While Not RS.EOF
-          ShowHTML "     <a href=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ target=""_blank"" title=""Clique sobre a imagem para ampliar""><img align=""top"" class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ width=""201"" height=""153""><br>" & RS("ds_foto")& "</a><br>"
+          ShowHTML "     <a href=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ target=""_blank"" title=""Clique sobre a imagem para ampliar""><img align=""top"" class=""foto"" src=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ width=""201"" height=""153""><br>" & RS("ds_foto")& "</a><br>"
           RS.MoveNext
        Loop
     End If

@@ -51,10 +51,10 @@ REM -------------------------------------------------------------------------
   w_Pagina = ExtractFileName(Request.ServerVariables("SCRIPT_NAME")) & "?w_ew="
   
   If w_ew = "LOGON" Then
-     AbreSessao
+     AbreSessaoManut
      Logon
   ElseIf w_ew = "VALIDA" Then
-     AbreSessao
+     AbreSessaoManut
      Valida
   ElseIf w_ew = "ENCERRAR" Then
      Session.Abandon()
@@ -65,8 +65,8 @@ REM -------------------------------------------------------------------------
      ShowHTML "</SCRIPT>" & chr(13) & chr(10)
      ShowHTML "</BODY>" & chr(13) & chr(10)
      ShowHTML "</HTML>" & chr(13) & chr(10)
-  ElseIf CL > "" Then
-     AbreSessao
+  ElseIf Session("Username") > "" and  CL > "" Then
+     AbreSessaoManut
      
      SQL = "select b.tipo from escCliente a inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente and a." & CL & ")"
      ConectaBD SQL
@@ -74,7 +74,7 @@ REM -------------------------------------------------------------------------
      DesconectaBD
      Main
   Else
-     AbreSessao
+     AbreSessaoManut
      ShowHTML "<HTML>" & chr(13) & chr(10)
      ShowHTML "<BODY>" & chr(13) & chr(10)
      ShowHTML "<SCRIPT LANGUAGE='JAVASCRIPT'>" & chr(13) & chr(10)
@@ -320,7 +320,8 @@ Sub LogOn
         ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & RS("origem")
         ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & RS("in_destinatario")
         ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
-        ShowHTML "    <TD><FONT face=""Verdana"" size=1><a href=""http://" & replace(RS("diretorio"),"http://","") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
+   REM  ShowHTML "    <TD><FONT face=""Verdana"" size=1><a href=""http://" & replace(RS("diretorio"),"http://","") & "//" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>" Original
+		ShowHTML "    <TD><FONT face=""Verdana"" size=1><a href=""http://" & replace(replace(RS("diretorio"),"http://","") , "se.df.gov.br" , "gdfsige.df.gov.br") & "/sedf/sedf/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
         ShowHTML "  </TR>"
 
         RS.MoveNext

@@ -6,6 +6,7 @@
 <!--#INCLUDE FILE="Constants_ADO.inc"-->
 <!--#INCLUDE FILE="esc.inc"-->
 <%
+
 Response.Expires = -1500
 REM =========================================================================
 REM  /Controle.asp
@@ -26,7 +27,7 @@ REM -------------------------------------------------------------------------
   Private CL, DBMS, SQL, RS, RS1, RS2
   Private w_Data, w_pagina, w_ds_arquivo
   Private p_tipo, p_campos, p_layout
-  
+
   If InStr(uCase(Request.ServerVariables("http_content_type")),"MULTIPART/FORM-DATA") > 0 Then
      ' Cria o objeto de upload
      w_EW = Request("w_ew")
@@ -52,7 +53,7 @@ REM -------------------------------------------------------------------------
   w_Data = Mid(100+Day(Date()),2,2) & "/" & Mid(100+Month(Date()),2,2) & "/" &Year(Date())
   w_Pagina = ExtractFileName(Request.ServerVariables("SCRIPT_NAME")) & "?w_ew="
   
-  AbreSessao
+  AbreSessaoManut
   If Session("Username") > "" and InStr("LOGON,VALIDA",w_ew) = 0 Then
      Main
   ElseIf w_ew = "LOGON" Then
@@ -367,7 +368,7 @@ Sub GetDocumento
     ShowHTML "      </tr>"
     ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>L</u>ink:</b><br><input " & w_Disabled & " accesskey=""L"" type=""file"" name=""w_ln_arquivo"" class=""STI"" SIZE=""80"" MAXLENGTH=""100"" VALUE="""" ONMOUSEOVER=""popup('OBRIGATÓRIO. Clique no botão ao lado para localizar o arquivo. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
     If w_ln_arquivo > "" Then
-       ShowHTML "              <b><a class=""SS"" href=""http://" & w_ds_diretorio & "/" & w_ln_arquivo & """ target=""_blank"" title=""Clique para exibir o arquivo atual."">Exibir</a></b>"
+       ShowHTML "              <b><a class=""SS"" href=""" & w_ds_diretorio & "/" & w_ln_arquivo & """ target=""_blank"" title=""Clique para exibir o arquivo atual."">Exibir</a></b>"
     End If
     ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
     ShowHTML "        <tr valign=""top"">"
@@ -1659,7 +1660,7 @@ Sub GetVersao
     ShowHTML "          <td><font size=""1""><b>Código da <u>v</u>ersão:</b><br><input " & w_Disabled & " accesskey=""V"" type=""text"" name=""w_cd_versao"" class=""STI"" SIZE=""20"" MAXLENGTH=""20"" VALUE=""" & w_cd_versao & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o código da versão.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td><font size=""1""><b><u>D</u>ata da versão:</b><br><INPUT ACCESSKEY=""D"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_dt_versao"" size=""10"" maxlength=""10"" value=""" & Nvl(w_dt_versao, w_data) & """ ONMOUSEOVER=""popup('OPCIONAL. Informe a data de construção da versão. O sistema coloca automaticamente as barras separadoras.','white')""; ONMOUSEOUT=""kill()"" onKeyDown=""FormataData(this,event);""></td>"
     ShowHTML "        </table>"
-    ShowHTML "        <tr><td><font size=""1""><b><u>U</u>RL para download:</b><br><input " & w_Disabled & " accesskey=""U"" type=""text"" name=""w_ds_caminho"" class=""STI"" SIZE=""75"" MAXLENGTH=""100"" VALUE=""" & Nvl(w_ds_caminho, "http://" & Request.ServerVariables("SERVER_NAME") & conVirtualPath & "sge/") & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a URL onde a versão pode ser obtida.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "        <tr><td><font size=""1""><b><u>U</u>RL para download:</b><br><input " & w_Disabled & " accesskey=""U"" type=""text"" name=""w_ds_caminho"" class=""STI"" SIZE=""75"" MAXLENGTH=""100"" VALUE=""" & Nvl(w_ds_caminho, "sge/") & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a URL onde a versão pode ser obtida.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "        <tr><td><font size=""1""><b><u>A</u>rquivo:</b><br><input " & w_Disabled & " accesskey=""A"" type=""file"" name=""w_no_arquivo"" class=""STI"" SIZE=""80"" MAXLENGTH=""100"" VALUE="""" ONMOUSEOVER=""popup('OBRIGATÓRIO. Clique no botão ao lado para localizar o arquivo que contém a versão do componente. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
     If w_no_arquivo > "" Then
        ShowHTML "              <b><a class=""SS"" href=""" & w_ds_caminho & w_chave & Mid(w_no_arquivo, Instr(w_no_arquivo,"."), 50) & """ target=""_blank"" title=""Clique para recuperar o arquivo atual."">Exibir</a></b>"
@@ -3073,13 +3074,11 @@ REM Monta a tela de Pesquisa
 REM -------------------------------------------------------------------------
 Public Sub GetVerifArquivo
 
-  Dim RS1, sobjConn, p_regional
+  Dim RS1, p_regional
 
   Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade
   
   Set RS1 = Server.CreateObject("ADODB.RecordSet")
-  Set sobjConn  = Server.CreateObject("ADODB.Connection")
-  sobjConn.Open conConnectionString
   
   p_regional = Request("p_regional")
 
@@ -3415,8 +3414,12 @@ Public Sub GetVerifArquivo
                If w_atual = "" or w_atual <> RS("DS_CLIENTE") Then
                   If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
                   ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
-                  If p_tipo = "H" Then 
-                     ShowHTML "    <td><font face=""Verdana"" size=""1""><a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b></font></td>"
+                  If Not IsNull (RS("LN_INTERNET")) Then
+                     If inStr(lcase(RS("LN_INTERNET")),"http://") > 0 Then
+                        ShowHTML "                <a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
+                     Else
+                        ShowHTML "                <a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
+                     End If
                   Else
                      ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
                   End If
@@ -3428,7 +3431,7 @@ Public Sub GetVerifArquivo
               ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("tipo") 
               ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("nr_ordem") 
               ShowHTML "    <TD><font face=""Verdana"" size=""1"">" & RS("ds_titulo")
-              ShowHTML "    <TD><font face=""Verdana"" size=""1""><a href=""http://" & replace(RS("ln_internet"),"http://","") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ln_arquivo") & "</a>"
+              ShowHTML "    <TD><font face=""Verdana"" size=""1""><a href=""" & RS("ln_internet") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ln_arquivo") & "</a>"
               ShowHTML "<td align=""center"" width=""1%"" nowrap><input type=""checkbox"" name=""arquivo"" value=""" & RS("tipo") & "=|=" & RS("chave") & """></td>"
              End If
 
@@ -4968,13 +4971,11 @@ REM Monta a tela de Pesquisa
 REM -------------------------------------------------------------------------
 Public Sub ShowEscolas
 
-  Dim RS1, sobjConn, p_regional
+  Dim RS1, p_regional
 
   Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade
   
   Set RS1 = Server.CreateObject("ADODB.RecordSet")
-  Set sobjConn  = Server.CreateObject("ADODB.Connection")
-  sobjConn.Open conConnectionString
   
   p_regional = Request("p_regional")
 
@@ -5288,7 +5289,7 @@ Public Sub ShowEscolas
           If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
           ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
           If p_tipo = "H" Then 
-             ShowHTML "    <td><font face=""Verdana"" size=""1""><a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b></font></td>"
+             ShowHTML "    <td><font face=""Verdana"" size=""1""><a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b></font></td>"
           Else
              ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
           End If
@@ -5754,13 +5755,11 @@ REM Monta a tela de senhas especiais
 REM -------------------------------------------------------------------------
 Public Sub ShowSenhaEspecial
 
-  Dim RS1, sobjConn
+  Dim RS1
 
   Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade
   
   Set RS1 = Server.CreateObject("ADODB.RecordSet")
-  Set sobjConn  = Server.CreateObject("ADODB.Connection")
-  sobjConn.Open conConnectionString
 
   Cabecalho
   BodyOpen "onLoad='document.focus()';"

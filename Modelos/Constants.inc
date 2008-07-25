@@ -17,9 +17,9 @@ REM -------------------------------------------------------------------------
 
   Const conScriptTimeout    = 60
   Const conSessionTimeout   = 300
-  Const conConnectionString ="Provider=sqloledb.1;Data Source=NETUNO\NETUNO;UID=intweb;PWD=xyz345aix;Initial Catalog=SIGE"
+  Const conConnectionString ="Provider=sqloledb.1;Data Source=NETUNO\NETUNO;UID=sigecon;PWD=sigecon;Initial Catalog=SIGE"
   Const conVirtualPath      = "/sige/"
-  Const conSite	            = "http://netuno:8080"
+  conSite                   = "http://" & Request.ServerVariables("HTTP_HOST")
 
   Const conWhatPrincipal  = "110"
   Const conWhatCabecalho  = "111"

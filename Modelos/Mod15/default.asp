@@ -66,7 +66,7 @@ ShowHTML "   <link href=""/css/print.css""  media=""print""  rel=""stylesheet"" 
 ShowHTML "   <script language=""javascript"" src=""inc/scripts.js""> </script>"
 ShowHTML "</head>"
 
-ShowHTML "<BASE HREF=""http://" & Request.ServerVariables("server_name") & conVirtualPath & """>"
+ShowHTML "<BASE HREF=""" & conSite & "/"">"
 If (Request("H") > "") or (Request("Q") > "") or (Request("p_regional") > "") or (wIN > 0) Then
    ShowHTML "<body onLoad=""location.href='#resultado'"">"
 Else
@@ -209,7 +209,7 @@ Public Sub ShowArquivo
         ShowHTML "    <TD>" & RS("origem")
         ShowHTML "    <TD>" & RS("in_destinatario")
         ShowHTML "    <TD>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
-        ShowHTML "    <TD><a href=""http://" & replace(RS("diretorio"),"http://","") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
+        ShowHTML "    <TD><a href=""" & RS("diretorio") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
         ShowHTML "  </TR>"
 
         RS.MoveNext
@@ -290,7 +290,7 @@ Public Sub ShowPrincipal
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "        <td align=""right"">"
        Do While Not RS.EOF
-          ShowHTML "        <img class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),lCase("http://"),"") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
+          ShowHTML "        <img class=""foto"" src=""" & RS("diretorio") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
           RS.MoveNext
        Loop
     End If
@@ -332,7 +332,7 @@ Public Sub ShowQuem
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "  <td align=""right""><font size=""1""><b>Fotografias</b><font size=1> (Clique sobre a imagem para ampliar)</b><br>"
        Do While Not RS.EOF
-          ShowHTML "   <a href=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ target=""_blank""><img align=""top"" class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ width=""201"" height=""153""> " & RS("ds_foto") & "</a>"
+          ShowHTML "   <a href=""" & RS("diretorio") & "/" & RS("ln_foto") & """ target=""_blank""><img align=""top"" class=""foto"" src=""" & RS("diretorio") & "/" & RS("ln_foto") & """ width=""201"" height=""153""> " & RS("ds_foto") & "</a>"
           RS.MoveNext
        Loop
     End If
@@ -607,6 +607,7 @@ Public Sub ShowCalend
            End If
            RS.MoveNext
         Loop
+        RS.MoveFirst
      End If
      ShowHTML "<tr><td><TABLE align=""center"" width=""100%"" border=0 cellSpacing=1>"
      ShowHTML "<tr valign=""top"">"
@@ -638,7 +639,6 @@ Public Sub ShowCalend
      ShowHTML "    <TD COLSPAN=""6"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
      ShowHTML "  </TR>"
      wCont = 0
-     RS.MoveFirst
      If Not RS.EOF Then
         wCont = 1
         Do While Not RS.EOF
@@ -703,7 +703,7 @@ Public Sub ShowEscolas
            ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, verifique se o Word foi corretamente instalado em seu computador."        
         End If
         ShowHTML "<table align=""center"" width=""100%"" cellspacing=0 style=""border: 1px solid rgb(0,0,0);""><tr><td>"
-        ShowHTML "    <iframe src=""http://" & replace(RS("ds_diretorio"),"http://","") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
+        ShowHTML "    <iframe src=""" & RS("diretorio") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
         ShowHTML "    </iframe>"
         ShowHTML "</table>"
      Else

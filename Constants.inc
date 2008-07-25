@@ -21,9 +21,10 @@ REM -------------------------------------------------------------------------
   Const conSessionTimeout   = 300
   'Const conConnectionString ="Provider=sqloledb.1;Data Source=(local);UID=sbpi;PWD=ipbs2001;Database=sbpi;Language=Português"
   'Const conConnectionString ="Provider=SQLOLEDB.1;Data Source=(local);UID=intweb;PWD=xyz345aix;Database=SIGE;Language=Português"
-  Const conConnectionString ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=SIGE;Data Source=NETUNO\NETUNO"
+  Const conConnectionString ="Provider=SQLOLEDB.1;Password=sigecon;Persist Security Info=True;User ID=sigecon;Initial Catalog=SIGE;Data Source=NETUNO\NETUNO"
+  Const conConnectionManut ="Provider=SQLOLEDB.1;Password=xyz345aix;Persist Security Info=True;User ID=intweb;Initial Catalog=SIGE;Data Source=NETUNO\NETUNO"
   Const conProduto			= "SIGE-WEB"
-  Const conSite				= "http://netuno:8080"
+  conSite				= "http://" & Request.ServerVariables("HTTP_HOST")
   Const conMail				= "sbpir@sbpi.com.br"
   Const conHead				= "SIGE Web"
   Const conLogo				= "logoescola.jpg"

@@ -35,10 +35,10 @@ Public sstrEW
 Public sstrIN
 Public CL
 
-CL = Request.QueryString("CL")
+CL = int(Request.QueryString("CL"))
 sstrEF = "sq_cliente=" & CL
 sstrEW = Request.QueryString("EW")
-sstrIN = Request.QueryString("IN")
+sstrIN = int(Request.QueryString("IN"))
 w_dir  = "Modelos/Mod16/"
 
 Private sstrData
@@ -214,7 +214,7 @@ Public Sub ShowArquivo
         ShowHTML "    <TD>" & RS("origem")
         ShowHTML "    <TD>" & RS("in_destinatario")
         ShowHTML "    <TD>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
-        ShowHTML "    <TD><a href=""http://" & replace(RS("diretorio"),"http://","") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
+        ShowHTML "    <TD><a href=""" & RS("diretorio") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
         ShowHTML "  </TR>"
 
         RS.MoveNext
@@ -297,7 +297,7 @@ Public Sub ShowPrincipal
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "        <td align=""right"">"
        Do While Not RS.EOF
-          ShowHTML "        <img class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),lCase("http://"),"") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
+          ShowHTML "        <img class=""foto"" src=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
           RS.MoveNext
        Loop
     End If
@@ -339,7 +339,7 @@ Public Sub ShowQuem
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "    <td align=""right""><font size=""1""><b>Fotografias</b><font size=1></b><br>"
        Do While Not RS.EOF
-          ShowHTML "     <a href=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ target=""_blank"" title=""Clique sobre a imagem para ampliar""><img align=""top"" class=""foto"" src=""http://" & Replace(lCase(RS("ds_diretorio")),"http://","") & "/" & RS("ln_foto") & """ width=""201"" height=""153""><br>" & RS("ds_foto")& "</a><br>"
+          ShowHTML "     <a href=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ target=""_blank"" title=""Clique sobre a imagem para ampliar""><img align=""top"" class=""foto"" src=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ width=""201"" height=""153""><br>" & RS("ds_foto")& "</a><br>"
           RS.MoveNext
        Loop
     End If
@@ -452,7 +452,7 @@ Public Sub ShowNoticia
      wAno = Year(Date())
   End If
 
-  If sstrIN = "" then
+  If sstrIN = 0 then
      sql = "SELECT a.sq_noticia, a.dt_noticia AS data, a.ds_titulo AS ocorrencia, 'Escola' AS origem " & VbCrLf & _
            "  FROM escNoticia_Cliente  a" & VbCrLf & _
            " WHERE sq_site_cliente   = " & CL & VbCrLf & _
@@ -591,7 +591,7 @@ Public Sub ShowCalend
   RS1.Open sql, sobjConn, adOpenForwardOnly
   
   
-  If sstrIN = "" then
+  If sstrIN = 0 then
      If Not RS1.EOF Then
         Do While Not RS1.EOF
            If RS1("origem") = "E" then
@@ -701,7 +701,7 @@ Public Sub ShowValida
            ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, verifique se o Word foi corretamente instalado em seu computador."        
         End If
         ShowHTML "<table align=""center"" width=""100%"" cellspacing=0 style=""border: 1px solid rgb(0,0,0);""><tr><td>"
-        ShowHTML "    <iframe src=""http://" & replace(RS("ds_diretorio"),"http://","") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
+        ShowHTML "    <iframe src=""" & RS("ds_diretorio") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
         ShowHTML "    </iframe>"
         ShowHTML "</table>"
      Else
@@ -790,7 +790,7 @@ Public Sub ShowSenha
   w_uid = replace(replace(Trim(uCase(Request("UID"))),"'", ""), """", "")
   w_pwd = replace(replace(Trim(uCase(Request("PWD"))),"'", ""), """", "")
 
-  If sstrIN = "0" Then
+  If sstrIN = 0 Then
      sql = "SELECT * FROM escAluno " & VbCrLf & _
            "WHERE sq_site_cliente = " & CL & VbCrLf & _
            "  AND NR_MATRICULA   ='" & w_uid & "'" & VbCrLf & _
@@ -813,7 +813,7 @@ Public Sub ShowSenha
     ShowHTML "</tr>"
 
   Else
-    If sstrIN = "0" Then
+    If sstrIN = 0 Then
        ' Grava o acesso na tabela de log
        w_chave = RS("sq_aluno")
        SQL = "insert into escCliente_Log (sq_cliente, data, ip_origem, tipo, abrangencia, sql) " & VbCrLf & _

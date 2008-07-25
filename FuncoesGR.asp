@@ -59,23 +59,54 @@ Sub SelecaoRegionalEscola (label, accesskey, hint, chave, chaveAux, campo, restr
 
     If Nvl(chaveAux,"nulo") <> "nulo" then
     
-       SQL = "SELECT b.tipo, a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente, c.sq_cliente escola " & VbCrLf & _
+       SQL = "SELECT b.tipo, a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
              "  FROM escCLIENTE                      a " & VbCrLf & _
              "       inner      join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente and b.tipo = 2) " & VbCrLf & _
              "       left outer join escCliente      c on (a.sq_cliente = c.sq_cliente_pai and c.sq_cliente = " & chaveAux & ") " & VbCrLf & _
-             "UNION " & VbCrLf & _
-             "SELECT b.tipo, a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente, a.sq_cliente escola " & VbCrLf & _
-             "  FROM escCLIENTE                      a " & VbCrLf & _
-             "       inner      join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
-             " WHERE a.sq_cliente_pai is null " & VbCrLf & _
              "ORDER BY b.tipo, a.ds_cliente" & VbCrLf
        ConectaBD SQL
        
        While Not RS.EOF
-          If Nvl(RS("escola"),"nulo") <> "nulo" Then
+          If cInt(nvl(chave,0)) = cInt(RS("sq_cliente")) Then
              ShowHTML "          <option value=""" & RS("sq_cliente") & """ SELECTED>" & RS("ds_cliente")
           Else
              ShowHTML "          <option value=""" & RS("sq_cliente") & """>" & RS("ds_cliente")
+          End If
+          RS.MoveNext
+       Wend
+       DesconectaBD
+    End If
+    ShowHTML "          </select>"
+End Sub
+REM =========================================================================
+REM Final da rotina
+REM -------------------------------------------------------------------------
+
+REM =========================================================================
+REM Montagem da seleção de regiões administrativas
+REM -------------------------------------------------------------------------
+Sub SelecaoRegiaoAdm (label, accesskey, hint, chave, chaveAux, campo, restricao, atributo)
+    
+    If IsNull(hint) Then
+       ShowHTML "          <td valign=""top""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
+    Else
+       ShowHTML "          <td valign=""top"" ONMOUSEOVER=""popup('" & hint & "','white')""; ONMOUSEOUT=""kill()""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
+    End If
+    ShowHTML "          <option value="""">---"
+
+    If Nvl(chaveAux,"nulo") <> "nulo" then
+    
+       SQL = "SELECT a.sq_regiao_adm, a.no_regiao " & VbCrLf & _
+             "  FROM escRegiao_Administrativa a " & VbCrLf & _
+             " WHERE a.ativo = 'S' " & VbCrLf & _
+             "ORDER BY a.no_regiao" & VbCrLf
+       ConectaBD SQL
+       
+       While Not RS.EOF
+          If cInt(nvl(chave,0)) = cInt(RS("sq_regiao_adm")) Then
+             ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """ SELECTED>" & RS("no_regiao")
+          Else
+             ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """>" & RS("no_regiao")
           End If
           RS.MoveNext
        Wend

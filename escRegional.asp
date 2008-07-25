@@ -32,10 +32,12 @@ REM                   = W   : Geração de documento no formato MS-Word (Office 20
   Private SQL, CL, DBMS, RS, p_agrega
   Private w_Data, w_pagina
   Dim w_tp, w_Disabled
-  Dim p_regional, p_escola, p_operacao, p_secretaria, p_tipo_escola
+  Dim p_local, p_regiao, p_regional, p_escola, p_operacao, p_secretaria, p_tipo_escola
   
+  p_regiao      = Request("p_regiao")
   p_regional    = Request("p_regional")
   p_escola      = Request("p_escola")
+  p_local       = Request("p_local")
   p_tipo_escola = Request("p_tipo_escola")
   p_operacao    = Request("p_operacao")
   w_troca       = Request("w_troca")
@@ -52,7 +54,7 @@ REM                   = W   : Geração de documento no formato MS-Word (Office 20
   w_Data = Mid(100+Day(Date()),2,2) & "/" & Mid(100+Month(Date()),2,2) & "/" &Year(Date())
   w_Pagina = ExtractFileName(Request.ServerVariables("SCRIPT_NAME")) & "?w_ew="
   
-  AbreSessao
+  AbreSessaoManut
     
   If w_ea = "A" Then w_ea = "L" End If
 
@@ -93,18 +95,20 @@ Public Sub Grava
 
   Dim w_chave, w_sql, w_funcionalidade, w_diretorio, w_imagem, w_arquivo
   
-  if p_regional <> "" then
+  if p_regiao <> "" then
     Cabecalho
     ShowHTML "</HEAD>"
     BodyOpen "onLoad=document.focus();"
   
     ' Recupera o código a ser alterado na tabela de clientes
-  
+
     dbms.BeginTrans()
-    Response.Write Request("p_tipo_escola")
     SQL = "update escCliente set " & VbCrLf & _
-          "     sq_cliente_pai  = " & Request("p_regional") & ", " & VbCrLf & _
-          "     sq_tipo_cliente = " & Request("p_tipo_escola") & VbCrLf & _
+          "     sq_regiao_adm   = " & Request("p_regiao") & ", " & VbCrLf & _
+          "     sq_tipo_cliente = " & Request("p_tipo_escola") & ", " & VbCrLf & _
+          "     localizacao     = " & Request("p_local") & VbCrLf
+    If nvl(p_regional,"") <> "" Then SQL = SQL & "     , sq_cliente_pai  = " & Request("p_regional") & VbCrLf Else SQL = SQL & "     , sq_cliente_pai  = null " & VbCrLf 
+    SQL = SQL & _
           "   where sq_cliente  = " & Request("p_escola") & VbCrLf
     ExecutaSQL(SQL)
     dbms.CommitTrans()
@@ -132,13 +136,23 @@ REM Pesquisa gerencial
 REM -------------------------------------------------------------------------
 Sub LigaRegEsc
   
+  If nvl(p_escola,"") <> "" Then
+     SQL = "select * from escCliente where sq_cliente = " & p_escola
+     ConectaBD SQL
+     p_regiao      = RS("sq_regiao_adm")
+     p_regional    = RS("sq_cliente_pai")
+     p_tipo_escola = RS("sq_tipo_cliente")
+     p_local       = RS("localizacao")
+  End If
+  
   Cabecalho
   ShowHTML "<HEAD>"
   ScriptOpen "JavaScript"
   ValidateOpen "Validacao"
-  Validate "p_escola",      "Escola",         "SELECT", "1", "1", "18", "", "1"
-  Validate "p_regional",    "Subordinação",   "SELECT", "1", "1", "18", "", "1"
-  Validate "p_tipo_escola", "Tipo da Escola", "SELECT", "1", "1", "18", "", "1"
+  Validate "p_escola",      "Unidade de ensino",     "SELECT", "1", "1", "18", "", "1"
+  Validate "p_regiao",      "Região administrativa", "SELECT", "1", "1", "18", "", "1"
+  Validate "p_regional",    "Regional de ensino",    "SELECT", "1", "1", "18", "", "1"
+  Validate "p_tipo_escola", "Tipo de unidade",       "SELECT", "1", "1", "18", "", "1"
   ShowHTML "  theForm.Botao.disabled=true;"
   ValidateClose
   ScriptClose
@@ -149,7 +163,7 @@ Sub LigaRegEsc
      BodyOpen "onLoad=document.Form.p_escola.focus();"
   End If
   ShowHTML "<B><FONT COLOR=""#000000"">" & w_TP & "</FONT></B>"
-  ShowHTML "<B><FONT size=""2"" COLOR=""#000000"">Associação entre Escola e Regional</FONT></B>"
+  ShowHTML "<B><FONT size=""2"" COLOR=""#000000"">Vinculação e tipologia</FONT></B>"
   ShowHTML "<HR>"
   ShowHTML "<div align=center><center>"
   ShowHTML "<table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""100%"">"
@@ -159,11 +173,24 @@ Sub LigaRegEsc
   ShowHTML "<INPUT type=""hidden"" name=""w_ea"" value=""" & w_ea & """>"
   ShowHTML "<INPUT type=""hidden"" name=""w_troca"" value="""">"
   ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
-  ShowHTML "      <tr><td colspan=2><table border=0 width=""90%"" cellspacing=0><tr valign=""top"">"
-  SelecaoEscola         "<u>E</u>scola:"  ,       "E", "Selecione a Escola."            , p_escola,      null,     "p_escola"  ,    null, "onChange=""document.Form.action='" & w_pagina & w_ew & "'; document.Form.w_ea.value='P'; document.Form.p_regional.value=''; document.Form.w_troca.value='p_regional'; document.Form.submit();"""
-  SelecaoRegionalEscola "<u>S</u>ubordinação:",   "S", "Indique a subordinação."        , p_regional,    p_escola, "p_regional",    null, null
-  SelecaoTipoEscola     "<u>T</u>ipo de Escola:", "T", "Selecione o tipo da Escola."    , p_tipo_escola, p_escola, "p_tipo_escola", null, null
+  ShowHTML "      <tr><td colspan=2><table border=0 width=""90%"" cellspacing=0>"
+  ShowHTML "        <tr valign=""top"">"
+  SelecaoEscola         "Unidad<u>e</u> de ensino:", "E", "Selecione unidade." , p_escola, null, "p_escola", null, "onChange=""document.Form.action='" & w_pagina & w_ew & "'; document.Form.w_ea.value='P'; document.Form.p_regiao.value=''; document.Form.p_regional.value=''; document.Form.w_troca.value='p_regiao'; document.Form.submit();"""
+  ShowHTML "        <tr valign=""top"">"
+  SelecaoRegiaoAdm "Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", p_regiao, p_escola, "p_regiao", null, null
+  ShowHTML "        <tr valign=""top"">"
+  SelecaoRegionalEscola "Regional de en<u>s</u>ino:", "S", "Indique a regional de ensino.", p_regional, p_escola, "p_regional", null, null
+  ShowHTML "        <tr valign=""top"">"
+  SelecaoTipoEscola     "<u>T</u>ipo de Escola:", "T", "Selecione o tipo da Escola.", p_tipo_escola, p_escola, "p_tipo_escola", null, null
   ShowHTML "         <tr valign=""top"">"
+  ShowHTML "          <td><font size=""1""><b>Localização</b><br>"
+  If p_local = "1" Then
+     ShowHTML "              <input  type=""radio"" name=""p_local"" value=""0""> Não informada <input  type=""radio"" name=""p_local"" value=""1"" checked> Urbana <input  type=""radio"" name=""p_local"" value=""2""> Rural "
+  ElseIf p_local = "2" Then
+     ShowHTML "              <input  type=""radio"" name=""p_local"" value=""0""> Não informada <input  type=""radio"" name=""p_local"" value=""1""> Urbana <input  type=""radio"" name=""p_local"" value=""2"" checked> Rural "
+  Else
+     ShowHTML "              <input  type=""radio"" name=""p_local"" value=""0"" checked> Não informada <input  type=""radio"" name=""p_local"" value=""1""> Urbana <input  type=""radio"" name=""p_local"" value=""2""> Rural "
+  End If
   ShowHTML "          </table>"
   ShowHTML "      <tr valign=""top"">"
   ShowHTML "      <tr>"

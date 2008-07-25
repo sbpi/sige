@@ -391,7 +391,7 @@ Sub SelecaoEscola (label, accesskey, hint, chave, chaveAux, campo, restricao, at
     SQL = "SELECT a.sq_cliente cliente, a.sq_tipo_cliente, case b.tipo when 1 then upper(a.ds_username) else a.ds_cliente end ds_cliente, b.tipo " & VbCrLf & _
           "  FROM escCLIENTE            a" & VbCrLf & _
           "      inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
-          " WHERE upper(a.ds_username) <> 'SBPI' "
+          " WHERE PUBLICA = 'S' and upper(a.ds_username) <> 'SBPI' "
     If chaveAux > "" Then
        SQL = SQL & "   and IsNull(sq_cliente_pai,0) = " & chaveAux & VbCrLf
     End If
@@ -669,7 +669,6 @@ REM =========================================================================
 REM Rotina de tratamento de erros
 REM -------------------------------------------------------------------------
 Sub TrataErro(p_query)
-  
   If instr(Err.description,"CKH_") > 0 Then ' REGISTRO TEM FILHOS
     ScriptOpen "JavaScript"
     ShowHTML " alert('Não é permitido usar as palavras ""script"" ou "".js"" em nenhum campo.');"
@@ -778,6 +777,19 @@ Sub AbreSessao
    Set dbms = Server.CreateObject("ADODB.Connection")
    with dbms
       .ConnectionString = conConnectionString
+      .Open
+      .CursorLocation = adUseClient
+   end with
+   Set SP               = Server.CreateObject("ADODB.Command")
+   Set RS               = Server.CreateObject("ADODB.RecordSet")
+   sp.ActiveConnection  = dbms
+   sp.CommandType       = adCmdStoredProc
+end sub
+
+Sub AbreSessaoManut
+   Set dbms = Server.CreateObject("ADODB.Connection")
+   with dbms
+      .ConnectionString = conConnectionManut
       .Open
       .CursorLocation = adUseClient
    end with

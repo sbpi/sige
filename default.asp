@@ -46,6 +46,7 @@ sobjConn.CommandTimeout = 300
 sobjConn.Open conConnectionString
 Server.ScriptTimeOut = Session("ScriptTimeOut")
 
+
 ShowHTML "<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Transitional//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"">"
 ShowHTML "<html xmlns=""http://www.w3.org/1999/xhtml"">"
 ShowHTML "<head>"
@@ -117,24 +118,45 @@ Public Sub ShowPesquisa
   ShowHTML "        <input type=""Hidden"" name=""htBT"" value=""1"">"
   ShowHTML "        <input type=""Hidden"" name=""str2"" value=""10"">"
   ShowHTML "          <TR><TD colspan=""2"" align=""left"" valign""middle""><p align=""justify"">Selecione as formas de busca desejadas para listar as escolas (pelo menos uma delas deve ser selecionada):</p></td></tr>"
-  ShowHTML "          <tr><td colspan=2><b>Regional de ensino:</b><br><SELECT class=""texto"" NAME=""p_regional"">"
-  SQL = "SELECT a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
+
+  'ShowHTML "          <tr><td colspan=2><b>Regional de ensino:</b><br><SELECT class=""texto"" NAME=""p_regional"">"
+  'SQL = "SELECT a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
+  '      "  FROM escCLIENTE a " & VbCrLf & _
+  '      "       inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
+  '      " WHERE b.tipo = 2 " & VbCrLf & _
+  '      "ORDER BY a.ds_cliente" & VbCrLf
+  'Response.Write SQL
+  'ConectaBD SQL
+  'If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todas" End If
+  'While Not RS.EOF
+  '   If cDbl(nvl(RS("sq_cliente"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
+  '      ShowHTML "          <option value=""" & RS("sq_cliente") & """ SELECTED>" & RS("ds_cliente")
+  '   Else
+  '      ShowHTML "          <option value=""" & RS("sq_cliente") & """>" & RS("ds_cliente")
+  '   End If
+  '   RS.MoveNext
+  'Wend
+  'ShowHTML "          </select>"
+  'DesconectaBD
+
+  ShowHTML "          <tr><td colspan=2><b>Região administrativa:</b><br><SELECT class=""texto"" NAME=""p_regional"">"
+  SQL = "SELECT distinct b.sq_regiao_adm, b.no_regiao " & VbCrLf & _
         "  FROM escCLIENTE a " & VbCrLf & _
-        "       inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
-        " WHERE b.tipo = 2 " & VbCrLf & _
-        "ORDER BY a.ds_cliente" & VbCrLf
+        "       inner join escRegiao_Administrativa b on (a.sq_regiao_adm = b.sq_regiao_adm) " & VbCrLf & _
+        "ORDER BY b.no_regiao" & VbCrLf
   ConectaBD SQL
   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todas" End If
   While Not RS.EOF
-     If cDbl(nvl(RS("sq_cliente"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
-        ShowHTML "          <option value=""" & RS("sq_cliente") & """ SELECTED>" & RS("ds_cliente")
+     If cDbl(nvl(RS("sq_regiao_adm"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
+        ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """ SELECTED>" & RS("no_regiao")
      Else
-        ShowHTML "          <option value=""" & RS("sq_cliente") & """>" & RS("ds_cliente")
+        ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """>" & RS("no_regiao")
      End If
      RS.MoveNext
   Wend
   ShowHTML "          </select>"
   DesconectaBD
+
   SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
   ConectaBD SQL
   ShowHTML "          <tr><td colspan=2><b>Tipo de instituição:</b><br><SELECT class=""texto"" NAME=""Q"">"
@@ -159,8 +181,13 @@ Public Sub ShowPesquisa
         "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
         "ORDER BY a.nr_ordem, a.ds_especialidade "
 
-  ConectaBD SQL
-  
+  ConectaBD SQL   
+    
+    ShowHtml("<tr><td colspan=2><b>Localização</b>:<br>")
+    If Request("Z") = "2" Then ShowHtml("<input type=""radio"" name=""Z"" value=""2"" checked=""checked""> Rural")  Else ShowHtml("<input type=""radio"" name=""Z"" value=""2""> Rural")  End If
+    If Request("Z") = "1" Then ShowHtml("<input type=""radio"" name=""Z"" value=""1"" checked=""checked""> Urbana") Else ShowHtml("<input type=""radio"" name=""Z"" value=""1""> Urbana") End If
+    If Request("Z") = ""  Then ShowHtml("<input type=""radio"" name=""Z"" value=""""  checked=""checked""> Ambas")  Else ShowHtml("<input type=""radio"" name=""Z"" value="""" > Ambas")  End If
+      
   If Not RS.EOF Then
 	wCont = 0
 	wAtual = ""
@@ -204,20 +231,25 @@ Public Sub ShowPesquisa
   ShowHTML "        </tr>"
   ShowHTML "        </form>"
 
-  if (Request("Q") > "") or (Request("p_regional") > "") or (wIN > 0) then
+  if (Request("Z") > "") or (Request("Q") > "") or (Request("p_regional") > "") or (wIN > 0) then
     ShowHTML "        <tr><td colspan=2><table width=""570"" border=""0"" align=""left"" cellpadding=0 cellspacing=0>"
     ShowHTML "          <TR><TD><hr>"
     ShowHTML "          <TR><TD><b><a name=""resultado"">Resultado da pesquisa:</a><br><br>"
 
-    sql = "SELECT DISTINCT 0 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf,e.ds_logradouro,e.no_bairro,e.nr_cep " & VbCrLf & _
+    sql = "SELECT DISTINCT 0 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf, " & VbCrLf & _
+          "       e.ds_logradouro,e.no_bairro,e.nr_cep, d.localizacao, 'S' publica, null ds_username " & VbCrLf & _
           "  from escCliente                               d " & VbCrLf & _
           "       INNER      JOIN escTipo_Cliente          b ON (d.sq_tipo_cliente  = b.sq_tipo_cliente and " & VbCrLf & _
           "                                                      b.tipo             = 2 " & VbCrLf & _
           "                                                     ) " & VbCrLf & _
           "       LEFT OUTER JOIN escCliente_Dados         e ON (d.sq_cliente       = e.sq_cliente) " & VbCrLf & _
-          " where d.sq_cliente = " & Nvl(Request("p_regional"),0) & " " & VbCrLf & _
+          " where d.sq_regiao_adm = " & Nvl(Request("p_regional"),"d.sq_regiao_adm") & " " & VbCrLf
+    If Request("Z") > "" Then sql = sql + "    and 0 < (select count(sq_cliente) from escCliente where sq_cliente_pai = d.sq_cliente and localizacao = " & Request("Z") & ") " & VbCrLf End If
+    If sql1 > ""         Then sql = sql + "    and 0 < (select count(sq_cliente) from escEspecialidade_Cliente where sq_cliente_pai = d.sq_cliente and sq_codigo_espec in (" + Request("H") + ")) " & VbCrLf End If
+    sql = sql & _
           "UNION " & VbCrLf & _
-          "SELECT DISTINCT 0 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf,e.ds_logradouro,e.no_bairro,e.nr_cep " & VbCrLf & _
+          "SELECT DISTINCT 0 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf, " & VbCrLf & _
+          "       e.ds_logradouro,e.no_bairro,e.nr_cep, d.localizacao, 'S' publica, null ds_username" & VbCrLf & _
           "  from escCliente                               d " & VbCrLf & _
           "       LEFT OUTER JOIN escCliente_Dados         e ON (d.sq_cliente       = e.sq_cliente) " & VbCrLf & _
           "       INNER      JOIN escCliente_Site          a ON (d.sq_cliente       = a.sq_cliente) " & VbCrLf & _
@@ -225,34 +257,56 @@ Public Sub ShowPesquisa
           "                                                      b.tipo             = 2 " & VbCrLf & _
           "                                                     ) " & VbCrLf & _
           "       INNER      JOIN escCliente               c ON (d.sq_cliente       = c.sq_cliente_pai) " & VbCrLf & _
-          "         INNER    JOIN escEspecialidade_cliente f ON (c.sq_cliente       = f.sq_cliente), " & VbCrLf & _
-          "       escCliente                               g " & VbCrLf & _
-          " where g.sq_cliente = " & Nvl(Request("p_regional"),0) & " " & VbCrLf
-    If Request("p_regional") > "" Then sql = sql + "    and c.sq_cliente_pai = " & Request("p_regional") & VbCrLf End If
+          "         LEFT     JOIN escEspecialidade_cliente f ON (c.sq_cliente       = f.sq_cliente) " & VbCrLf & _
+          " where 1=1 " & VbCrLf
+          
+        
+    If Request("Z") > ""          Then sql = sql + "    and d.localizacao    = " & Request("Z")          & VbCrLf End If
+    If Request("p_regional") > "" Then sql = sql + "    and c.sq_regiao_adm  = " & Request("p_regional") & VbCrLf End If
     If Request("q") > ""          Then sql = sql + "    and c.sq_tipo_cliente= " & Request("q")          & VbCrLf End If
     if sql1 > "" then
-       sql = sql + "  and f.sq_codigo_espec in (" + Request("H") + ")" & VbCrLf 
+       sql = sql + "  and (f.sq_codigo_espec in (" + Request("H") + ")) " & VbCrLf
+    end if
+    sql = sql & _
+          "UNION " & VbCrLf & _
+          "SELECT DISTINCT 1 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf, " & VbCrLf & _ 
+          "       f.endereco logradouro, null no_bairro, null nr_cep, d.localizacao, d.publica, " & VbCrLf & _ 
+          "       d.ds_username " & VbCrLf & _ 
+          "  from escCliente                          d " & VbCrLf & _
+          "       INNER JOIN escCliente_Particular    f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
+          "       LEFT  JOIN escEspecialidade_cliente g ON (d.sq_cliente       = g.sq_cliente) " & VbCrLf & _
+          " where publica = 'N' " & VbCrLf
+          
+        
+    If Request("Z") > ""          Then sql = sql + "    and d.localizacao    = " & Request("Z")          & VbCrLf End If
+    If Request("p_regional") > "" Then sql = sql + "    and d.sq_regiao_adm  = " & Request("p_regional") & VbCrLf End If
+    If Request("q") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("q")          & VbCrLf End If
+    if sql1 > "" then
+       sql = sql + "  and (g.sq_codigo_espec in (" + Request("H") + ")) " & VbCrLf
     end if
     sql = sql & _      
           "UNION " & VbCrLf & _ 
-          "SELECT DISTINCT 1 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf,e.ds_logradouro,e.no_bairro,e.nr_cep " & VbCrLf & _ 
-          "  from escEspecialidade                           a " & VbCrLf & _ 
-          "       INNER        JOIN escEspecialidade_cliente c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
-          "       INNER        JOIN escCliente               d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
-          "         LEFT OUTER JOIN escCliente_Dados         e ON (d.sq_cliente       = e.sq_cliente) " & VbCrLf & _
-          " where 1=1 " & VbCrLf 
-
-    If Request("p_regional") > "" Then sql = sql + "    and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf End If
+          "SELECT DISTINCT 1 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf, " & VbCrLf & _ 
+          "       e.ds_logradouro, e.no_bairro,e.nr_cep, d.localizacao, d.publica, " & VbCrLf & _ 
+          "       d.ds_username " & VbCrLf & _ 
+          "  from escEspecialidade                      a " & VbCrLf & _ 
+          "       INNER   JOIN escEspecialidade_cliente c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
+          "       INNER   JOIN escCliente               d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
+          "         INNER JOIN escCliente_Dados         e ON (d.sq_cliente       = e.sq_cliente) " & VbCrLf & _
+          " where 1=1" & VbCrLf
+          
+    If Request("Z") > ""          Then sql = sql + "    and d.localizacao    = " & Request("Z")          & VbCrLf End If
+    If Request("p_regional") > "" Then sql = sql + "    and d.sq_regiao_adm  = " & Request("p_regional") & VbCrLf End If
     If Request("q") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("q")          & VbCrLf End If
 
     if sql1 > "" then
        sql = sql + "  and a.sq_especialidade in (" + Request("H") + ")" & VbCrLf 
     end if
     sql = sql + "ORDER BY tipo, d.ds_cliente " & VbCrLf
-
+    
     RS.Close
     RS.Open sql, sobjConn, adOpenStatic
-    
+   
     If Not RS.EOF Then
 
       If Request("str2") > "" Then RS.PageSize = cDbl(Request("str2")) Else RS.PageSize = 10 End If
@@ -266,21 +320,34 @@ Public Sub ShowPesquisa
 
         ShowHTML "            <TR><TD valign=""top""><img src=""img/ico_educacao.gif"" width=""16"" height=""16"" border=""0"" align=""center""> "
         ShowHTML "                <td align=""left""><font size=""2""><b>"
-        If Not IsNull (RS("LN_INTERNET")) Then
-           ShowHTML "                <a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
+        If RS("PUBLICA") = "S" Then
+           If Not IsNull (RS("LN_INTERNET")) Then
+              If inStr(lcase(RS("LN_INTERNET")),"http://") > 0 Then
+                 ShowHTML "                <a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
+              Else
+                ShowHTML "                <a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
+              End If
+           Else
+              ShowHTML RS("DS_CLIENTE") & "</b>"
+           End If
         Else
-           ShowHTML RS("DS_CLIENTE") & "</b>"
+           ShowHTML "                <a href=""/modelos/ModPart/default.asp?EW=110&EF=sq_cliente=" & RS("SQ_CLIENTE") & "&CL=" & RS("SQ_CLIENTE") & """ target=""" & RS("DS_USERNAME") & """>" & RS("DS_CLIENTE") & "</a></b>"
         End If
 	    If RS("tipo") <> "0" Then
           ShowHTML "<br>Endereço: " & RS("ds_logradouro")
           If Nvl(RS("no_bairro"),"nulo") <> "nulo" Then ShowHTML " - Bairro: " & RS("no_bairro") End If
           If Nvl(RS("nr_cep"),"nulo") <> "nulo" and len(RS("nr_cep")) > 5 Then ShowHTML " - CEP: " & RS("nr_cep") End If
           ShowHTML "<br>Localização: " & RS("no_municipio") & "-" & RS("sg_uf")
-	       sql2 = "SELECT f.ds_especialidade " & _ 
-	             "from escEspecialidade_cliente AS e " & _
-                 "     INNER JOIN escEspecialidade AS f ON (e.sq_codigo_espec = f.sq_especialidade) " & _
-                 "WHERE e.sq_cliente = " & RS("sq_cliente") & " " & _
-                 "ORDER BY f.ds_especialidade "
+          sql2 = "SELECT f.ds_especialidade " & VbCrLf & _ 
+	             "  from escEspecialidade_cliente AS e " & VbCrLf & _
+                 "       INNER JOIN escEspecialidade AS f ON (e.sq_codigo_espec = f.sq_especialidade) " & VbCrLf & _
+                 " WHERE e.sq_cliente = " & RS("sq_cliente") & " " & VbCrLf & _
+                 "UNION " & VbCrLf & _
+                 "SELECT f.ds_especialidade " & VbCrLf & _ 
+	             "  from escEspecialidade f " & VbCrLf & _
+                 " WHERE upper(ds_especialidade) like '%PROFISSIONAL%' " & VbCrLf & _
+                 "   and 0 < (select count(sq_cliente) from escParticular_curso where sq_cliente = " & RS("sq_cliente") & ") " & VbCrLf & _
+                 "ORDER BY ds_especialidade "
 
            RS1.Open sql2, sobjConn, adOpenForwardOnly
 
@@ -306,7 +373,7 @@ Public Sub ShowPesquisa
       ShowHTML "            <tr><td><td align=""center""><hr>"
 
       ShowHTML "<tr><td>"
-      MontaBarra "default.asp?EW=" & conWhatPrincipal & "&p_regional=" & Request("p_regional") & "&Q=" & Request("Q") & "&U=" & Request("U"), cDbl(RS.PageCount), cDbl(Request("htBT")), cDbl(Request("str2")), cDbl(RS.RecordCount)
+      MontaBarra "default.asp?EW=" & conWhatPrincipal & "&p_regional=" & Request("p_regional") & "&Q=" & Request("Q") & "&U=" & Request("U")& "&Z=" & Request("Z"), cDbl(RS.PageCount), cDbl(Request("htBT")), cDbl(Request("str2")), cDbl(RS.RecordCount)
       ShowHTML "</tr>"
 
 
