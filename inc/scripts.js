@@ -49,3 +49,7 @@ function PopupPic(sPicURL) {
 	window.open('/gcs/foto.asp?id='+sPicURL, '', 'resizable=yes,width=200,height=200');
 }
 
+
+
+
+

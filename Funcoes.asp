@@ -59,6 +59,44 @@ REM Final da rotina
 REM -------------------------------------------------------------------------
 
 REM =========================================================================
+REM Retorna uma parte qualquer de uma linha delimitada
+REM -------------------------------------------------------------------------
+Function Piece (p_line, p_delimiter, p_separator, p_position)
+
+  Dim l_i, l_result, l_actual
+
+  l_actual = trim(p_line)
+  l_result = l_actual
+  If Nvl(p_separator,"") > "" Then
+     For l_i = 1 TO p_position
+        If p_delimiter > "" and Instr(l_actual,nvl(p_delimiter,"@|!")) = 1 Then
+           l_result = Mid(l_actual,1,instr(Mid(l_actual,2,len(l_actual)),p_delimiter)+1)
+           if mid(l_actual,len(l_result)+1,1)<>"," then
+              l_actual = mid(l_result,1,len(l_result)-1) & "´" & trim(mid(l_actual,len(l_result)+2,len(l_actual)))
+              l_i = l_i-1
+           else
+              l_actual = trim(mid(l_actual,len(l_result)+2,len(l_actual)))
+              If l_i = p_position - 1 and Instr(l_actual,p_separator) = 0 Then l_actual = l_actual & p_separator End If
+           end if
+        ElseIf Instr(l_actual,p_separator) > 0 Then
+           l_result = Mid(l_actual, 1,Instr(l_actual,p_separator)-1)
+           l_actual = trim(Mid(l_actual, Instr(l_actual,p_separator)+1, len(l_actual)))
+           If l_i = p_position - 1 and Instr(l_actual,p_separator) = 0 Then l_actual = l_actual & p_separator End If
+        Else
+           Piece = ""
+           Exit For
+        End If
+     Next
+  End If
+  
+  If p_delimiter > "" Then
+     Piece = replace(l_result,p_delimiter,"")
+  Else
+     Piece = l_result
+  End If
+End Function
+
+REM =========================================================================
 REM Montagem da barra de navegação de recordsets
 REM -------------------------------------------------------------------------
 Sub MontaBarra (p_link, p_PageCount, p_AbsolutePage, p_PageSize, p_RecordCount)
@@ -145,10 +183,32 @@ REM Final da função
 REM -------------------------------------------------------------------------
 
 REM =========================================================================
+REM Retorna nome do mês
+REM -------------------------------------------------------------------------
+Function nomeMes(p_mes)
+   
+  Select Case p_mes
+    Case 1    nomeMes = "JAN"
+    Case 2    nomeMes = "FEV"
+    Case 3    nomeMes = "MAR"
+    Case 4    nomeMes = "ABR"
+    Case 5    nomeMes = "MAI"
+    Case 6    nomeMes = "JUN"
+    Case 7    nomeMes = "JUL"
+    Case 8    nomeMes = "AGO"
+    Case 9    nomeMes = "SET"
+    Case 10   nomeMes = "OUT"
+    Case 11   nomeMes = "NOV"
+    Case 12   nomeMes = "DEZ"
+    Case Else nomeMes = "???"
+  End Select
+End Function
+
+REM =========================================================================
 REM Monta string html para montagem de calendário do mês informado
 REM -------------------------------------------------------------------------
-Function MontaCalendario(p_mes, p_datas, p_cores)
-   Dim l_html, l_mes, l_ano, l_inicio, l_cont, l_cor, l_cor_padrao, l_borda, l_ocorrencia
+Function MontaCalendario(p_mes, p_datas, p_cores, p_imagem)
+   Dim l_html, l_mes, l_ano, l_inicio, l_cont, l_cor, l_img, l_cor_padrao, l_borda, l_ocorrencia
    Dim l_celulas(42), l_meses(12), l_dias(7), l_qtd(12)
    
    ' Atribui nomes dos meses
@@ -175,7 +235,7 @@ Function MontaCalendario(p_mes, p_datas, p_cores)
    If (l_ano Mod 4) = 0 Then l_qtd(2) = 29 End If
    
    l_html = ""
-   l_html = l_html & "<table border=0>" & VbCrLf
+   l_html = l_html & "<table border=0 cellpadding=""2"">" & VbCrLf
    l_html = l_html & "  <tr><td colspan=7 align=""center""" & l_cor_padrao & "><b>" & l_meses(l_mes) & "/" & l_ano & "</td></tr>" & VbCrLf
    l_html = l_html & "  <tr align=""center"">" & VbCrLf
    ' Monta a linha com a sigla para os dias das semanas
@@ -214,16 +274,25 @@ Function MontaCalendario(p_mes, p_datas, p_cores)
           
           ' Trata a cor de fundo da célula
           l_cor = "" 
+          l_img = ""
           If l_item <> "&nbsp;" and (l_cont = 1 or (l_cont Mod 7) = 0 or ((l_cont-1) Mod 7) = 0) Then 
-             l_cor = l_cor_padrao
+             l_img = " style=""background-color: #DAEABD;"""
+             If p_imagem(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
+                l_img = " style=""background: url(/img/" & p_imagem(l_item, l_mes, Mid(l_ano,3,2)) & ") no-repeat center; background-color: #DAEABD;"""
+             End If
           ElseIf l_item <> "&nbsp;" Then 
              If p_cores(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
-                l_cor = " bgcolor=""" & p_cores(l_item, l_mes, Mid(l_ano,3,2)) & """"
+                l_cor = "  background-color: p_cores(l_item, l_mes, Mid(l_ano,3,2));"
+             End If
+             If p_imagem(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
+                l_img = " style=""background: url(/img/" & p_imagem(l_item, l_mes, Mid(l_ano,3,2)) & ") no-repeat center;" & l_cor & """"
+                'Response.Write l_img
+                'Response.End
              End If
           End If
           
           ' Coloca uma célula do calendário
-          l_html = l_html & "    <td" & l_cor & l_borda & l_ocorrencia & ">" & l_item & "</td>" & VbCrLf 
+          l_html = l_html & "    <td><div " & l_img & l_ocorrencia & ">" & l_item & "</div></td>" & VbCrLf 
           
           ' Trata a quebra de linha ao final de cada semana
           If ((l_cont Mod 7) = 0) Then
@@ -458,6 +527,85 @@ End Function
 REM =========================================================================
 REM Final da função
 REM -------------------------------------------------------------------------
+
+REM =========================================================================
+REM Função que devolve a modalidade a partir da sigla
+REM -------------------------------------------------------------------------
+Function ExibeModal(p_texto)
+    Dim Result
+    Select Case p_texto
+      Case "1SG" Result = "Educação de Jovens e Adultos - 1º Segmento"
+      Case "2SG" Result = "Educação de Jovens e Adultos - 2º Segmento"
+      Case "3SG" Result = "Educação de Jovens e Adultos - 3º Segmento"
+      Case "AC"  Result = "Aceleração"
+      'Case "AAL" Result = "Aceleração - Alfabetização"
+      'Case "ASF" Result = "Aceleração - Séries Finais"
+      'Case "ASI" Result = "Aceleração - Séries Iniciais"
+      Case "BE"  Result = "Berçario"
+      Case "DA"  Result = "Deficiência auditiva"
+      Case "DM"  Result = "Deficiência mental"
+      Case "DMU" Result = "Deficiência múltipla"
+      Case "DV"  Result = "Deficiência visual"
+      Case "EE"  Result = "Ensino Especial - Outros"
+      Case "EF"  Result = "Ensino Fundamental"
+      Case "EP"  Result = "Estimulação precoce"
+      Case "EF9" Result = "Ensino Fundamental de 9 anos"
+      Case "EM"  Result = "Ensino Médio"
+      Case "EMI" Result = "Ensino Médio Integrado"
+      Case "EP"  Result = "Ensino Profissional"
+      Case "MT"  Result = "Maternal"
+      Case "OP"  Result = "Oficina Pedagógica"
+      Case "PCT" Result = "Portador de Condutas Típicas"
+      Case "PE"  Result = "Educação Infantil"
+      Case "QMC" Result = "Quanto mais cedo melhor"
+    End Select
+    
+    ExibeModal = Result
+End Function
+
+REM =========================================================================
+REM Função que devolve a série a partir da sigla da modalidade e o número da série
+REM -------------------------------------------------------------------------
+Function ExibeSerie(p_modal, p_serie)
+    Dim Result
+    If p_serie = "0" Then 
+       Result = "0" 
+    ElseIf p_modal = "EM" or p_modal = "EMI" Then 
+       Result = p_serie & "º Ano" 
+    ElseIf p_modal = "AC" Then 
+       If p_serie = 1 Then 
+          Result = "Alfabetização"
+       ElseIf p_serie = 2 Then
+          Result = "Séries Iniciais"
+       Else
+          Result = "Séries Finais"
+       End If 
+    ElseIf mid(p_modal,2,2) = "SG" Then 
+       Result = p_serie & "º Semestre" 
+    ElseIf p_modal = "EP" Then 
+       Result = p_serie & "º Período" 
+    ElseIf p_modal = "BE" or p_modal = "MT" Then 
+       Result = p_serie
+    Else 
+       Result = p_serie & "ª Série" 
+    End If
+    
+    ExibeSerie = Result
+End Function
+
+REM =========================================================================
+REM Função que devolve o turno a partir da sigla
+REM -------------------------------------------------------------------------
+Function ExibeTurno(p_texto)
+    Dim Result
+    Select Case p_texto
+      Case "1" Result = "Matutino"
+      Case "2" Result = "Vespertino"
+      Case "3" Result = "Noturno"
+    End Select
+    
+    ExibeTurno = Result
+End Function
 
 REM =========================================================================
 REM Função que retorna a data/hora do banco
@@ -746,6 +894,47 @@ End Sub
 REM =========================================================================
 REM Fim da rotina de tratamento de erros
 REM -------------------------------------------------------------------------
+
+Sub montaCheckBoxCal(cliente)
+
+ShowHTML "    <script language=""JavaScript"" type=""text/JavaScript"">" & chr(13) & chr(10)
+ShowHTML " ok=false;" & chr(13) & chr(10)
+ShowHTML "function CheckAll() {" & chr(13) & chr(10)
+ShowHTML "   if(!ok){" & chr(13) & chr(10)
+ShowHTML "     for (var i=0;i<document.Form.elements.length;i++) {" & chr(13) & chr(10)
+ShowHTML "       var x = document.Form.elements[i];" & chr(13) & chr(10)
+ShowHTML "       if (x.name == 'checkbox') {        " & chr(13) & chr(10)
+ShowHTML "               x.checked = true;" & chr(13) & chr(10)
+ShowHTML "               ok=true;" & chr(13) & chr(10)
+ShowHTML "           }" & chr(13) & chr(10)
+ShowHTML "       }" & chr(13) & chr(10)
+ShowHTML "   }" & chr(13) & chr(10)
+ShowHTML "   else{" & chr(13) & chr(10)
+ShowHTML "   for (var i=0;i<document.Form.elements.length;i++) {" & chr(13) & chr(10)
+ShowHTML "       var x = document.Form.elements[i];" & chr(13) & chr(10)
+ShowHTML "       if (x.name == 'checkbox') {        " & chr(13) & chr(10)
+ShowHTML "               x.checked = false;" & chr(13) & chr(10)
+ShowHTML "               ok=false;" & chr(13) & chr(10)
+ShowHTML "           }" & chr(13) & chr(10)
+ShowHTML "       }    " & chr(13) & chr(10)
+ShowHTML "   }" & chr(13) & chr(10)
+ShowHTML " }" & chr(13) & chr(10)
+ShowHTML " </script>" & chr(13) & chr(10)
+
+SQL = "select sq_particular_calendario, nome from escParticular_Calendario " & VbCrLf & _
+      " where ativo <> 'N' and sq_cliente = " & cliente
+ConectaBD SQL
+
+If RS.RecordCount > 0 Then
+    ShowHTML "<label><font size=""1""><b>Atribuição:</b></font></label>"
+    ShowHTML "<br><a href=""javascript:void(null)"" onClick=""CheckAll();""><font size=""1"">Marcar/Desmarcar Todos</font></a><br/>"
+    While Not RS.EOF
+        ShowHTML "<br style=""""><font size=""1""><input type=""checkbox"" name=""checkbox"" value=""" & RS("sq_particular_calendario") & """>" & RS("nome") & "</label>"
+        RS.MoveNext
+    Wend
+End If
+DesconectaBD   
+end sub
 
 REM =========================================================================
 REM Rotina de cabeçalho
@@ -1124,9 +1313,101 @@ ShowHTML "</SCRIPT>"
 
 End Sub
 
+'Imprime data do dia(por extenso)
+Function ExibeData(data)
+  dia_semana = WeekDay(data)
+  Select Case dia_semana
+  Case 1 : dia_semana = "Domingo"
+  Case 2 : dia_semana = "Segunda-Feira"
+  Case 3 : dia_semana = "Terça-Feira"
+  Case 4 : dia_semana = "Quarta-Feira"
+  Case 5 : dia_semana = "Quinta-Feira"
+  Case 6 : dia_semana = "Sexta-Feira"
+  Case 7 : dia_semana = "Sábado"
+  End Select
+  mes = Month(data)
+  Select Case mes
+  Case 1 : mes = "Janeiro"
+  Case 2 : mes = "Fevereiro"
+  Case 3 : mes = "Março"
+  Case 4 : mes = "Abril"
+  Case 5 : mes = "Maio"
+  Case 6 : mes = "Junho"
+  Case 7 : mes = "Julho"
+  Case 8 : mes = "Agosto"
+  Case 9 : mes = "Setembro"
+  Case 10 : mes = "Outubro"
+  Case 11 : mes = "Novembro"
+  Case 12 : mes = "Dezembro"
+  End Select
+  ExibeData = dia_semana & ", " & Day(Date()) & " de " & mes & " de " & Year(data)
+End Function
+
 ' Imprime uma linha HTML
 Sub ShowHtml(Line)
   Response.Write Line & CHR(13) & CHR(10)
+End Sub
+
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+' Funções para ordenar um array de n posições em VBScript (ASP)
+' - O array deve começar na posição 1
+' - Algoritmo pode ser adaptado para Visual Basic facilmente
+' - Produzido por Fundão da Computação
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+' function Change
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+' - Descrição:
+'   * Realiza troca dos valores das variáveis. Utilizada pela sub SelectionSort
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+Sub Change( byRef a, byRef b)
+   Dim aux
+   aux = a
+   a   = b
+   b   = aux
+End Sub
+
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+' function SelectionSort
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+' - Descrição:
+'   * Realiza ordenação utilizando o algoritmo Selection Sort
+'   * Array deve começar na posição um
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+Sub SelectionSort( byRef arrArray )
+
+    Dim i, j, k
+    
+    For j = UBound( arrArray ) - 1 To 1 Step -1
+        i = 0
+        For k = 1 To j 
+        
+          If ( StrComp( arrArray(k), arrArray(i) ) > 0 ) Then
+            
+             i = k
+            
+          End If
+          
+        Next
+        Change arrArray(i), arrArray(j)
+        
+    Next
+
+End Sub
+
+Sub Sort( ByRef myArray )
+    Dim i, j, strHolder
+
+    For i = ( UBound( myArray ) - 1 ) to 0 Step -1
+        For j= 0 to i
+            If UCase( myArray( j ) ) > UCase( myArray( j + 1 ) ) Then
+                strHolder        = myArray( j + 1 )
+                myArray( j + 1 ) = myArray( j )
+                myArray( j )     = strHolder
+            End If
+        Next
+    Next 
 End Sub
 %>
 

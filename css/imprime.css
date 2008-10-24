@@ -1,0 +1,68 @@
+/*FUNDO*/
+div#fImp{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	background:#000;
+	filter:alpha(opacity=70);
+ 	-moz-opacity: 0.7; 
+	opacity: 0.7;
+	z-index:998:
+}
+/*JANELA PRINCIPAL*/
+div#janela_impressao{
+	position:absolute;
+	left:50%;
+	top:50%;
+	width:760px;
+	height:500px;
+	margin: -250px 0  0 -380px;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:11px;
+	color:#333;
+	background:#F2F2F2;
+	border:solid 2px #4B4B4B;
+	padding:5px;
+	z-index:999;
+}
+/*TOPO DA JANELA*/
+div#janela_impressao div#topo_janela{
+	background:#333;
+	height:25px;
+	line-height:25px;
+	margin: 0 0 5px 0;
+	text-align:right;
+}
+/*FORMULARIO DO TOPO*/
+div#janela_impressao form{
+	padding:0;
+	margin:0;
+}
+/*BOTOES DE IMPRIMIR E FECHAR*/
+div#janela_impressao .button{
+	background:#FFF;
+	border:solid 1px #CCC;
+	font-size:12px;
+	margin:3px;
+	width:120px;
+}
+/*TITULO TOPO*/
+div#janela_impressao h1{
+	text-transform:uppercase;
+	color:#F7F7F7;
+	font-size:12px;
+	font-weight:bold;
+	float:left;
+	margin: 0 0 0 10px;
+}
+/*IFRAME COM O CONTEUDO*/
+div#janela_impressao #conteudo_impressao{
+	background:#FFF;
+	width:99%;
+	height:460px;
+	overflow:visible;
+	border:solid 1px #999;
+	padding:2px;
+}

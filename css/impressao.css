@@ -1,0 +1,12 @@
+#impressora{
+    display:none;
+}
+
+#campopesquisa{
+    display:none;
+}
+
+body{
+ size:100%;
+ background-color:#fff;
+}

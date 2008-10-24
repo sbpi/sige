@@ -50,6 +50,7 @@ Set RSCabecalho = Server.CreateObject("ADODB.RecordSet")
 Set RSRodape    = Server.CreateObject("ADODB.RecordSet")
 Set dbms        = Server.CreateObject("ADODB.Connection")
 
+
 dbms.ConnectionTimeout = 300
 dbms.CommandTimeout = 300
 dbms.Open conConnectionString
@@ -72,23 +73,39 @@ If (Request("H") > "") or (Request("Q") > "") or (Request("p_regional") > "") or
 Else
    ShowHTML "<body>"
 End If
-ShowHTML "<div id=""container"">"
-ShowHTML "  <div id=""cab"">"
-ShowHTML "    <div id=""cabtopo"">"
-ShowHTML "      <div id=""logoesq""><img src=""img/fundo_logoesq.gif"" border=0></div>"
-ShowHTML "      <div id=""logodir""><a href=""http://www.se.df.gov.br""><img src=""img/fundo_logodir.jpg"" border=0></a></div>"
-ShowHTML "    </div>"
+ShowHTML "    <div id=""pagina"">"
+ShowHTML "    <div id=""topo""></div>"
+%>
+<div id="busca">
+    <div class="data"> <% Response.Write(ExibeData(date())) %> </div>
+    <div class="clear"></div>
+  </div>
+  <div id="menu">
+    <div id="menuTop">
+      <div class="esquerda">
+        <ul>
+          <li><a href="http://www.se.df.gov.br/300/30001001.asp">Secretaria de Educação</a></li>
+          <li><a href="http://www.se.df.gov.br/300/30001009.asp">mapa do site</a></li>
+          <li class="ultimo"><a class="ultimo" href="http://www.se.df.gov.br/300/30001005.asp">fale conosco</a></li>
+        </ul>
+      </div>
+      <div class="direita">
+        <ul>
+          <li><a target="_blank" class="aluno" href="http://www.se.df.gov.br/300/30002001.asp">Aluno</a></li>
+          <li><a target="_blank" class="educador" href="http://www.se.df.gov.br/300/30003001.asp">Educador</a></li>
+          <li><a target="_blank" class="comunidade" href="http://www.se.df.gov.br/300/30004001.asp">Comunidade</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="menuMiddle"> </div>
+  </div>
+  <div class="clear"></div>
+<div id="menuBottom"> 
+<%
 
 sql = "SELECT a.sq_cliente, a.ds_cliente, b.ds_mensagem FROM escCliente a inner join esccliente_site b on (a.sq_cliente = b.sq_cliente)WHERE a." & sstrEF
 ConectaBD SQL
-ShowHTML "    <div id=""cabbase"">"
-ShowHTML "      <div id=""busca"" valign=""center""><marquee width=""100%"" align=""middle""><font color=""white"" face=""Arial"" size=""2""><b>" & RS("ds_mensagem") & "</b></font></marquee></div> "
-ShowHTML "    </div>"
-ShowHTML "  </div>"
-ShowHTML "  <div id=""corpo"">"
-ShowHTML "    <div id=""menuesq"">"
-ShowHTML "      <div id=""logomenuesq""><img src=""img/fundo_logomenuesq.gif"" border=0></div>"
-ShowHTML "      <ul id=""menugov"">"
+ShowHTML "      <ul>"
 ShowHTML "      <script language=""JavaScript"" src=""inc/mm_menu.js"" type=""text/JavaScript""></script>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=110&CL=" & replace(CL,"sq_cliente=","") & """ >Inicial</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=113&CL=" & replace(CL,"sq_cliente=","") & """ id=""link1"">Quem somos</a> </li>"
@@ -99,25 +116,19 @@ ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=115&CL=" & replace(CL,
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & """ >Arquivos (<i>download</i>)</a></li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=116&IN=0&CL=" & replace(CL,"sq_cliente=","") & """ >Escolas</a></li>"
 ShowHTML "	    </ul>"
-ShowHTML "      <div id=""menusep""><hr /></div>"
-ShowHTML "      <div id=""menunav"">"
-ShowHTML "      <ul id=""menunav"">"
-ShowHTML "      <li><a href=""newsletter.asp?ew=i"">Clique aqui para receber informativos da SEDF</a>"
-ShowHTML "	    </ul>"
-ShowHTML "      </div>"
 ShowHTML "    </div>"
-ShowHTML "	  <div id=""menutxt"">"
-ShowHTML "      <ul id=""menutexto"">"
-ShowHTML "      <li><b>" & RS("ds_cliente") & "</b></li>"
+ShowHTML "	  <div id=""conteudo"">"
+ShowHTML "      <h2>" & RS("ds_cliente") & "</h2>"
 Select Case sstrEW
-  Case conWhatPrincipal   ShowHTML "      <li><b>Inicial</b></li>"
-  Case conWhatManut       ShowHTML "      <li><b>Alunos</b></li>"
-  Case conWhatQuem        ShowHTML "      <li><b>Quem somos</b></li>"
-  Case conWhatExFale      ShowHTML "      <li><b>Fale conosco</b></li>"
-  Case conWhatArquivo     ShowHTML "      <li><b>Arquivos</b></li>"
-  Case conWhatExNoticia   ShowHTML "      <li><b>Notícias</b></li>"
-  Case conWhatExCalend    ShowHTML "      <li><b>Calendário</b></li>"
+  Case conWhatPrincipal   ShowHTML "      <h3>Inicial</h3>"
+  Case conWhatManut       ShowHTML "      <h3>Alunos</h3>"
+  Case conWhatQuem        ShowHTML "      <h3>Quem somos</h3>"
+  Case conWhatExFale      ShowHTML "      <h3>Fale conosco</h3>"
+  Case conWhatArquivo     ShowHTML "      <h3>Arquivos</h3>"
+  Case conWhatExNoticia   ShowHTML "      <h3>Notícias</h3>"
+  Case conWhatExCalend    ShowHTML "      <h3>Calendário</h3>"
   Case conWhatValida
+  ShowHTML "	<ul>"
      If sstrIN > 0 Then
         ShowHTML "      <li><b>Composição administrativa</b></li>"
      Else
@@ -126,8 +137,6 @@ Select Case sstrEW
 End Select
 
 ShowHTML "	    </ul>"
-ShowHTML "	  </div>"
-ShowHTML "    <div id=""texto""><!-- Conteúdo -->"
 ShowHTML "        <table width=""570"" border=""0"">"
 RS.Close
 
@@ -135,18 +144,34 @@ Main
 
 ShowHTML "        </table>"
 ShowHTML "    </div>"
-ShowHTML "  </div> "
 
-ShowHTML "  <br clear=""all"" />"
-ShowHTML "</div>"
-
-ShowHTML "<div id=""rodape"">"
-ShowHTML "  <div id=""endereco"">"
-ShowHTML "      <div></div>"
-ShowHTML "      <div></div>"
-ShowHTML "      <div><br /></div> "
-ShowHTML "  </div>"
-ShowHTML "</div>"
+ShowHTML "    </div>"
+%>
+<div id="rodape">
+  <!-- Menu Rodape -->
+  <ul>
+    <li><a href="http://www.se.df.gov.br">Página Inicial</a></li>
+    <li><a href="http://www.se.df.gov.br/300/30001005.asp">Fale conosco</a></li>
+    <li class="ultimo"><a href="http://www.se.df.gov.br/300/30001009.asp">Mapa do site</a></li>
+  </ul>
+  <!-- Fim Menu Rodape -->
+  <div class="clear"/>
+  <!-- Endereço -->
+  <div class="endereco">
+  <div class="buriti">
+  <p>Anexo do Palácio do Buriti - 9º andar  - Brasília </p>
+  <p>Telefone (61) 3224 0016 (61) 3225 1266 | Fax (61) 3901 3171</p>
+  </div>
+  <div class="buritinga">
+  <p>QNG AE Lote 22 bl 05 sala 03 - Taguatinga   Norte</p>
+  <p>Telefone (61) 3355 86 30 | Fax 3355 86 94</p>
+  </div>
+  </div>
+  
+  <p class="copy">Copyright ® 2000/2008 - SE/GDF - Todos os Direitos Reservados</p>
+  <!-- Fim Endereço -->
+</div>
+<%
 ShowHTML "</body>"
 ShowHTML "</html>"
 
@@ -331,10 +356,12 @@ Public Sub ShowQuem
     ShowHTML "        </td>"
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "  <td align=""right""><font size=""1""><b>Fotografias</b><font size=1> (Clique sobre a imagem para ampliar)</b><br>"
+       ShowHTML "<ul class=""fotos"">"
        Do While Not RS.EOF
-          ShowHTML "   <a href=""" & RS("diretorio") & "/" & RS("ln_foto") & """ target=""_blank""><img align=""top"" class=""foto"" src=""" & RS("diretorio") & "/" & RS("ln_foto") & """ width=""201"" height=""153""> " & RS("ds_foto") & "</a>"
+          ShowHTML "   <li><a href=""" & RS("diretorio") & "/" & RS("ln_foto") & """ target=""_blank""><img align=""top"" class=""foto"" src=""" & RS("diretorio") & "/" & RS("ln_foto") & """ width=""201"" height=""153""> " & RS("ds_foto") & "</a></li>"
           RS.MoveNext
        Loop
+       ShowHTML "</ul>"
     End If
   End If
   ShowHTML "        </td>"
@@ -576,102 +603,299 @@ REM Monta a tela Calendário
 REM -------------------------------------------------------------------------
 Public Sub ShowCalend
 
-  Dim sql, strNome, wCont, wRede, wAno, wDatas(31,12,10), wCores(31,12,10)
+  Dim sql, strNome, wCont, wRede, wAno, wDatas(31,12,10), wCores(31,12,10), wImagem(31,12,10)
   wAno = Year(Date())
   
-  sql = "SELECT '' as cor, dt_ocorrencia AS data, ds_ocorrencia AS ocorrencia, 'B' AS origem FROM escCalendario_base WHERE YEAR(dt_ocorrencia)=" & Year(Date()) & " " & VbCrLf & _
+  sql = "SELECT '' as cor, b.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'B' AS origem FROM escCalendario_base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE YEAR(dt_ocorrencia)=" & Year(Date()) & " " & VbCrLf & _
         "UNION " & VbCrLf & _
-        "SELECT '#99CCFF' as cor, dt_ocorrencia AS data, ds_ocorrencia AS ocorrencia, 'E' AS origem FROM escCalendario_Cliente WHERE sq_site_cliente = " & CL & "  AND YEAR(dt_ocorrencia)= " & Year(Date()) & " " & VbCrLf & _
+        "SELECT '#99CCFF' as cor, b.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'E' AS origem FROM escCalendario_Cliente a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE sq_site_cliente = " & CL & "  AND YEAR(dt_ocorrencia)= " & Year(Date()) & " " & VbCrLf & _
         "UNION " & VbCrLf & _
-        "SELECT '#FFFF99' as cor, dt_ocorrencia AS data, ds_ocorrencia AS ocorrencia, 'R' AS origem " & VbCrLf & _
-        "FROM escCalendario_Cliente AS a" & VbCrLf & _
-        "     INNER JOIN escCliente AS b ON (a.sq_site_cliente = b.sq_cliente) " & VbCrLf & _
-        "     INNER JOIN escCliente AS c ON (b.sq_cliente = c.sq_cliente_pai) " & VbCrLf & _
-        "WHERE c.sq_cliente = " & CL & VbCrLf & _
+        "SELECT '#FFFF99' as cor, e.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'R' AS origem " & VbCrLf & _
+        "FROM escCalendario_Cliente   AS a" & VbCrLf & _
+        "     INNER JOIN escCliente   AS b ON (a.sq_site_cliente = b.sq_cliente) " & VbCrLf & _
+        "     INNER JOIN escCliente   AS c ON (b.sq_cliente      = c.sq_cliente_pai) " & VbCrLf & _
+        "     INNER JOIN escCliente   AS d ON (c.sq_cliente      = d.sq_cliente_pai) " & VbCrLf & _
+        "     LEFT  JOIN escTipo_Data AS e ON (a.sq_tipo_data    = e.sq_tipo_data) " & VbCrLf & _
+        "WHERE d.sq_cliente = " & CL & VbCrLf & _
         "  AND YEAR(dt_ocorrencia)= " & wAno & " " & VbCrLf & _
         "ORDER BY data, origem desc, ocorrencia" & VbCrLf 
-
-  RS.Open sql, dbms, adOpenForwardOnly
-  
-  If sstrIN = "" then
-     If Not RS.EOF Then
-        Do While Not RS.EOF
-           If RS("origem") = "E" then
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Escola)"
-              wCores(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("cor")
-           ElseIf RS("origem") = "R" then
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: SEDF)"
-              wCores(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("cor")
+        
+  RS1.Open sql, dbms, adOpenForwardOnly
+ 
+  If sstrIN = 0 then
+     If Not RS1.EOF Then
+        Do While Not RS1.EOF
+           If RS1("origem") = "E" then
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: Escola)"
+              wImagem(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2))= RS1("imagem")
+              wCores(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("cor")
+           ElseIf RS1("origem") = "R" then
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: SEDF)"
+              wImagem(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("imagem")
+              wCores(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("cor")
            Else
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Oficial)"
+              wDatas(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("ocorrencia") & " (Origem: Oficial)"
+              wImagem(Day(RS1("data")), Month(RS1("data")), Mid(Year(RS1("data")),4,2)) = RS1("imagem")
            End If
+           RS1.MoveNext
+        Loop
+        RS1.MoveFirst
+     End If
+     ShowHTML "<tr><td><TABLE align=""center"" width=""100%"" border=0 cellSpacing=0>"
+     ShowHTML "<tr valign=""top"">"
+     ShowHTML "  <td>" & MontaCalendario("01" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("02" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("03" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("04" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "<tr valign=""top"">"
+     ShowHTML "  <td>" & MontaCalendario("05" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("06" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("07" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("08" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "<tr valign=""top"">"
+     ShowHTML "  <td>" & MontaCalendario("09" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("10" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("11" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "  <td>" & MontaCalendario("12" & wAno, wDatas, wCores, wImagem)
+     ShowHTML "</table>"
+     
+     ShowHTML "<tr><td colspan=""2""><TABLE width=""100%"" align=""center"" border=0 cellSpacing=1>"
+     ShowHTML "<tr valign=""middle"" align=""center"">"
+     ShowHTML "  <td><font size=1><b>LEGENDA</b></font>"
+     ShowHTML "  <td><font size=1><b>FERIADOS</b></font>"
+     ShowHTML "  <td><font size=1><b>RECESSOS</b></font>"
+     ShowHTML "  <td><font size=1><b>DIAS LETIVOS</b></font>"
+     ShowHTML "</tr>"
+     ShowHTML "  <TR>"
+     ShowHTML "    <TD CHEIGHT=""1"" BGCOLOR=""#DAEABD"">"
+     ShowHTML "  </TR>"
+     
+     ShowHTML "<tr valign=""top"">"
+     'Legenda
+     sql = "SELECT * from escTipo_Data where abrangencia <> 'U' order by nome " & VbCrLf
+     RS.Open sql, dbms, adOpenForwardOnly
+
+     If Not RS.EOF Then
+        ShowHTML "  <td><TABLE width=""90%"" align=""center"" border=0 cellSpacing=1>"
+        wCont = 1
+        Do While Not RS.EOF
+           ShowHTML "  <TR VALIGN=""TOP"">"
+           ShowHTML "    <TD>&nbsp;"
+           ShowHTML "    <TD><img src=""/img/" & RS("imagem") & """ align=""center"">"
+           ShowHTML "    <TD>" & RS("nome")
+           ShowHTML "  </TR>"
            RS.MoveNext
         Loop
-        RS.MoveFirst
+        ShowHTML "     </TABLE>"
+     Else
+        ShowHTML "  <td>Sem informação"
      End If
-     ShowHTML "<tr><td><TABLE align=""center"" width=""100%"" border=0 cellSpacing=1>"
-     ShowHTML "<tr valign=""top"">"
-     ShowHTML "  <td>" & MontaCalendario("01" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("02" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("03" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("04" & wAno, wDatas, wCores)
-     ShowHTML "<tr valign=""top"">"
-     ShowHTML "  <td>" & MontaCalendario("05" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("06" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("07" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("08" & wAno, wDatas, wCores)
-     ShowHTML "<tr valign=""top"">"
-     ShowHTML "  <td>" & MontaCalendario("09" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("10" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("11" & wAno, wDatas, wCores)
-     ShowHTML "  <td>" & MontaCalendario("12" & wAno, wDatas, wCores)
-     ShowHTML "</table>"
+     
+     RS.Close
+     'Feriados
+     sql = "SELECT '' as cor, b.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'B' AS origem FROM escCalendario_base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE YEAR(dt_ocorrencia)=" & wAno & " AND b.sigla <> 'CN' " & VbCrLf & _
+           "ORDER BY data, origem desc, ocorrencia" & VbCrLf
+     RS.Open sql, dbms, adOpenForwardOnly
+     If Not RS.EOF Then
+        ShowHTML "  <td><TABLE width=""90%"" align=""center"" border=0 cellSpacing=1>"
+        wCont = 1
+        Do While Not RS.EOF
+           ShowHTML "  <TR VALIGN=""TOP"">"
+           ShowHTML "    <TD>&nbsp;"
+           ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2)
+           ShowHTML "    <TD>" & RS("ocorrencia")
+           ShowHTML "  </TR>"
+           RS.MoveNext
+        Loop
+        ShowHTML "    </TABLE>"
+     Else
+        ShowHTML "  <td>Sem informação"
+     End If
+     RS.Close
+     
+     'Recessos
+     sql = "SELECT '#99CCFF' as cor, b.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'E' AS origem FROM escCalendario_Cliente a inner join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla in ('RE','RA')) WHERE sq_site_cliente = " & CL & "  AND YEAR(dt_ocorrencia)= " & Year(Date()) & " " & VbCrLf & _
+           "UNION " & VbCrLf & _
+           "SELECT '#FFFF99' as cor, e.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'R' AS origem " & VbCrLf & _
+           "FROM escCalendario_Cliente   AS a" & VbCrLf & _
+           "     INNER JOIN escCliente   AS b ON (a.sq_site_cliente = b.sq_cliente) " & VbCrLf & _
+           "     INNER JOIN escCliente   AS c ON (b.sq_cliente      = c.sq_cliente_pai) " & VbCrLf & _
+           "     INNER JOIN escCliente   AS d ON (c.sq_cliente      = d.sq_cliente_pai) " & VbCrLf & _
+           "     INNER JOIN escTipo_Data AS e ON (a.sq_tipo_data    = e.sq_tipo_data and e.sigla in ('RE','RA')) " & VbCrLf & _
+           "WHERE d.sq_cliente = " & CL & VbCrLf & _
+           "  AND YEAR(dt_ocorrencia)= " & wAno & " " & VbCrLf & _
+           "ORDER BY data, origem desc, ocorrencia" & VbCrLf
+            
+     RS.Open sql, dbms, adOpenForwardOnly
+  
+     If Not RS.EOF Then
+        ShowHTML "  <td><TABLE width=""90%"" align=""center"" border=0 cellSpacing=1>"
+        Do While Not RS.EOF
 
-     ShowHTML "<tr><td><TABLE align=""center"" width=""95%""border=0 cellSpacing=1>"
+           ShowHTML "  <TR VALIGN=""TOP"">"
+           ShowHTML "    <TD>&nbsp;"
+           ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2)
+           ShowHTML "    <TD><font color=""#0000FF"">" & RS("ocorrencia")
+           ShowHTML "  </TR>"
+           RS.MoveNext
+        Loop
+        ShowHTML "    </TABLE></td>"
+     Else
+        ShowHTML "  <td>Sem informação"
+     End If
+     RS.Close
+     ShowHTML "  <td valign=""top""><TABLE align=""center"" border=0 cellSpacing=1>"
+     
+      ' Recupera o ano letivo e o período de recesso
+     sql = "  select * from " & VbCrLf & _
+           "        (select dt_ocorrencia w_let_ini " & VbCrLf & _
+           "           from escCalendario_Cliente a inner join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = " &  wAno &  "and b.sigla = 'IA') " & VbCrLf & _
+           "          where sq_site_cliente = " & 0 & VbCrLf & _
+           "        ) a, " & VbCrLf & _
+           "        (select dt_ocorrencia w_let_fim " & VbCrLf & _
+           "           from escCalendario_Cliente a inner join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = " &  wAno &  " and b.sigla = 'TA') " & VbCrLf & _
+           "          where sq_site_cliente = " & 0 & VbCrLf & _
+           "        ) b, " & VbCrLf & _
+           "        (select dt_ocorrencia w_let2_ini " & VbCrLf & _
+           "           from escCalendario_Cliente a inner join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = " &  wAno &  " and b.sigla = 'I2') " & VbCrLf & _
+           "          where sq_site_cliente = " & 0 & VbCrLf & _
+           "        ) c, " & VbCrLf & _
+           "        (select dt_ocorrencia w_let1_fim " & VbCrLf & _
+           "           from escCalendario_Cliente a inner join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = " &  wAno &  " and b.sigla = 'T1') " & VbCrLf & _
+           "          where sq_site_cliente = " & 0 & VbCrLf & _
+           "        ) d " & VbCrLf
+     RS.Open sql, dbms, adOpenForwardOnly
+     Do While Not RS.EOF
+       w_fim1 = RS("w_let1_fim")
+       w_ini2 = RS("w_let2_ini")
+       RS.MoveNext
+     Loop
+     Rs.Close
+     
+     For w_cont = 1 to 2
+        If w_cont = 1 Then
+           w_ini = 1
+           w_fim = 7
+        Else
+           w_ini = 7
+           w_fim = 12
+           ShowHTML "  <TR valign=""top"" ALIGN=""CENTER""><TD COLSPAN=""4""><br/><br/></td></tr>"
+        End If
+        w_dias = 0
+      
+        ShowHTML "  <TR valign=""top"" ALIGN=""CENTER""><TD COLSPAN=""4""><b>" & w_cont & "º Semestre</b></td></tr>"
+        ShowHTML "  <TR valign=""top"">"
+        ShowHTML "    <TD><b>MÊS"
+        ShowHTML "    <TD><b>D.L."
+        ShowHTML "  </TR>"
+        ShowHTML "  <TR>"
+        ShowHTML "    <TD COLSPAN=""2"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
+        ShowHTML "  </TR>"
+        For wCont = w_ini to w_fim
+           If month(w_ini2) = wCont and w_cont = 2Then
+              w_inicial = formataDataEdicao(w_ini2)
+           Else
+              w_inicial = "01/" & mid(100+wCont,2,2) & "/" & year(date())
+           End If
+           If month(w_fim1) = wCont and w_cont = 1 Then
+              w_final = formataDataEdicao(w_fim1)
+           Else
+              sql = "SELECT convert(varchar,dbo.lastDay(convert(datetime,'01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),103)),103) fim" & VbCrLf 
+              RS.Open sql, dbms, adOpenForwardOnly
+              w_final = RS("fim")
+              RS.Close 
+           End If
+           
+           sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & CL & ") qtd" & VbCrLf 
+           RS.Open sql, dbms, adOpenForwardOnly
+           If RS("qtd") > 0 Then
+              ShowHTML "  <TR>"
+              ShowHTML "    <TD>" & nomeMes(wCont)
+              ShowHTML "    <TD ALIGN=""CENTER"">" & RS("qtd")
+              w_mes = RS("qtd")
+              ShowHTML "  </TR>"
+              w_dias = w_dias + w_mes
+           End If
+           RS.Close
+           
+        Next
+        ShowHTML "  <TR>"
+        ShowHTML "    <TD nowrap>Dias Letivos"
+        ShowHTML "    <TD ALIGN=""CENTER"">" & w_dias
+        ShowHTML "  </TR>"
+        
+     Next        
+     ShowHTML "    </TABLE></td>"
+     ShowHTML "    </TABLE>"
+%><!--
+     ShowHTML "<tr><td valign=""top""><TABLE width=""100%"" align=""center"" border=0 cellSpacing=1>"
+     ShowHTML "<tr valign=""top""><td><TABLE width=""90%"" align=""center"" border=0 cellSpacing=1>"
      ShowHTML "  <TR valign=""top"">"
      ShowHTML "    <TD width=""2%"">&nbsp;"
      ShowHTML "    <TD width=""15%""><b>Origem"
      ShowHTML "    <TD width=""15%""><b>Data"
-     ShowHTML "    <TD width=""15%""><b>Ocorrência"
-     ShowHTML "    <TD width=""43%"">"
+     ShowHTML "    <TD width=""68%""><b>Ocorrência"
      ShowHTML "  </TR>"
      ShowHTML "  <TR>"
-     ShowHTML "    <TD COLSPAN=""6"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
+     ShowHTML "    <TD COLSPAN=""4"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
      ShowHTML "  </TR>"
      wCont = 0
-     If Not RS.EOF Then
+     If Not RS1.EOF Then
         wCont = 1
-        Do While Not RS.EOF
+        Do While Not RS1.EOF
 
-           ShowHTML "  <TR>"
+           ShowHTML "  <TR VALIGN=""TOP"">"
            ShowHTML "    <TD>&nbsp;"
-           If RS("origem") = "E" then
+           If RS1("origem") = "E" then
               ShowHTML "    <TD>Escola"
-              ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
-              ShowHTML "    <TD colspan=2><font color=""#0000FF"">" & RS("ocorrencia")
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Escola)"
-           ElseIf RS("origem") = "R" then
+              ShowHTML "    <TD>" & Mid(100+Day(RS1("data")),2,2) & "/" & Mid(100+Month(RS1("data")),2,2)
+              ShowHTML "    <TD><font color=""#0000FF"">" & RS1("ocorrencia")
+           ElseIf RS1("origem") = "R" then
               ShowHTML "    <TD>SEDF"
-              ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
-              ShowHTML "    <TD colspan=2>" & RS("ocorrencia")
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: SEDF)"
+              ShowHTML "    <TD>" & Mid(100+Day(RS1("data")),2,2) & "/" & Mid(100+Month(RS1("data")),2,2)
+              ShowHTML "    <TD>" & RS1("ocorrencia")
            Else
               ShowHTML "    <TD>Oficial"
-              ShowHTML "    <TD>" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
-              ShowHTML "    <TD colspan=2>" & RS("ocorrencia")
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Oficial)"
+              ShowHTML "    <TD>" & Mid(100+Day(RS1("data")),2,2) & "/" & Mid(100+Month(RS1("data")),2,2)
+              ShowHTML "    <TD>" & RS1("ocorrencia")
            End If
            ShowHTML "  </TR>"
            wCont = wCont + 1
-           RS.MoveNext
+           RS1.MoveNext
         Loop
 
      End If
 
      ShowHTML "    </TABLE>"
  
+     RS1.Close
+     ShowHTML "  <td><TABLE width=""10%"" align=""center"" border=0 cellSpacing=1>"
+     ShowHTML "  <TR valign=""top"" ALIGN=""CENTER"">"
+     ShowHTML "    <TD><b>Mês"
+     ShowHTML "    <TD NOWRAP><b>Dias letivos"
+     ShowHTML "  </TR>"
+     ShowHTML "  <TR>"
+     ShowHTML "    <TD COLSPAN=""2"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
+     ShowHTML "  </TR>"
+     For wCont = 1 to 12
+        sql = "SELECT dbo.diasLetivos('01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),convert(varchar,dbo.lastDay(convert(datetime,'01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),103)),103)," & CL & ") qtd" & VbCrLf 
+        RS1.Open sql, dbms, adOpenForwardOnly
+        
+        If RS1("qtd") > 0 Then
+           ShowHTML "  <TR>"
+           ShowHTML "    <TD ALIGN=""CENTER"">" & wCont & "/" & year(date())
+           ShowHTML "    <TD ALIGN=""CENTER"">" & RS1("qtd")
+           ShowHTML "  </TR>"
+        End If
+
+        RS1.Close
+     Next
+
+     ShowHTML "    </TABLE>"
+     ShowHTML " </TABLE>"
+-->
+<%
   End If
-  RS.Close
 End Sub
 REM -------------------------------------------------------------------------
 REM Final da Página Calendário

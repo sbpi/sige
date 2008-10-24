@@ -1,0 +1,35 @@
+/*Folha de estilo - Escolas Particulares*/
+body{
+	font: 10px Verdana, Arial, Helvetica, sans-serif;
+	color: #333333;
+	background-color:#F0F0E8;
+}
+
+table{
+	font: 10px Verdana, Arial, Helvetica, sans-serif;
+	border:#CCCCCC;
+    background-color: #fff;
+}
+
+#menu{
+	background-image:url(../img/background.gif);
+}
+
+#trheader, #pheader{
+	height: 20px;
+	background-image:url(../img/gradient.jpg);
+    background-color: #fff;
+	border:none;
+}
+
+a{
+    text-decoration : none;
+    color: #305052;
+}
+a:hover{
+	font-weight: bold; 
+}
+
+#campopesquisa{
+    background-image:url(../img/background.gif);
+}

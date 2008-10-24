@@ -9,7 +9,7 @@
 <%
 
 If mid(Request.ServerVariables("REMOTE_HOST"),1,9)<>"192.168.0" and _ 
-   mid(Request.ServerVariables("REMOTE_HOST"),1,11)<>"200.162.126" Then
+   Request.ServerVariables("REMOTE_HOST") <> "189.85.82.11" Then
   Response.Write "ACESSO NÃO AUTORIZADO"
 ElseIf (InStr(1, Request.Form, "tivogold", 1) = 0 )Then
 	Response.Write "<h4> Instrução SQL não informada </h4>"

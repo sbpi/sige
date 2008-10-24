@@ -21,6 +21,7 @@ REM Local    : Brasília - DF
 REM Copyright: 2004 by SBPI Consultoria Ltda
 REM -------------------------------------------------------------------------
 
+
   Private w_EA
   Private w_IN
   Private w_EF
@@ -119,6 +120,7 @@ Public Sub ShowFrames
   ShowHTML "<head>"
   ShowHTML "    <title>Controle Central</title>"
   ShowHTML "</head>"
+  
   ShowHTML "<frameset cols=""200,*"">"
   ShowHTML "    <frame name=""Menu"" src=""Controle.asp?CL=" & CL & "&w_ew=SHOWMENU"" scrolling=""auto"" marginheight=""0"" marginwidth=""0"">"
   ShowHTML "    <frame name=""Body"" src=""Controle.asp?CL=" & CL & "&w_ee=1&w_ea=A&w_ew=" & conRelEscolas & """ scrolling=""auto"" marginheight=""0"" marginwidth=""0"">"
@@ -141,6 +143,7 @@ Sub showMenu
    
    ShowHTML "<HTML>"
    ShowHTML "<HEAD>"
+   ShowHTML "   <link href=""/css/particular.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
    ShowHTML "<TITLE>" & "Controle Central" & "</TITLE>"
    ShowHTML "<style>"
    ShowHTML "<// a { color: ""#000000""; text-decoration: ""none""; } "
@@ -150,8 +153,8 @@ Sub showMenu
    ShowHTML "//></style>"
    ShowHTML "</HEAD>"
    ShowHTML "<BASEFONT FACE=""Verdana, Helvetica, Sans-Serif"" SIZE=""2"">"
-   Response.Write "<BODY topmargin=0 bgcolor=""#FFFFFF"" BACKGROUND=""img/fundo.jpg"" BGPROPERTIES=""FIXED"" text=""#000000"" link=""#000000"" vlink=""#000000"" alink=""#FF0000""> "
-   ShowHTML "  <table border=0 cellpadding=0 height=""80"" width=""100%""><tr><td nowrap><font size=1><b>"
+   ShowHTML "<BODY topmargin=0 bgcolor=""#FFFFFF"" BACKGROUND=""img/background.gif"" BGPROPERTIES=""FIXED"" text=""#000000"" link=""#000000"" vlink=""#000000"" alink=""#FF0000""> "
+   ShowHTML "  <table style=""background-image:url(img/background.gif)"" border=0 cellpadding=0 height=""80"" width=""100%""><tr><td nowrap><font size=1><b>"
    ShowHTML "  <TR><TD align=""center""><font size=2><b>Atualização</TD></TR>"
    ShowHTML "  <TR><TD align=""center""><br><font size=1>Usuário:<b>" & Session("username") & "</TD></TR>"
    ShowHTML "  <TR><TD><font size=1><br>"
@@ -184,6 +187,10 @@ Sub showMenu
    If Session("username") <> "ADMINISTRATIVO" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=" & conRelEscolas & "&w_ee=1"" Title=""Pesquisa unidades de ensino!"">Escolas</A><br> "
    End If
+   
+   If Session("username") = "SEDF" or Session("username") = "SBPI" Then
+      ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=escPart&&w_ee=1"" Title=""Pesquisa unidades de ensino da rede privada"">Escolas Particulares</A><br>"
+   End If
 
    If Session("username") = "IMPRENSA" or Session("username") = "SEDF" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=newsletter&w_ee=1"" Title=""Acessa a lista de distribuição da newsletter!"">Informativo</A><br>"
@@ -196,6 +203,10 @@ Sub showMenu
 
    If Session("username") = "SEDF" OR Session("username") = "IMPRENSA" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=" & conWhatNotCliente & "&w_ee=1"" Title=""Cadastra notícias da rede de ensino!"">Notícias</A><br>"
+   End If
+
+   If Session("username") = "SEDF" or Session("username") = "SBPI" then
+      ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""controle.asp?CL=" & CL & "&w_sq_cliente=" & replace(CL,"sq_cliente=","") & "&w_ea=L&w_ew=REDEPART&w_ee=1"" Title=""Atualiza base de dados da rede particular!"">Rede particular</A><BR>"
    End If
 
    If Session("username") = "SEDF" or Session("username") = "SBPI" then
@@ -1709,6 +1720,50 @@ REM Fim do cadastro de versões
 REM -------------------------------------------------------------------------
 
 REM =========================================================================
+REM Cadastro da rede particular
+REM -------------------------------------------------------------------------
+Sub GetRedeParticular
+  Cabecalho
+  ShowHTML "<HEAD>"
+  ScriptOpen "JavaScript"
+  ValidateOpen "Validacao"
+  Validate "w_no_arquivo"    , "Arquivo"              , ""       , "1" , "10"  , "100" , "1" , "1"
+  ShowHTML "  theForm.Botao.disabled=true;"
+  ValidateClose
+  ScriptClose
+  ShowHTML "</HEAD>"
+  BodyOpen "onLoad='document.focus()';"
+  ShowHTML "<B><FONT COLOR=""#000000"">Cadastro da Rede Particular</FONT></B>"
+  ShowHTML "<HR>"
+  ShowHTML "<div align=center><center>"
+  ShowHTML "<table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""95%"">"
+  ShowHTML "<FORM action=""" & w_pagina & "Grava"" method=""POST"" name=""Form"" onSubmit=""return(Validacao(this));"" enctype=""multipart/form-data"">"
+  ShowHTML "<INPUT type=""hidden"" name=""R"" value=""" & w_ew & """>"
+  ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
+  ShowHTML "<INPUT type=""hidden"" name=""w_sq_cliente"" value=""" & replace(CL,"sq_cliente=","") & """>"
+  ShowHTML "<INPUT type=""hidden"" name=""w_ea"" value=""" & w_ea & """>"
+
+  ShowHTML "<tr bgcolor=""" & "#EFEFEF" & """><td align=""center"">"
+  ShowHTML "    <table width=""95%"" border=""0"">"
+  ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
+  ShowHTML "        <tr><td><font size=""1""><b><u>A</u>rquivo:</b><br><input " & w_Disabled & " accesskey=""A"" type=""file"" name=""w_no_arquivo"" class=""STI"" SIZE=""80"" MAXLENGTH=""100"" VALUE="""" ONMOUSEOVER=""popup('OBRIGATÓRIO. Clique no botão ao lado para localizar o arquivo que contém a versão do componente. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
+  ShowHTML "      <tr><td align=""center"" colspan=4><hr>"
+  ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Enviar"">"
+  ShowHTML "          </td>"
+  ShowHTML "      </tr>"
+  ShowHTML "    </table>"
+  ShowHTML "    </TD>"
+  ShowHTML "</tr>"
+  ShowHTML "</FORM>"
+  ShowHTML "</table>"
+  ShowHTML "</center>"
+  Rodape
+End Sub
+REM =========================================================================
+REM Cadastro da rede particular
+REM -------------------------------------------------------------------------
+
+REM =========================================================================
 REM Cadastro de newsletter
 REM -------------------------------------------------------------------------
 Sub GetNewsletter
@@ -1957,9 +2012,10 @@ Sub GetCalendarioBase
   If w_troca > "" Then ' Se for recarga da página
      w_dt_ocorrencia = Request("w_dt_ocorrencia")    
      w_ds_ocorrencia = Request("w_ds_ocorrencia")
+     w_tipo          = Request("w_tipo")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select * from escCalendario_Base order by year(dt_ocorrencia) desc, dt_ocorrencia"
+     SQL = "select a.*, b.nome from escCalendario_Base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) order by year(dt_ocorrencia) desc, dt_ocorrencia"
      ConectaBD SQL
   ElseIf InStr("AEV",w_ea) > 0 and w_Troca = "" Then
      ' Recupera os dados do endereço informado
@@ -1967,6 +2023,7 @@ Sub GetCalendarioBase
      ConectaBD SQL
      w_dt_ocorrencia = FormataDataEdicao(RS("dt_ocorrencia"))
      w_ds_ocorrencia = RS("ds_ocorrencia")
+     w_tipo          = RS("sq_tipo_data")
      DesconectaBD
   End If
   
@@ -1980,6 +2037,7 @@ Sub GetCalendarioBase
      If InStr("IA",O) > 0 Then
         Validate "w_dt_ocorrencia" , "Data"      , "DATA" , "1" , "10" , "10" , "1" , "1"
         Validate "w_ds_ocorrencia" , "Descrição" , ""     , "1" , "2"  , "60" , "1" , "1"
+        Validate "w_tipo" , "Tipo" , "SELECT"     , "1" , "1"  , "4" , "" , "1"
      End If
      ShowHTML "  theForm.Botao[0].disabled=true;"
      ShowHTML "  theForm.Botao[1].disabled=true;"
@@ -2006,6 +2064,7 @@ Sub GetCalendarioBase
     ShowHTML "    <TABLE WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""" & conTableCellSpacing & """ CELLPADDING=""" & conTableCellPadding & """ BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
     ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
     ShowHTML "          <td><font size=""1""><b>Data</font></td>"
+    ShowHTML "          <td><font size=""1""><b>Tipo</font></td>"
     ShowHTML "          <td><font size=""1""><b>Ocorrência</font></td>"
     ShowHTML "          <td><font size=""1""><b>Operações</font></td>"
     ShowHTML "        </tr>"
@@ -2017,11 +2076,12 @@ Sub GetCalendarioBase
       While Not RS.EOF
         If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
         If wAno <> year(RS("dt_ocorrencia")) Then
-           ShowHTML "      <tr bgcolor=""#C0C0C0"" valign=""top""><TD colspan=3 align=""center""><font size=2><B>" & year(RS("dt_ocorrencia")) & "</b></font></td></tr>"
+           ShowHTML "      <tr bgcolor=""#C0C0C0"" valign=""top""><TD colspan=4 align=""center""><font size=2><B>" & year(RS("dt_ocorrencia")) & "</b></font></td></tr>"
            wAno = year(RS("dt_ocorrencia"))
         End If
         ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"
-        ShowHTML "        <td align=""center""><font size=""1"">" & FormataDataEdicao(FormatDateTime(RS("dt_ocorrencia"),2)) & "</td>"
+        ShowHTML "        <td align=""center""><font size=""1"">" & Mid(FormataDataEdicao(FormatDateTime(RS("dt_ocorrencia"),2)),1,5) & "</td>"
+        ShowHTML "        <td><font size=""1"">" & nvl(RS("nome"),"---") & "</td>"
         ShowHTML "        <td><font size=""1"">" & RS("ds_ocorrencia") & "</td>"
         ShowHTML "        <td align=""top"" nowrap><font size=""1"">"
         ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=A&CL=" & CL & "&w_chave=" & RS("sq_ocorrencia") & """>Alterar</A>&nbsp"
@@ -2054,6 +2114,19 @@ Sub GetCalendarioBase
     ShowHTML "        <tr valign=""top"">"
     ShowHTML "          <td valign=""top""><font size=""1""><b><u>D</u>ata:</b><br><input accesskey=""D"" type=""text"" name=""w_dt_ocorrencia"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(Nvl(w_dt_ocorrencia,Date()),2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a data de ocorrência. O sistema colocará as barras automaticamente.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><input " & w_Disabled & " accesskey=""E"" type=""text"" name=""w_ds_ocorrencia"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_ocorrencia & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a ocorrência.','white')""; ONMOUSEOUT=""kill()""></td>"
+    SQL = "SELECT * FROM escTipo_Data a WHERE a.abrangencia <> 'U' ORDER BY a.nome" & VbCrLf
+    ConectaBD SQL
+    ShowHTML "          <td><font size=""1""><b>Tipo da ocorrência:</b><br><SELECT CLASS=""STI"" NAME=""w_tipo"">"
+    ShowHTML "          <option value=""""> ---"
+    While Not RS.EOF
+       If cDbl(nvl(RS("sq_tipo_data"),0)) = cDbl(nvl(w_tipo,0)) Then
+          ShowHTML "          <option value=""" & RS("sq_tipo_data") & """ SELECTED>" & RS("nome")
+       Else
+          ShowHTML "          <option value=""" & RS("sq_tipo_data") & """>" & RS("nome")
+       End If
+       RS.MoveNext
+    Wend
+    ShowHTML "          </select>"
     ShowHTML "        </table>"
     ShowHTML "      <tr>"
     ShowHTML "      <tr><td align=""center"" colspan=4><hr>"
@@ -2109,9 +2182,10 @@ Sub GetCalendario
   If w_troca > "" Then ' Se for recarga da página
      w_dt_ocorrencia = Request("w_dt_ocorrencia")    
      w_ds_ocorrencia = Request("w_ds_ocorrencia")
+     w_tipo          = Request("w_tipo")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select * from escCalendario_Cliente where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by year(dt_ocorrencia) desc, dt_ocorrencia"
+     SQL = "select a.*, b.nome from escCalendario_Cliente a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by year(dt_ocorrencia) desc, dt_ocorrencia"
      ConectaBD SQL
   ElseIf InStr("AEV",w_ea) > 0 and w_Troca = "" Then
      ' Recupera os dados do endereço informado
@@ -2119,6 +2193,7 @@ Sub GetCalendario
      ConectaBD SQL
      w_dt_ocorrencia = FormataDataEdicao(RS("dt_ocorrencia"))
      w_ds_ocorrencia = RS("ds_ocorrencia")
+     w_tipo          = RS("sq_tipo_data")
      DesconectaBD
   End If
   
@@ -2132,6 +2207,7 @@ Sub GetCalendario
      If InStr("IA",O) > 0 Then
         Validate "w_dt_ocorrencia" , "Data"      , "DATA" , "1" , "10" , "10" , "1" , "1"
         Validate "w_ds_ocorrencia" , "Descrição" , ""     , "1" , "2"  , "60" , "1" , "1"
+        Validate "w_tipo" , "Tipo da ocorrência" , "SELECT", "1" , "1"  , "4" , "" , "1"
      End If
      ShowHTML "  theForm.Botao[0].disabled=true;"
      ShowHTML "  theForm.Botao[1].disabled=true;"
@@ -2158,6 +2234,7 @@ Sub GetCalendario
     ShowHTML "    <TABLE WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""" & conTableCellSpacing & """ CELLPADDING=""" & conTableCellPadding & """ BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
     ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
     ShowHTML "          <td><font size=""1""><b>Data</font></td>"
+    ShowHTML "          <td><font size=""1""><b>Tipo</font></td>"
     ShowHTML "          <td><font size=""1""><b>Ocorrência</font></td>"
     ShowHTML "          <td><font size=""1""><b>Operações</font></td>"
     ShowHTML "        </tr>"
@@ -2169,11 +2246,12 @@ Sub GetCalendario
       While Not RS.EOF
         If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
         If wAno <> year(RS("dt_ocorrencia")) Then
-           ShowHTML "      <tr bgcolor=""#C0C0C0"" valign=""top""><TD colspan=3 align=""center""><font size=2><B>" & year(RS("dt_ocorrencia")) & "</b></font></td></tr>"
+           ShowHTML "      <tr bgcolor=""#C0C0C0"" valign=""top""><TD colspan=4 align=""center""><font size=2><B>" & year(RS("dt_ocorrencia")) & "</b></font></td></tr>"
            wAno = year(RS("dt_ocorrencia"))
         End If
         ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"
-        ShowHTML "        <td align=""center""><font size=""1"">" & FormataDataEdicao(FormatDateTime(RS("dt_ocorrencia"),2)) & "</td>"
+        ShowHTML "        <td align=""center""><font size=""1"">" & mid(FormataDataEdicao(FormatDateTime(RS("dt_ocorrencia"),2)),1,5) & "</td>"
+        ShowHTML "        <td><font size=""1"">" & nvl(RS("nome"),"---") & "</td>"
         ShowHTML "        <td><font size=""1"">" & RS("ds_ocorrencia") & "</td>"
         ShowHTML "        <td align=""top"" nowrap><font size=""1"">"
         ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=A&CL=" & CL & "&w_chave=" & RS("sq_ocorrencia") & """>Alterar</A>&nbsp"
@@ -2204,8 +2282,21 @@ Sub GetCalendario
     ShowHTML "    <table width=""95%"" border=""0"">"
     ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
     ShowHTML "        <tr valign=""top"">"
-    ShowHTML "          <td valign=""top""><font size=""1""><b><u>D</u>ata:</b><br><input accesskey=""D"" type=""text"" name=""w_dt_ocorrencia"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(Nvl(w_dt_ocorrencia,Date()),2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a data de ocorrência. O sistema colocará as barras automaticamente.','white')""; ONMOUSEOUT=""kill()""></td>"
-    ShowHTML "          <td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><input " & w_Disabled & " accesskey=""E"" type=""text"" name=""w_ds_ocorrencia"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_ocorrencia & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a ocorrência.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "          <td><font size=""1""><b><u>D</u>ata:</b><br><input accesskey=""D"" type=""text"" name=""w_dt_ocorrencia"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(Nvl(w_dt_ocorrencia,Date()),2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a data de ocorrência. O sistema colocará as barras automaticamente.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "          <td><font size=""1""><b>D<u>e</u>scrição:</b><br><input " & w_Disabled & " accesskey=""E"" type=""text"" name=""w_ds_ocorrencia"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_ocorrencia & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a ocorrência.','white')""; ONMOUSEOUT=""kill()""></td>"
+    SQL = "SELECT * FROM escTipo_Data a WHERE a.abrangencia <> 'U' ORDER BY a.nome" & VbCrLf
+    ConectaBD SQL
+    ShowHTML "          <td><font size=""1""><b>Tipo da ocorrência:</b><br><SELECT CLASS=""STI"" NAME=""w_tipo"">"
+    ShowHTML "          <option value=""""> ---"
+    While Not RS.EOF
+       If cDbl(nvl(RS("sq_tipo_data"),0)) = cDbl(nvl(w_tipo,0)) Then
+          ShowHTML "          <option value=""" & RS("sq_tipo_data") & """ SELECTED>" & RS("nome")
+       Else
+          ShowHTML "          <option value=""" & RS("sq_tipo_data") & """>" & RS("nome")
+       End If
+       RS.MoveNext
+    Wend
+    ShowHTML "          </select>"
     ShowHTML "        </table>"
     ShowHTML "      <tr>"
     ShowHTML "      <tr><td align=""center"" colspan=4><hr>"
@@ -3217,8 +3308,7 @@ Public Sub GetVerifArquivo
            "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
            "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
            "ORDER BY a.nr_ordem, a.ds_especialidade "
- 
-     ConectaBD SQL
+    ConectaBD SQL
    
      If Not RS.EOF Then
         wCont = 0
@@ -3380,25 +3470,25 @@ Public Sub GetVerifArquivo
            If p_Tipo = "H" Then ShowHTML "     &nbsp;&nbsp;<A TITLE=""Clique aqui para gerar arquivo Word com a listagem abaixo"" class=""SS"" href=""#""  onClick=""window.open('controle.asp?p_tipo=W&w_ew=" & w_ew & "&Q=" & Request("Q") & "&C=" & Request("C") & "&D=" & Request("D") & "&U=" & Request("U") & w_especialidade & MontaFiltro("GET") & "','MetaWord','width=600, height=350, top=65, left=65, menubar=yes, scrollbars=yes, resizable=yes, status=no');"">Gerar Word<IMG ALIGN=""CENTER"" border=0 SRC=""img/word.gif""></A>" End If
            ShowHTML "<tr><td><td>"
            ShowHTML "<table border=""1"" cellspacing=""0"" cellpadding=""0"" width=""100%"">"
-		   AbreForm "Form2", w_Pagina & "Grava", "POST", "return(Validacao2(this));", null
-		   ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""R"" VALUE=""VERIFBANCO"">"
+           AbreForm "Form2", w_Pagina & "Grava", "POST", "return(Validacao2(this));", null
+           ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""R"" VALUE=""VERIFBANCO"">"
            ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""CL"" VALUE=""" & CL &  """>"
            ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""pesquisa"" VALUE=""X"">"
            ShowHTML "<input type=""Hidden"" name=""P3"" value=""1"">"
            ShowHTML "<input type=""Hidden"" name=""P4"" value=""15"">"
-		   
+           
            ShowHTML "<tr align=""center"" valign=""top"">"
            ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Escola</b></td>"
            ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Tipo</b></td>"
            ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Ordem</b></td>"
            ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Título</b></td>"
            ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Link</b></td>"
-		   ShowHTML "    <td id=""checkbox""><font face=""Verdana"" size=""1""><input type=""CHECKBOX"" name=""dummy"" value=""none"" onClick=""marca()""></b></td>"
-		   ShowHTML "    <script>document.getElementById('checkbox').style.display='none';</script>"
+           ShowHTML "    <td id=""checkbox""><font face=""Verdana"" size=""1""><input type=""CHECKBOX"" name=""dummy"" value=""none"" onClick=""marca()""></b></td>"
+           ShowHTML "    <script>document.getElementById('checkbox').style.display='none';</script>"
   
            w_cor   = "#FDFDFD"
            w_atual = ""
-		   checkbox = "unok"
+           checkbox = "unok"
 
            Set FS = CreateObject("Scripting.FileSystemObject")
 
@@ -3407,10 +3497,10 @@ Public Sub GetVerifArquivo
 
              ' Remove o arquivo, caso ele já exista
              If Not FS.FileExists (strFile) then
-			 If checkbox <> "ok" Then
-					      ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
-						  checkbox = "ok"
-					  End If
+             If checkbox <> "ok" Then
+                          ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
+                          checkbox = "ok"
+                      End If
                If w_atual = "" or w_atual <> RS("DS_CLIENTE") Then
                   If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
                   ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
@@ -3439,7 +3529,7 @@ Public Sub GetVerifArquivo
            Wend
     
            ShowHTML "</table>"
-		   ShowHTML "<tr><td><td colspan=""5"" align=""center""><input type=""SUBMIT"" name=""Botao"" value=""Remover todos os registros indicados"">"
+           ShowHTML "<tr><td><td colspan=""5"" align=""center""><input type=""SUBMIT"" name=""Botao"" value=""Remover todos os registros indicados"">"
            ShowHTML "</FORM>"
            ShowHTML "<tr><td><td colspan=""5"" align=""center""><hr>"
 
@@ -3503,11 +3593,11 @@ Public Sub GetVerifArquivo
            ShowHTML "    <td><font face=""Verdana"" size=""1""><b>KB</b></td>"
            ShowHTML "    <td id=""checkbox""><font face=""Verdana"" size=""1""><input type=""CHECKBOX"" name=""dummy"" value=""none"" onClick=""marca()""></b></td>"
            ShowHTML "    <script>document.getElementById('checkbox').style.display='none';</script>"
-		   
+           
            w_cor   = "#FDFDFD"
            w_atual = ""
-		   dim checkbox
-		   checkbox = "unok"
+           dim checkbox
+           checkbox = "unok"
 
            Set FS = CreateObject("Scripting.FileSystemObject")
            While Not RS.EOF
@@ -3530,10 +3620,10 @@ Public Sub GetVerifArquivo
 
                    Set RsQtd = dbms.Execute(sqlstr)
                    If RsQtd("quantidade") = 0 Then
-				      If checkbox <> "ok" Then
-					      ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
-						  checkbox = "ok"
-					  End If
+                      If checkbox <> "ok" Then
+                          ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
+                          checkbox = "ok"
+                      End If
                       If w_atual = "" or w_atual <> RS("DS_CLIENTE") Then
                           If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
                           ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
@@ -3550,7 +3640,7 @@ Public Sub GetVerifArquivo
                       ShowHTML "</td>"
                       w_total = w_total + File.size
                    End If
-				   checkbox = "unok"
+                   checkbox = "unok"
                 End If
              Next
 
@@ -3579,6 +3669,8 @@ REM -------------------------------------------------------------------------
 Public Sub Grava
   Dim w_chave, w_sql, w_funcionalidade, w_diretorio, w_imagem, w_arquivo, w_cont, w_extensao, w_atual
   Dim i
+  Dim FS, F2, w_linha, w_chave_nova, w_tipo
+  Dim w_registros, w_importados, w_rejeitados, w_situacao, w_erro, w_result, field
     
   Cabecalho
   ShowHTML "</HEAD>"
@@ -3586,7 +3678,7 @@ Public Sub Grava
   
   
   ' Recupera o código a ser gravado na tabela de log
-  If Instr("VERIFBANCO,VERIFARQ,BASE,NEWSLETTER,TIPOCLIENTE,COMPONENTE, VERSAO,CADASTROESCOLA",w_R) > 0 or w_R = conWhatAdmin or w_R = conWhatSGE Then
+  If Instr("REDEPART,VERIFBANCO,VERIFARQ,BASE,NEWSLETTER,TIPOCLIENTE,COMPONENTE, VERSAO,CADASTROESCOLA",w_R) > 0 or w_R = conWhatAdmin or w_R = conWhatSGE Then
      w_funcionalidade = "null"
   Else
      SQL = "select sq_funcionalidade from escFuncionalidade where tipo = 1 and codigo = '" & w_R & "'"
@@ -3904,10 +3996,11 @@ Public Sub Grava
                     
           ' Insere o arquivo
           SQL = " insert into escCalendario_Base " & VbCrLf & _
-                "    (sq_ocorrencia, in_abrangencia, dt_ocorrencia, ds_ocorrencia) " & VbCrLf & _
+                "    (sq_ocorrencia, in_abrangencia, dt_ocorrencia, ds_ocorrencia, sq_tipo_data) " & VbCrLf & _
                 " values ( " & w_chave & ", 'T', " & VbCrLf & _
                 "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
-                "     '" & Request("w_ds_ocorrencia") & "' " & VbCrLf & _
+                "     '" & Request("w_ds_ocorrencia") & "', " & VbCrLf & _
+                "     '" & Request("w_tipo") & "' " & VbCrLf & _
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
@@ -3929,7 +4022,8 @@ Public Sub Grava
        ElseIf w_ea = "A" Then
           SQL = " update escCalendario_Base set " & VbCrLf & _
                 "     dt_ocorrencia  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
-                "     ds_ocorrencia  = '" & Request("w_ds_ocorrencia") & "' " & VbCrLf & _
+                "     ds_ocorrencia  = '" & Request("w_ds_ocorrencia") & "', " & VbCrLf & _
+                "     sq_tipo_data   = '" & Request("w_tipo") & "' " & VbCrLf & _
                 "where sq_ocorrencia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
@@ -3992,7 +4086,7 @@ Public Sub Grava
           CONST TristateUsedefault = -2 'Abre o arquivo usando o sistema default
           CONST TristateTrue = -1 'Abre o arquivo como Unicode
           CONST TristateFalse = 0 'Abre o arquivo como ASCII
-          Dim FS, f1, w_Line, w_File, w_Arq
+          Dim f1, w_Line, w_File, w_Arq
           w_Dir = "sedf\sedf"
           If Request("w_arquivo") = "Escola" Then
              w_Arq = "Escola_" & replace(Date(),"/","") & "_" & replace(Time(),":","") & ".csv"
@@ -4105,11 +4199,11 @@ Public Sub Grava
           
           ' Insere o arquivo
           SQL = " insert into escCalendario_Cliente " & VbCrLf & _
-                "    (sq_ocorrencia, sq_site_cliente, dt_ocorrencia, ds_ocorrencia) " & VbCrLf & _
+                "    (sq_ocorrencia, sq_site_cliente, dt_ocorrencia, ds_ocorrencia, sq_tipo_data) " & VbCrLf & _
                 " values ( " & w_chave & ", " & VbCrLf & _
                 "     " & Request("w_sq_cliente") & ", " & VbCrLf & _
                 "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
-                "     '" & Request("w_ds_ocorrencia") & "' " & VbCrLf & _
+                "     '" & Request("w_ds_ocorrencia") & "', '" & Request("w_tipo") & "' " & VbCrLf & _
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
@@ -4131,7 +4225,8 @@ Public Sub Grava
        ElseIf w_ea = "A" Then
           SQL = " update escCalendario_Cliente set " & VbCrLf & _
                 "     dt_ocorrencia  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
-                "     ds_ocorrencia  = '" & Request("w_ds_ocorrencia") & "' " & VbCrLf & _
+                "     ds_ocorrencia  = '" & Request("w_ds_ocorrencia") & "', " & VbCrLf & _
+                "     sq_tipo_data  = '" & Request("w_tipo") & "' " & VbCrLf & _
                 "where sq_ocorrencia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
@@ -4417,7 +4512,7 @@ Public Sub Grava
                 ") " & VbCrLf & _
                 "select @@identity as chave " & VbCrLf & _
                 "set nocount off " & VbCrLf
-          Set RS = dbms.Execute(SQL)
+          Set RS = dbms.execute(SQL)
 
           ul.Files("w_no_arquivo").SaveAs(w_diretorio & RS("chave") & w_extensao)
           DesconectaBD
@@ -4489,7 +4584,7 @@ Public Sub Grava
                       
           Set f1 = FS.CreateTextFile(strFile)
           f1.WriteLine "<?xml version=""1.0"" encoding=""iso-8859-1""?>"
-          f1.WriteLine "<!--"
+          f1.WriteLine " <!--" 
           f1.WriteLine "     Após a instalação de cada um dos componentes abaixo, URL_confirmacao deve "
           f1.WriteLine "     ser executada, substituindo 9999 pelo código da escola."
           f1.WriteLine "-->"
@@ -4546,6 +4641,467 @@ Public Sub Grava
           Exit Sub
        End If
        dbms.CommitTrans()
+
+       ScriptOpen "JavaScript"
+       ShowHTML "  location.href='" & w_pagina & ul.Form("R") & "&w_ea=L';"
+       ScriptClose
+
+    Case "REDEPART"
+       w_diretorio = replace(conFilePhysical & "\sge\","\\","\")
+       
+       If ul.Files("w_no_arquivo").Size > 0 Then 
+          ' Remove o arquivo físico
+          DeleteAFile w_diretorio & w_arquivo
+          
+          w_arquivo = extractFileName(ul.Files("w_no_arquivo").OriginalPath)
+          ul.Files("w_no_arquivo").SaveAs(w_diretorio & w_arquivo)
+
+
+          ' Gera o arquivo registro da importação
+          Set FS = CreateObject("Scripting.FileSystemObject")
+          
+          'Abre o arquivo recebido para gerar o arquivo registro
+          Set F2 = FS.OpenTextFile(w_diretorio & w_arquivo)
+          
+          ' Varre o arquivo recebido, linha a linha
+          w_registros  = 0
+          w_importados = 0
+          w_rejeitados = 0
+          w_cont       = 0
+
+          Dim sq_cliente, idCursos, Curso, idProfissionais, idEscola, Pasta, Parecer, Portaria, Observacao, delimitador
+          Dim idInstituicao, idDiretor, idMantenedora, idEndereco, idTelefone_1, idFax, idVencimento
+          Dim idCodinep, idTelefone_2, idEmail_1, idEmail_2, idLocalizacao, idCnpjExecutora, idCnpjEscola, idOrdemServico
+          Dim idSecretario, idCep, idAutHabSecretario, idEinf, idEf, idEja, idEm, idEDA, idEprof, idRegiao
+          Dim idEndMantenedora, SiteEscola, Situacao, idCategoria
+          Dim NomeArquivo, idArquivos, Descricao, idOS, idPortaria, Numero, Data, Dodf, PagDodf, DataDodf
+          Dim login, senha
+          Dim w_campo(50)
+          
+          delimitador = """"
+
+          'Abre transação para garantir que os dados da escola estarão integros
+          dbms.BeginTrans()
+
+          Do While Not F2.AtEndOfStream
+             w_linha = replace(trim(F2.ReadLine),"\""","`")
+
+             if len(w_linha) > 0 then
+                 w_cont  = w_cont + 1
+                 If w_cont = 1 Then
+                    ShowHTML "<B><FONT COLOR=""#000000"">Atualização da rede particular de ensino</FONT></B>"
+                    ShowHTML "<HR>"
+                    ShowHTML "Processando..."
+                    Response.Flush
+                 End If
+                 if mid(w_linha,1,1)="[" then
+                    w_tipo = replace(replace(w_linha,"[",""),"]","")
+                    ShowHTML "<br>Carregando " & w_tipo & "..."
+                    w_linha = F2.ReadLine
+                    Response.Flush
+                 ElseIf w_tipo = "REDE" Then
+                    For i = 1 to 50
+                       If mid(w_linha,len(w_linha)) <> """" Then
+                          w_linha = w_linha & replace(trim(F2.ReadLine),"\""","`")
+                       Else
+                          i = 50
+                       End If
+                    Next
+                       
+                    ' Carrega os dados em array
+                    For i = 1 to 32
+                        w_campo(i) = "'" & replace(trim(Piece(w_linha,delimitador,",",i)),"'","''") & "'"
+                    Next
+                    
+                    ' Trata valores nulos
+                    For i = 1 to 32
+                        If w_campo(i) = "'NULL'" Then
+                           w_campo(i) = "NULL"
+                        End If
+                    Next
+                    
+                    idPasta             = w_campo(1)
+                    idInstituicao       = w_campo(2)
+                    idDiretor           = w_campo(3)
+                    idMantenedora       = w_campo(4)
+                    idEndereco          = w_campo(5)
+                    idTelefone_1        = w_campo(6)
+                    idFax               = w_campo(7)
+                    idVencimento        = w_campo(8)
+                    idObservacao        = w_campo(9)
+                    idEscola            = w_campo(10)
+                    idCodinep           = w_campo(11)
+                    idTelefone_2        = w_campo(12)
+                    idEmail_1           = w_campo(13)
+                    idEmail_2           = w_campo(14)
+                    idLocalizacao       = w_campo(15)
+                    idCnpjExecutora     = w_campo(16)
+                    idCnpjEscola        = w_campo(17)
+                    idSecretario        = w_campo(18)
+                    idCep               = w_campo(19)
+                    idAutHabSecretario  = w_campo(20)
+                    idEinf              = w_campo(21)
+                    idEf                = w_campo(22)
+                    idEja               = w_campo(23)
+                    idEm                = w_campo(24)
+                    idEDA               = w_campo(25)
+                    idEprof             = w_campo(26)
+                    idRegiao            = w_campo(27)
+                    idEndMantenedora    = w_campo(28)
+                    SiteEscola          = w_campo(29)
+                    Situacao            = w_campo(30)
+                    Login               = w_campo(31)
+                    Senha               = w_campo(32)
+                    If idMantenedora = "NULL"       Then : idMantenedora = "'Sem informação'" : End If
+                    If idPasta = "NULL"             Then : idPasta = 0 : End If
+                    If idParecereResolucao = "NULL" Then : idParecereResolucao = "'Sem informação'" : End If
+                    If idTelefone_1 = "NULL"        Then : idTelefone_1 = "'Sem informação'" : End If
+                    If idEndereco = "NULL"          Then : idEndereco = "'Sem informação'" : End If
+                    If idCep = "NULL"               Then : idCep = "'Sem informação'" : End If
+                    If idAutHabSecretario = "NULL"  Then : idAutHabSecretario = "0" : End If
+                    If idCodinep = "NULL"           Then : idCodinep = "0" : End If
+                    If idRegiao = "'0'"             Then : idRegiao = "1" : End If
+                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": " & replace(idInstituicao,"'","")
+                    Response.Flush
+                    
+                    
+                    SQL = "SELECT count(idescola) as Registros FROM escCliente_Particular WHERE idEscola = " & idEscola 
+                    ConectaBD SQL
+
+                    If cInt(RS("Registros")) = 0 Then
+                       SQL = "SELECT (MAX(sq_cliente) + 1) as MaxValue from escCliente WHERE sq_cliente < 99000"
+                       ConectaBD SQL
+                       sq_cliente = cInt(RS("MaxValue"))
+          
+                       SQL = "INSERT INTO escCliente (sq_cliente,sq_tipo_cliente, ds_cliente, no_municipio, sg_uf, ds_username, ds_senha_acesso, localizacao, publica, sq_regiao_adm) " & VbCrLf & _
+                             "(SELECT " & sq_cliente & ", a.sq_tipo_cliente, " & idInstituicao & ", " & VbCrLf & _
+                             "        substring(b.no_regiao, charIndex(' ',b.no_regiao)+1,500), 'DF', " & VbCrLf & _
+                             "        " & login & ", " & senha & ", " & idLocalizacao & ", 'N', " & idRegiao & VbCrLf & _
+                             "   FROM escTipo_Cliente a, " & VbCrLf & _
+                             "        escRegiao_Administrativa b " & VbCrLf & _
+                             "  WHERE a.tipo = 4 " & VbCrLf & _
+                             "    and b.sq_regiao_adm = " & idRegiao & VbCrLf & _
+                             ")"
+                       ExecutaSQL(SQL)
+
+                       SQL = "INSERT INTO escCliente_Particular (sq_cliente, Pasta, Diretor, Mantenedora, Endereco, Telefone_1, Fax, Vencimento, Observacao, idEscola, Codinep, Telefone_2, Email_1, Email_2, Cnpj_Executora, Cnpj_Escola, Secretario, Cep, Aut_Hab_Secretario, Infantil, Fundamental, EJA, Medio, Distancia, Profissional, Regiao, mantenedora_endereco, url, situacao) " & VbCrLf & _
+                             "VALUES(" & sq_cliente & ", " & idPasta & ", " & idDiretor & ", " & idMantenedora & ", " & idEndereco & ", " & idTelefone_1 & ", " & idFax & ", " & idVencimento & ", " & idObservacao & ", " & idEscola & ", " & idCodinep & ", " & idTelefone_2 & ", " & idEmail_1 & ", " & idEmail_2 & ", " & idCnpjExecutora & ", " & idCnpjEscola & ", " & idSecretario & ", " & idCep & ", " & idAutHabSecretario & ", " & idEinf & ", " & idEf & ", " & idEja & ", " & idEm & ", " & idEDA & ", " & idEprof & ", " & idRegiao & ", " & idEndMantenedora & ", " & SiteEscola & ", " & situacao & ")"
+                       ExecutaSQL(SQL)
+                    Else
+                       SQL = "SELECT sq_cliente FROM escCliente_Particular WHERE idescola = " & idEscola 
+                       ConectaBD SQL
+                       sq_cliente = RS("sq_cliente")
+
+                       SQL = "UPDATE escCliente SET " & VbCrLf & _
+                             "       ds_cliente      = " & idInstituicao & ", " & VbCrLf & _
+                             "       ds_username     = " & login & ", " & VbCrLf & _
+                             "       ds_senha_acesso = " & senha & ", " & VbCrLf & _
+                             "       no_municipio    = (select substring(no_regiao, charIndex(' ',no_regiao)+1,500) from escRegiao_Administrativa where sq_regiao_adm = " & idRegiao & "), " & VbCrLf & _
+                             "       localizacao     = " & idLocalizacao & ", " & VbCrLf & _
+                             "       sq_regiao_adm   = " & idRegiao & VbCrLf & _
+                             "  WHERE sq_cliente = " & sq_cliente
+                       ExecutaSQL(SQL)
+
+                       SQL = "UPDATE escCliente_Particular SET " & VbCrLf & _
+                             "       Pasta                = " & idPasta & ", " & VbCrLf & _
+                             "       Diretor              = " & idDiretor & ", " & VbCrLf & _ 
+                             "       Mantenedora          = " & idMantenedora & ", " & VbCrLf & _ 
+                             "       Endereco             = " & idEndereco & ", " & VbCrLf & _ 
+                             "       Telefone_1           = " & idTelefone_1 & ", " & VbCrLf & _ 
+                             "       Fax                  = " & idFax& ", " & VbCrLf & _ 
+                             "       Vencimento           = " & idVencimento & ", " & VbCrLf & _ 
+                             "       Observacao           = " & idObservacao & ", " & VbCrLf & _ 
+                             "       Codinep              = " & idCodinep & ", " & VbCrLf & _ 
+                             "       Telefone_2           = " & idTelefone_2 & ", " & VbCrLf & _ 
+                             "       Email_1              = " & idEmail_1 & ", " & VbCrLf & _ 
+                             "       Email_2              = " & idEmail_2 & ", " & VbCrLf & _ 
+                             "       Cnpj_Executora       = " & idCnpjExecutora & ", " & VbCrLf & _ 
+                             "       Cnpj_Escola          = " & idCnpjEscola & ", " & VbCrLf & _ 
+                             "       Secretario           = " & idSecretario & ", " & VbCrLf & _ 
+                             "       Cep                  = " & idCep & ", " & VbCrLf & _ 
+                             "       Aut_Hab_Secretario   = " & idAutHabSecretario & ", " & VbCrLf & _ 
+                             "       Infantil             = " & idEinf & ", " & VbCrLf & _ 
+                             "       Fundamental          = " & idEf & ", " & VbCrLf & _ 
+                             "       EJA                  = " & idEja & ", " & VbCrLf & _ 
+                             "       Medio                = " & idEm & ", " & VbCrLf & _ 
+                             "       Distancia            = " & idEDA & ", " & VbCrLf & _ 
+                             "       Profissional         = " & idEprof & ", " & VbCrLf & _ 
+                             "       Regiao               = " & idRegiao & ", " & VbCrLf & _ 
+                             "       Mantenedora_Endereco = " & idEndMantenedora & ", " & VbCrLf & _ 
+                             "       URL                  = " & SiteEscola & ", " & VbCrLf & _ 
+                             "       Situacao             = " & Situacao & " " & VbCrLf & _ 
+                             "  WHERE sq_cliente = " & sq_cliente
+                       ExecutaSQL(SQL)
+                       
+                       'Remove os arquivos vinculados à escola
+                       SQL = "DELETE FROM escCliente_Arquivo WHERE SQ_SITE_CLIENTE = " & sq_cliente
+                       ExecutaSQL(SQL)
+
+                       'Remove os registros vinculados à escola
+                       SQL = "DELETE FROM escParticular_Portaria"
+                       ExecutaSQL(SQL)
+
+                       SQL = "DELETE FROM escParticular_OS"
+                       ExecutaSQL(SQL)
+
+                       SQL = "DELETE FROM escParticular_Curso"
+                       ExecutaSQL(SQL)
+
+                       SQL = "DELETE FROM escCurso"
+                       ExecutaSQL(SQL)
+
+                    End If
+
+                    SQL = "DELETE FROM escEspecialidade_Cliente WHERE SQ_CLIENTE = " & sq_cliente
+                    ExecutaSQL(SQL)
+
+                    SQL = "SELECT MAX(sq_codigo_cli) as MaxValue from escEspecialidade_Cliente"
+                    ConectaBD SQL
+                    chave = cInt(RS("MaxValue"))
+                    
+                    SQL = "select a.sq_cliente, c.sq_especialidade, c.ds_especialidade " & VbCrLf & _
+                          "  from escCliente                       a " & VbCrLf & _
+                          "       inner join escCliente_Particular b on (a.sq_cliente = b.sq_cliente), " & VbCrLf & _
+                          "       escEspecialidade                 c " & VbCrLf & _
+                          " where a.sq_cliente = " & sq_cliente & VbCrLf & _
+                          "   and (b.infantil  = c.sq_especialidade or  " & VbCrLf & _
+                          "        (b.infantil = 3 and c.sq_especialidade in (1,2)) " & VbCrLf & _
+                          "       ) " & VbCrLf & _
+                          "UNION " & VbCrLf & _
+                          "select a.sq_cliente, c.sq_especialidade, c.ds_especialidade " & VbCrLf & _
+                          "  from escCliente                       a " & VbCrLf & _
+                          "       inner join escCliente_Particular b on (a.sq_cliente = b.sq_cliente), " & VbCrLf & _
+                          "       escEspecialidade                 c " & VbCrLf & _
+                          " where a.sq_cliente = " & sq_cliente & VbCrLf & _
+                          "   and ((b.fundamental <> 0 and c.sq_especialidade = 5) or  " & VbCrLf & _
+                          "        (b.fundamental in (1,2,3,7,11) and c.sq_especialidade =6) " & VbCrLf & _
+                          "       ) " & VbCrLf & _
+                          "UNION " & VbCrLf & _
+                          "select a.sq_cliente, c.sq_especialidade, c.ds_especialidade " & VbCrLf & _
+                          "  from escCliente                       a " & VbCrLf & _
+                          "       inner join escCliente_Particular b on (a.sq_cliente = b.sq_cliente), " & VbCrLf & _
+                          "       escEspecialidade                 c " & VbCrLf & _
+                          " where a.sq_cliente       = " & sq_cliente & VbCrLf & _
+                          "   and b.medio            = 1  " & VbCrLf & _
+                          "   and c.sq_especialidade = 21 " & VbCrLf & _
+                          "UNION " & VbCrLf & _
+                          "select a.sq_cliente, c.sq_especialidade, c.ds_especialidade " & VbCrLf & _
+                          "  from escCliente                       a " & VbCrLf & _
+                          "       inner join escCliente_Particular b on (a.sq_cliente = b.sq_cliente), " & VbCrLf & _
+                          "       escEspecialidade                 c " & VbCrLf & _
+                          " where a.sq_cliente       = " & sq_cliente & VbCrLf & _
+                          "   and b.eja              <> 0  " & VbCrLf & _
+                          "   and c.sq_especialidade = 22 " & VbCrLf & _
+                          "UNION " & VbCrLf & _
+                          "select a.sq_cliente, c.sq_especialidade, c.ds_especialidade " & VbCrLf & _
+                          "  from escCliente                       a " & VbCrLf & _
+                          "       inner join escCliente_Particular b on (a.sq_cliente = b.sq_cliente), " & VbCrLf & _
+                          "       escEspecialidade                 c " & VbCrLf & _
+                          " where a.sq_cliente       = " & sq_cliente & VbCrLf & _
+                          "   and b.profissional     = 1  " & VbCrLf & _
+                          "   and c.sq_especialidade = 8 " & VbCrLf & _
+                          "UNION " & VbCrLf & _
+                          "select a.sq_cliente, c.sq_especialidade, c.ds_especialidade " & VbCrLf & _
+                          "  from escCliente                       a " & VbCrLf & _
+                          "       inner join escCliente_Particular b on (a.sq_cliente = b.sq_cliente), " & VbCrLf & _
+                          "       escEspecialidade                 c " & VbCrLf & _
+                          " where a.sq_cliente       = " & sq_cliente & VbCrLf & _
+                          "   and b.distancia        = 1  " & VbCrLf & _
+                          "   and c.sq_especialidade = 24" & VbCrLf
+                    ConectaBD SQL
+
+                    While not RS.EOF
+                      chave = chave + 1
+                      SQL = "INSERT INTO escEspecialidade_Cliente (sq_codigo_cli, sq_cliente, sq_codigo_espec) " & VbCrLf & _
+                            "VALUES (" & chave & ", " & RS("sq_cliente") & ", " & RS("sq_especialidade") & ") "
+                      ExecutaSQL(SQL)
+                      RS.MoveNext
+                    Wend
+                ElseIf w_tipo = "CURSOS" Then
+                    ' Carrega os dados em array
+                    For i = 1 to 2
+                        w_campo(i) = "'" & trim(Piece(w_linha,delimitador,",",i)) & "'"
+                    Next
+                    
+                    ' Trata valores nulos
+                    For i = 1 to 2
+                        If w_campo(i) = "'NULL'" Then
+                           w_campo(i) = "NULL"
+                        End If
+                    Next
+                    
+                    Curso    = w_campo(1)
+                    idCursos = w_campo(2)
+                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": " & replace(Curso,"'","")
+                    Response.Flush
+
+                    SQL = "INSERT INTO escCurso (sq_curso, ds_curso, idcurso) VALUES (" & idCursos & ", " &  Curso & ", " & idCursos &  ");"
+                    ExecutaSQL(SQL)
+                ElseIf w_tipo = "ARQUIVOS" Then
+                    ' Carrega os dados em array
+                    For i = 1 to 4
+                        w_campo(i) = "'" & trim(Piece(w_linha,delimitador,",",i)) & "'"
+                    Next
+                    
+                    ' Trata valores nulos
+                    For i = 1 to 4
+                        If w_campo(i) = "'NULL'" Then
+                           w_campo(i) = "NULL"
+                        End If
+                    Next
+                    
+                    idEscola        = w_campo(1)
+                    idNomeArquivo   = w_campo(2)
+                    idarquivos      = w_campo(3)
+                    descricao       = w_campo(4)
+                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": id " & replace(idArquivos,"'","")
+                    Response.Flush
+
+                    SQL = "SELECT MAX(sq_arquivo)+1 as MaxValue from escCliente_Arquivo"
+                    ConectaBD SQL
+                    chave = cInt(RS("MaxValue"))
+
+                    SQL =  "INSERT INTO escCLIENTE_ARQUIVO (SQ_ARQUIVO,SQ_SITE_CLIENTE,DT_ARQUIVO,DS_TITULO,DS_ARQUIVO,LN_ARQUIVO,IN_ATIVO,IN_DESTINATARIO,NR_ORDEM) " & VbCrLf & _
+                           "(SELECT " & chave & "," & VbCrLf & _
+                           "        a.sq_cliente," & VbCrLf & _
+                           "        getDate()," & VbCrLf & _
+                           "        " & mid(descricao,1,100) & "," & VbCrLf & _
+                           "        " & mid(descricao,1,200) & "," & VbCrLf & _
+                           "        " & mid(idNomeArquivo,1,80) & "," & VbCrLf & _
+                           "        'Sim'," & VbCrLf & _
+                           "        'A'," & VbCrLf & _
+                           "        1" & VbCrLf & _
+                           "   FROM escCliente_Particular a " & VbCrLf & _
+                           "  WHERE a.idEscola = " & idEscola & VbCrLf & _
+                           ")"
+                    ExecutaSQL(SQL)
+                ElseIf w_tipo = "PROFISSIONAIS" Then
+                    ' Carrega os dados em array
+                    For i = 1 to 7
+                        w_campo(i) = "'" & trim(Piece(w_linha,delimitador,",",i)) & "'"
+                    Next
+                    
+                    ' Trata valores nulos
+                    For i = 1 to 7
+                        If w_campo(i) = "'NULL'" Then
+                           w_campo(i) = "NULL"
+                        End If
+                    Next
+                    
+                    idProfissionais = w_campo(1)
+                    idEscola        = w_campo(2)
+                    Pasta           = w_campo(3)
+                    Parecer         = w_campo(4)
+                    Portaria        = w_campo(5)
+                    Observacao      = w_campo(6)
+                    idCursos        = w_campo(7)
+                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": id " & replace(idProfissionais,"'","")
+                    Response.Flush
+
+                    SQL =  "INSERT INTO escParticular_Curso (sq_particular_curso, sq_cliente, sq_curso, pasta, parecer, portaria, observacao, idProfissional) " & VbCrLf & _ 
+                           "(SELECT " & idProfissionais & ", a.sq_cliente, b.sq_curso, " & Pasta & ", " & Parecer & ", " & Portaria & ", " & Observacao & ", " & idProfissionais & VbCrLf & _
+                           "   FROM escCliente_Particular a, " & VbCrLf & _
+                           "        escCurso b " & VbCrLf & _
+                           "  WHERE a.idEscola = " & idEscola & VbCrLf & _
+                           "    and b.idCurso  = " & idCursos & VbCrLf & _
+                           ")"
+                    ExecutaSQL(SQL)
+                ElseIf w_tipo = "OS" Then
+                    For i = 1 to 50
+                       If mid(w_linha,len(w_linha)) <> """" Then
+                          w_linha = w_linha & replace(trim(F2.ReadLine),"\""","`")
+                       Else
+                          i = 50
+                       End If
+                    Next
+                       
+                    ' Carrega os dados em array
+                    For i = 1 to 8
+                        w_campo(i) = "'" & trim(Piece(w_linha,delimitador,",",i)) & "'"
+                    Next
+                    
+                    ' Trata valores nulos
+                    For i = 1 to 8
+                        If w_campo(i) = "'NULL'" Then
+                           w_campo(i) = "NULL"
+                        End If
+                    Next
+                    
+                    idOS            = w_campo(1)
+                    idEscola        = w_campo(2)
+                    Numero          = w_campo(3)
+                    Data            = replace(w_campo(4),"-00-00","-01-01")
+                    Dodf            = w_campo(5)
+                    PagDodf         = w_campo(6)
+                    Observacao      = w_campo(7)
+                    DataDodf        = replace(w_campo(8),"-00-00","-01-01")
+                    If Data = "NULL"     or Data = "'0000-01-01'"      Then : Data = "NULL"     : End If
+                    If DataDodf = "NULL" or DataDodf = "'0000-01-01'"  Then : DataDodf = "NULL" : End If
+                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": id " & replace(idOS,"'","")
+                    Response.Flush
+
+                    SQL =  "INSERT INTO escParticular_OS (sq_particular_os, sq_cliente, numero, data, dodf, dodf_pagina, dodf_data, observacao) " & VbCrLf & _ 
+                           "(SELECT " & idOS & ", a.sq_cliente, " & Numero & ", " & Data & ", " & Dodf & ", " & PagDodf & ", " & DataDodf & ", " & Observacao & VbCrLf & _
+                           "   FROM escCliente_Particular a " & VbCrLf & _
+                           "  WHERE a.idEscola = " & idEscola & VbCrLf & _
+                           ")"
+                    ExecutaSQL(SQL)
+                ElseIf w_tipo = "PORTARIAS" Then
+                    For i = 1 to 50
+                       If mid(w_linha,len(w_linha)) <> """" Then
+                          w_linha = w_linha & " " & replace(trim(F2.ReadLine),"\""","`")
+                       Else
+                          i = 50
+                       End If
+                    Next
+                       
+                    ' Carrega os dados em array
+                    For i = 1 to 8
+                        w_campo(i) = "'" & trim(Piece(w_linha,delimitador,",",i)) & "'"
+                    Next
+                    
+                    ' Trata valores nulos
+                    For i = 1 to 8
+                        If w_campo(i) = "'NULL'" Then
+                           w_campo(i) = "NULL"
+                        End If
+                    Next
+                    
+                    idPortaria      = w_campo(1)
+                    idEscola        = w_campo(2)
+                    Numero          = w_campo(3)
+                    Data            = replace(w_campo(4),"-00-00","-01-01")
+                    Dodf            = w_campo(5)
+                    PagDodf         = w_campo(6)
+                    Observacao      = w_campo(7)
+                    DataDodf        = replace(w_campo(8),"-00-00","-01-01")
+                    If Data = "NULL"     or Data = "'0000-01-01'"      Then : Data = "NULL"     : End If
+                    If DataDodf = "NULL" or DataDodf = "'0000-01-01'"  Then : DataDodf = "NULL" : End If
+                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": id " & replace(idPortaria,"'","")
+                    Response.Flush
+
+                    SQL =  "INSERT INTO escParticular_Portaria (sq_particular_portaria, sq_cliente, numero, data, dodf, dodf_pagina, dodf_data, observacao) " & VbCrLf & _ 
+                           "(SELECT " & idPortaria & ", a.sq_cliente, " & Numero & ", " & Data & ", " & Dodf & ", " & PagDodf & ", " & DataDodf & ", " & Observacao & VbCrLf & _
+                           "   FROM escCliente_Particular a " & VbCrLf & _
+                           "  WHERE a.idEscola = " & idEscola & VbCrLf & _
+                           ")"
+                    ExecutaSQL(SQL)
+                 End If
+             end if
+          Loop
+          F2.Close
+
+          'Encerra a transação
+          dbms.CommitTrans()
+          ScriptOpen "JavaScript"
+          'ShowHTML "  confirm('Atualização da rede particular executada com sucesso.');"
+          ShowHTML "  alert('Atualização da rede particular executada com sucesso.');"
+          ShowHTML "  location.href='" & w_pagina & ul.Form("R") & "&w_ea=L';"
+          ScriptClose
+          Rodape
+          Response.End()
+          exit sub
+       End If
 
        ScriptOpen "JavaScript"
        ShowHTML "  location.href='" & w_pagina & ul.Form("R") & "&w_ea=L';"
@@ -4747,7 +5303,7 @@ Public Sub Grava
              ScriptClose
           End If
           DesconectaBD
-          SQL = "SELECT max(sq_cliente) sq_cliente from EscCliente where sq_cliente < 1000 " & VbCrLf
+          SQL = "SELECT max(sq_cliente) sq_cliente from EscCliente where sq_cliente < 99000 " & VbCrLf
           ConectaBD SQL
           w_chave = cDbl(RS("sq_cliente")) + 1
           DesconectaBD    
@@ -4811,7 +5367,6 @@ Public Sub Grava
                 "                        '" & Request("w_ds_apelido") & "','" & Request("w_no_municipio")& "','" & Request("w_sg_uf") & "','" & Request("w_ds_username") & "'," & VbCrLf &_ 
                 "                        '9"&w_chave & "','" & Request("w_ln_internet") & "','" & Nvl(Request("w_ds_email"),"Não informado") & "', getDate()); " & VbCrLf
           
-
           ExecutaSQL(SQL)
                 
           'Criação das escolas na tabela que contém dados complementares'
@@ -4934,22 +5489,22 @@ Public Sub Grava
        ScriptOpen "JavaScript"
        ShowHTML "  location.href='" & w_pagina & Request("R") & "&w_ea=L&cl=" & cl & "';"
        ScriptClose
-	   
-	Case "VERIFBANCO"
+       
+    Case "VERIFBANCO"
        dbms.BeginTrans()
-	   For w_cont = 1 To Request.Form("arquivo").Count
+       For w_cont = 1 To Request.Form("arquivo").Count
         strDir  = mid(Request.Form("arquivo")(w_cont),1,instr(Request.Form("arquivo")(w_cont),"=|=")-1) 'tipo
         strFile = mid(Request.Form("arquivo")(w_cont),instr(Request.Form("arquivo")(w_cont),"=|=")+3) ' chave a ser removida
-		
-		If strDir = "FOTO" Then
-		  SQL = "DELETE escCliente_Foto WHERE SQ_CLIENTE_FOTO = " & strFile
-		Else
-		  SQL = "DELETE escCliente_Arquivo WHERE SQ_Arquivo = " & strFile
-        End If		
+        
+        If strDir = "FOTO" Then
+          SQL = "DELETE escCliente_Foto WHERE SQ_CLIENTE_FOTO = " & strFile
+        Else
+          SQL = "DELETE escCliente_Arquivo WHERE SQ_Arquivo = " & strFile
+        End If        
         ExecutaSQL(SQL)
-		
-	   Next
-	   dbms.CommitTrans()
+        
+       Next
+       dbms.CommitTrans()
         
        ScriptOpen "JavaScript"
        ShowHTML "  location.href='" & w_pagina & "VERIFARQ&w_ea=L&cl=" & cl & "';"
@@ -5345,6 +5900,371 @@ Public Sub ShowEscolas
   Set p_regional = Nothing
 End Sub
 
+
+REM =========================================================================
+REM Monta a tela de Pesquisa
+REM -------------------------------------------------------------------------
+Public Sub ShowEscolaParticular
+
+  Dim RS1, p_regiao
+
+  Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade
+  
+  Set RS1 = Server.CreateObject("ADODB.RecordSet")
+  
+  p_regiao = Request("p_regiao")
+
+  If p_tipo = "W" Then
+      Response.ContentType = "application/msword"
+      HeaderWord p_layout
+      ShowHTML "<TABLE WIDTH=""100%"" BORDER=0><TR><TD ROWSPAN=2><FONT SIZE=4 COLOR=""#000000"">SIGE-WEB<TD ALIGN=""RIGHT""><B><FONT SIZE=4 COLOR=""#000000"">"
+      ShowHTML "Consulta a escolas"
+      ShowHTML "</FONT><TR><TD ALIGN=""RIGHT""><B><FONT SIZE=2 COLOR=""#000000"">" & DataHora() & "</B></TD></TR>"
+      ShowHTML "</FONT></B></TD></TR></TABLE>"
+      ShowHTML "<HR>"
+  Else
+     Cabecalho
+     ShowHTML "<HEAD>"
+     ShowHTML "</HEAD>"
+     If Request("pesquisa") > "" Then
+        BodyOpen " onLoad=""location.href='#lista'"""
+     'Else
+        'BodyOpen "onLoad='document.Form.p_regional.focus()';"
+     End If
+  End If
+  ShowHTML "<B><FONT COLOR=""#000000"">" & w_TP & "</FONT></B>"
+  ShowHTML "<div align=center><center>"
+  ShowHTML "<tr bgcolor=""" & conTrBgColor & """><td align=""center"">"
+  ShowHTML "    <table width=""95%"" border=""0"">"
+  If p_tipo = "H" Then
+     Showhtml "<FORM ACTION=""controle.asp"" name=""Form"" METHOD=""POST"">"
+     ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""w_ew"" VALUE=""ESCPART"">"
+     ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""CL"" VALUE=""" & CL &  """>"
+     ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""pesquisa"" VALUE=""X"">"
+     ShowHTML "<input type=""Hidden"" name=""P3"" value=""1"">"
+     ShowHTML "<input type=""Hidden"" name=""P4"" value=""15"">"
+     ShowHTML "<tr bgcolor=""" & conTrBgColor & """><td align=""center"">"
+     ShowHTML "    <table width=""100%"" border=""0"">"
+     ShowHTML "          <TR><TD valign=""top""><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
+  Else
+     ShowHTML "<tr><td><div align=""justify""><font size=1><b>Filtro:</b><ul>"
+  End If
+  If p_tipo = "H" Then
+     ShowHTML "          <tr valign=""top""><td>"
+     SelecaoRegiaoAdm "Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", p_regiao, "p_regiao", "p_regiao", null, null
+  ElseIf Nvl(p_regiao,0) > 0 Then
+     SQL = "SELECT  a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
+           "  FROM  escCLIENTE a " & VbCrLf & _
+           " WHERE  a.sq_cliente = " & p_regiao & VbCrLf & _
+           "ORDER BY a.ds_cliente "
+     ConectaBD SQL
+     Response.Write SQL
+     Response.Write "          <li><font size=""1""><b>Escolas da " & RS("ds_cliente") & "</b>"
+     DesconectaBD
+  End If
+  'SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
+  'ConectaBD SQL
+  'If p_tipo = "H" Then
+  '   ShowHTML "          <tr valign=""top""><td><td><font size=""1""><br><b>Tipo de instituição:</b><br><SELECT CLASS=""STI"" NAME=""p_tipo_cliente"">"
+  '   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
+  '   While Not RS.EOF
+  '      If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("p_tipo_cliente"),0)) Then
+  '         ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """ SELECTED>" & RS("ds_tipo_cliente")
+  '      Else
+  '         ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """>" & RS("ds_tipo_cliente")
+  '      End If
+  '      RS.MoveNext
+  '   Wend
+  '   ShowHTML "          </select>"
+  'ElseIf nvl(Request("p_tipo_cliente"),0) > 0 Then
+  '   ShowHTML "          <li><font size=""1""><b>Tipo de instituição: "
+  '   While Not RS.EOF
+  '      If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("p_tipo_cliente"),0)) Then ShowHTML RS("ds_tipo_cliente") End If
+  '      RS.MoveNext
+  '   Wend
+  '   ShowHTML "</b>"
+  'End If
+  If p_tipo = "H" Then
+     ShowHTML "  <TR><TD><TD><font size=""1""><br>"
+     If Request("C") > "" Then
+        ShowHTML "          <input type=""checkbox"" name=""C"" value=""X"" CLASS=""BTM"" checked> Exibir apenas escolas com calendário(s) cadastrado(s) "
+     Else
+        ShowHTML "          <input type=""checkbox"" name=""C"" value=""X"" CLASS=""BTM""> Exibir apenas escolas com calendário(s) cadastrado(s)  "
+     End If
+  ElseIf Request("C") > "" Then
+     ShowHTML "  <li><font size=""1""><b>Apenas escolas com alunos carregados </b>"
+  End If
+  
+  'If p_tipo = "H" Then
+  '   ShowHTML "  <TR><TD><TD><font size=""1"">"
+  '   If Request("D") > "" Then
+  '      ShowHTML "          <input type=""checkbox"" name=""D"" value=""X"" CLASS=""BTM"" checked> Exibir apenas escolas que tenham alterado seus dados "
+  '   Else
+  '      ShowHTML "          <input type=""checkbox"" name=""D"" value=""X"" CLASS=""BTM""> Exibir apenas escolas que tenham alterado seus dados "
+  '   End If
+  'ElseIf Request("D") > "" Then
+  '   ShowHTML "  <li><font size=""1""><b>Apenas escolas que tenham alterado seus dados </b>"
+  'End If
+  'If p_tipo = "H" Then
+  '   ShowHTML "  <TR><TD><TD><font size=""1""><br><b>Quanto às informações administrativas?</b><br>"
+  '   If Request("E") = "S" Then ShowHTML "          <input type=""radio"" name=""E"" value=""S"" CLASS=""BTM"" checked> Listar apenas as escolas que informaram<br>"     Else ShowHTML "          <input type=""radio"" name=""E"" value=""S"" CLASS=""BTM""> Listar apenas as escolas que informaram<br>"      End If
+  '   If Request("E") = "N" Then ShowHTML "          <input type=""radio"" name=""E"" value=""N"" CLASS=""BTM"" checked> Listar apenas as escolas que não informaram<br>" Else ShowHTML "          <input type=""radio"" name=""E"" value=""N"" CLASS=""BTM""> Listar apenas as escolas que não informaram<br> " End If
+  '   If Request("E") = ""  Then ShowHTML "          <input type=""radio"" name=""E"" value="""" CLASS=""BTM"" checked> Tanto faz"                                        Else ShowHTML "          <input type=""radio"" name=""E"" value="""" CLASS=""BTM""> Tanto faz "                                        End If
+  'ElseIf Request("E") > "" Then
+  '   ShowHTML "  <li><font size=""1""><b>"
+  '   If Request("E") = "S" Then ShowHTML "          Listar apenas as escolas que informaram dados administrativos</b>"      End If
+  '   If Request("E") = "N" Then ShowHTML "          Listar apenas as escolas que não informaram dados administrativos</b> " End If
+  'End If
+  'If p_tipo <> "W" Then
+  '   ShowHTML "          </table>"
+  'End If
+  'DesconectaBD
+  'wCont = 0
+  'sql1 = ""
+
+'  If p_tipo = "H" Then
+'     sql = "SELECT DISTINCT a.* " & _ 
+'           "from escEspecialidade AS a " & _ 
+'           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
+'           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
+'           "ORDER BY a.nr_ordem, a.ds_especialidade "
+' 
+'     ConectaBD SQL
+'   
+'     If Not RS.EOF Then
+'        wCont = 0
+'        wAtual = ""
+' 
+'        ShowHTML "          <TD valign=""top""><table border=""0"" align=""left"" cellpadding=0 cellspacing=0>"
+'        Do While Not RS.EOF
+'           If wAtual = "" or wAtual <> RS("tp_especialidade") Then
+'              wAtual = RS("tp_especialidade")
+'              If wAtual = "M" Then
+'                 ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Etapas/Modalidades de ensino:</b>"
+'              ElseIf wAtual = "R" Then
+'                 ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Em Regime de Intercomplementaridade:</b>"
+'              Else
+'                 ShowHTML "            <TR><TD colspan=2><font size=""1""><b>Outras:</b>"
+'              End If
+'           End If
+'           
+'           wCont = wCont + 1
+'           marcado = "N"
+'           For i = 1 to Request("p_modalidade").Count
+'               If cDbl(RS("sq_especialidade")) = cDbl(Nvl(Request("p_modalidade")(i),0)) Then marcado = "S" End If
+'           Next
+'              
+'           If marcado = "S" Then
+'              ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """ checked><td><font size=1>" & RS("ds_especialidade")
+'              sql1 = Request("p_modalidade")
+'              wIN = 1
+'           Else
+'              ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """><td><font size=1>" & RS("ds_especialidade")
+'           End If
+'           RS.MoveNext
+' 
+'           If (wCont Mod 2) = 0 Then 
+'              wCont = 0
+'           End If
+' 
+'       Loop
+'        DesconectaBD
+'     End If
+'  ElseIf Nvl(Request("p_modalidade"), "") > "" Then
+'     sql = "SELECT DISTINCT a.* " & _ 
+'           "from escEspecialidade AS a " & _ 
+'           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
+'           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
+'           "where a.sq_especialidade in (" & Request("p_modalidade") & ") " & _
+'           "ORDER BY a.nr_ordem, a.ds_especialidade "
+' 
+'     ConectaBD SQL
+'   
+'     If Not RS.EOF Then
+'        wCont = 0
+' 
+'        ShowHTML "          <li><b>Modalidades de ensino:</b><ul>"
+'        Do While Not RS.EOF
+'                    
+'           ShowHTML chr(13) & "           <li><font size=1>" & RS("ds_especialidade")
+'           sql1 = Request("p_modalidade")
+'           wIN = 1
+'           RS.MoveNext
+' 
+'        Loop
+'        DesconectaBD
+'     End If
+'  End If
+  ShowHTML "          </tr>"
+  ShowHTML "          </table>"
+  if p_tipo = "H" Then 
+     ShowHTML "  <TR><TD colspan=2><font size=""1""><b>Campos a serem exibidos"
+     If p_layout = "PORTRAIT" Then 
+        ShowHTML "          (<input type=""radio"" name=""p_layout"" value=""PORTRAIT"" CLASS=""BTM"" checked> Retrato <input type=""radio"" name=""p_layout"" value=""LANDSCAPE"" CLASS=""BTM""> Paisagem)"
+     Else
+        ShowHTML "          (<input type=""radio"" name=""p_layout"" value=""PORTRAIT"" CLASS=""BTM""> Retrato <input type=""radio"" name=""p_layout"" value=""LANDSCAPE"" CLASS=""BTM"" checked> Paisagem)"
+     End If
+     ShowHTML "     <table width=""100%"" border=0>"
+     ShowHTML "       <tr valign=""top"">"
+     If Session("username") = "SEDF" or Session("username") = "SBPI" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" Then
+        If Instr(p_campos,"username")    > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""username"" CLASS=""BTM"" checked>Username"           Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""username"" CLASS=""BTM"">Username"          End If
+        If Instr(p_campos,"senha")       > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""senha"" CLASS=""BTM"" checked>Senha"                 Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""senha"" CLASS=""BTM"">Senha"                End If
+     End If
+     If Instr(p_campos,"alteracao")   > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""alteracao"" CLASS=""BTM"" checked>Última alteração"  Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""alteracao"" CLASS=""BTM"">Última alteração" End If
+     If Instr(p_campos,"diretor")     > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""diretor"" CLASS=""BTM"" checked>Diretor"             Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""diretor"" CLASS=""BTM"">Diretor"            End If
+     If Instr(p_campos,"secretario")  > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""secretario"" CLASS=""BTM"" checked>Secretário"       Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""secretario"" CLASS=""BTM"">Secretário"      End If
+     If Instr(p_campos,"contato")     > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""contato"" CLASS=""BTM"" checked>Contato"             Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""contato"" CLASS=""BTM"">Contato"            End If
+     ShowHTML "       <tr valign=""top"">"
+     If Instr(p_campos,"mail")        > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""mail"" CLASS=""BTM"" checked>e-Mail"                 Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""mail"" CLASS=""BTM"">e-Mail"                End If
+     If Instr(p_campos,"telefone")    > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""telefone"" CLASS=""BTM"" checked>Telefone"           Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""telefone"" CLASS=""BTM"">Telefone"          End If
+     If Instr(p_campos,"endereco")    > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""endereco"" CLASS=""BTM"" checked>Endereço"           Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""endereco"" CLASS=""BTM"">Endereço"          End If
+     If Instr(p_campos,"localizacao") > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""localizacao"" CLASS=""BTM"" checked>Localização"     Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""localizacao"" CLASS=""BTM"">Localização"    End If
+     If Instr(p_campos,"cep")         > 0 Then ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""cep"" CLASS=""BTM"" checked>CEP"                     Else ShowHTML "          <td><font size=1><input type=""checkbox"" name=""p_campos"" value=""cep"" CLASS=""BTM"">CEP"                    End If
+     ShowHTML "     </table>"
+     ShowHTML "      <tr><td align=""center"" colspan=""3"" height=""1"" bgcolor=""#000000"">"
+     ShowHTML "      <tr><td align=""center"" colspan=""3"">"
+     ShowHTML "            <input class=""BTM"" type=""submit"" name=""Botao"" value=""Aplicar filtro"">"
+     If Session("username") = "SBPI" Then
+        ShowHTML "            <input class=""BTM"" type=""button"" name=""Botao"" onClick=""location.href='" & w_Pagina & "CadastroEscola" & "&CL=" & CL & MontaFiltro("GET") & "&w_ea=I';"" value=""Nova escola"">"
+     End If
+     ShowHTML "          </td>"
+     ShowHTML "      </tr>"
+  End If
+  ShowHTML "    </table>"
+  ShowHTML "    </TD>"
+  ShowHTML "</tr>"
+  if p_tipo = "H" Then ShowHTML "</form>" End If
+  If Request("pesquisa") > "" Then
+     'sql = " SELECT DISTINCT a.sq_cliente, a.ds_cliente, a.ds_apelido, a.ln_internet, a.ds_username, a.ds_senha_acesso, a.no_municipio, a.sg_uf, a.dt_alteracao, d.diretor, d.secretario, d.telefone_1, d.fax, d.cep, d.endereco, d.email_1 " & VbCrLf & _ 
+     '      "   from escCliente a " & VbCrLf & _ 
+     '      "        INNER JOIN escTipo_Cliente b ON (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _ 
+     '      "--        INNER JOIN escCalendario_cliente c ON (a.sq_cliente = c.sq_site_cliente) " & VbCrLf & _ 
+     '      "        INNER JOIN escCliente_Particular d ON (a.sq_cliente = d.sq_cliente) " & VbCrLf & _ 
+     '      "        where a.sq_tipo_cliente = 14 "
+           
+           
+     sql = " SELECT DISTINCT a.sq_cliente, a.ds_cliente, a.ds_apelido, a.ln_internet, a.ds_username, a.ds_senha_acesso, a.no_municipio, a.sg_uf, a.dt_alteracao, d.diretor, d.secretario, d.telefone_1, d.fax, d.cep, d.endereco, d.email_1 " & VbCrLf & _ 
+           "   from escCliente a " & VbCrLf & _ 
+           "        INNER JOIN escTipo_Cliente b ON (a.sq_tipo_cliente = b.sq_tipo_cliente) "
+           if (Request("c") > "") Then 
+              sql = sql & "      INNER JOIN escCalendario_cliente c ON (a.sq_cliente = c.sq_site_cliente) " & VbCrLf & _ 
+              "        INNER JOIN escCliente_Particular d ON (a.sq_cliente = d.sq_cliente) " & VbCrLf & _ 
+              "        where a.sq_tipo_cliente = 14 "           
+           else
+              sql = sql & VbCrLf & _ 
+              "        INNER JOIN escCliente_Particular d ON (a.sq_cliente = d.sq_cliente) " & VbCrLf & _ 
+              "        where a.sq_tipo_cliente = 14 "           
+           end if
+           
+
+           If (p_regiao > "") Then
+              sql = sql & "and a.sq_regiao_adm = " & p_regiao & VbCrLf & _ 
+              "        order by a.ds_cliente "
+           else
+              sql = sql & VbCrLf & _ 
+              "        order by a.ds_cliente "
+           End If           
+        
+     ConectaBD SQL
+     
+     ShowHTML "<TR><TD valign=""top""><br><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
+     If Not RS.EOF Then
+
+        If p_tipo = "H" Then 
+           If Request("P4") > "" Then RS.PageSize = cDbl(Request("P4")) Else RS.PageSize = 15 End If
+           rs.AbsolutePage = Nvl(Request("P3"),1)
+        Else
+           RS.PageSize = RS.RecordCount + 1
+           rs.AbsolutePage = 1
+        End If
+      
+
+        ShowHTML "<tr><td><td align=""right""><b><font face=Verdana size=1>Registros encontrados: " & RS.RecordCount & "</font></b>"
+        If p_Tipo = "H" Then ShowHTML "     &nbsp;&nbsp;<A TITLE=""Clique aqui para gerar arquivo Word com a listagem abaixo"" class=""SS"" href=""#""  onClick=""window.open('Controle.asp?p_tipo=W&w_ew=" & w_ew & "&Q=" & Request("Q") & "&C=" & Request("C") & "&D=" & Request("D") & "&U=" & Request("U") & w_especialidade & MontaFiltro("GET") & "','MetaWord','width=600, height=350, top=65, left=65, menubar=yes, scrollbars=yes, resizable=yes, status=no');"">Gerar Word<IMG ALIGN=""CENTER"" border=0 SRC=""img/word.gif""></A>" End If
+        ShowHTML "<tr><td><td>"
+        ShowHTML "<table border=""1"" cellspacing=""0"" cellpadding=""0"" width=""100%"">"
+        ShowHTML "<tr align=""center"" valign=""top"">"
+        ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Escola</b></td>"
+        If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" or Session("username") = "SBPI" Then
+           If Instr(p_campos,"username") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Username</b></td>" End If
+           If Instr(p_campos,"senha") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Senha</b></td>" End If
+        End If
+        'ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Alunos</b></td>"
+        If Instr(p_campos,"alteracao")   > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Última alteração</b></td>" End If
+        If Instr(p_campos,"diretor")     > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Diretor</b></td>" End If
+        If Instr(p_campos,"secretario")  > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Secretario</b></td>" End If
+        If Instr(p_campos,"mail")        > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>e-Mail</b></td>" End If
+        If Instr(p_campos,"telefone")    > 0 Then 
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Telefone</b></td>" 
+           ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Fax</b></td>" 
+        End If
+        If Instr(p_campos,"endereco")    > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Endereço</b></td>" End If
+        If Instr(p_campos,"localizacao") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>Localização</b></td>" End If
+        If Instr(p_campos,"cep")         > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1""><b>CEP</b></td>" End If
+        w_cor = "#FDFDFD"
+        While Not RS.EOF and cDbl(RS.AbsolutePage) = cDbl(Nvl(Request("P3"),RS.AbsolutePage))
+          If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
+          ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+          If p_tipo = "H" Then
+          
+             If(RS("LN_INTERNET") > "") Then
+                ShowHTML "    <td><font face=""Verdana"" size=""1""><a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b></font></td>"
+             Else
+                ShowHTML "    <td><font face=""Verdana"" size=""1""><b>" & RS("DS_CLIENTE") & "</b></font></td>"
+             End if                
+          Else
+             ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
+          End If
+          If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" or Session("username") = "SBPI" Then
+             If Instr(p_campos,"username") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_USERNAME") & "</font></td>" End If
+             If Instr(p_campos,"senha") > 0 Then ShowHTML "    <td align=""center""><font face=""Verdana"" size=""1"">" & RS("DS_SENHA_ACESSO") & "</font></td>" End If
+          End If
+          'ShowHTML "    <td align=""right""><font face=""Verdana"" size=""1"">" & RS("alunos") & "</font></td>"
+          If Instr(p_campos,"alteracao")   > 0 Then ShowHTML "    <td align=""center""><font face=""Verdana"" size=""1"">" & Nvl(RS("dt_alteracao"),"---") & "</font></td>" End If
+          If Instr(p_campos,"diretor")     > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & Nvl(RS("diretor"),"---") & "</td>" End If
+          If Instr(p_campos,"secretario")  > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & Nvl(RS("secretario"),"---") & "</td>" End If
+          If Instr(p_campos,"mail")        > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & Nvl(RS("email_1"),"---") & "</td>" End If
+          If Instr(p_campos,"telefone")    > 0 Then 
+             ShowHTML "    <td><font face=""Verdana"" size=""1"">" & Nvl(RS("telefone_1"),"---") & "</td>" 
+             ShowHTML "    <td><font face=""Verdana"" size=""1"">" & Nvl(RS("fax"),"---") & "</td>" 
+          End If
+          If Instr(p_campos,"endereco")    > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & Nvl(RS("endereco"),"---") & "</td>" End If
+          If Instr(p_campos,"localizacao") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("no_municipio") & "-" & RS("sg_uf") & "</font></td>" End If
+          If Instr(p_campos,"cep")         > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & Nvl(RS("cep"),"---") & "</td>" End If
+          If p_tipo = "H" Then
+             ShowHTML "    <td><font face=""Verdana"" size=""1"">"
+             If Session("username") = "SBPI" Then
+                ShowHTML "       <A CLASS=""SS"" HREF=""" & w_Pagina & "CadastroEscola" & "&w_chave=" & RS("sq_cliente") & "&w_ea=A" & MontaFiltro("GET") & """ Title=""Alteração dos dados da escola!"">Alt</A>"
+             End If             
+'             If nvl(RS("adm"),"nulo") <> "nulo" Then
+'                ShowHTML "       <A CLASS=""SS"" HREF=""controle.asp?CL=sq_cliente=" & RS("sq_cliente") & "&w_ea=L&w_ew=Adm&w_ee=1&P3=1&P4=30"" Title=""Exibe o formulário de dados administrativos preenchido pela escola!"" target=""_blank"">Adm</A>"
+'             End If
+          End If
+          RS.MoveNext
+          Wend
+    
+        ShowHTML "</table>"
+        ShowHTML "<tr><td><td colspan=""5"" align=""center""><hr>"
+
+        If p_tipo = "H" Then
+           ShowHTML "<tr><td align=""center"" colspan=5>"
+           MontaBarra "Controle.asp?CL=" & CL & "&w_ew=" & w_ew & "&Q=" & Request("Q") & "&C=" & Request("C") & "&D=" & Request("D") & "&U=" & Request("U") & w_especialidade, cDbl(RS.PageCount), cDbl(Request("P3")), cDbl(Request("P4")), cDbl(RS.RecordCount)
+           ShowHTML "</tr>"
+        End If
+
+     Else
+
+        ShowHTML "<TR><TD><TD colspan=""3""><p align=""justify""><img src=""img/ico_educacao.gif"" width=""16"" height=""16"" border=""0"" align=""center"">&nbsp;<font size=""2""><b>Nenhuma ocorrência encontrada para as opções acima."
+
+     End If
+
+  End If
+  ShowHTML "</TABLE>"
+  
+  Set p_regiao = Nothing
+End Sub
+REM Fim da Pesquisa de Escolas Particulares
+
 REM =========================================================================
 REM Cadastro de escolas
 REM -------------------------------------------------------------------------
@@ -5652,7 +6572,7 @@ Sub CadastroEscolas
   ShowHTML "              <td valign=""top""><font size=""1""><b><u>D</u>iretório:</b><br><input " & w_Disabled & " accesskey=""D"" type=""text"" name=""w_ds_diretorio"" class=""STI"" SIZE=""40"" MAXLENGTH=""60"" VALUE=""" & w_ds_diretorio & """ ONMOUSEOVER=""popup('Informe o diretório físico da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "              <td valign=""top""><font size=""1""><b>SIS<u>C</u>OL:</b><br><input " & w_Disabled & " accesskey=""C"" type=""text"" name=""w_sq_siscol"" class=""STI"" SIZE=""6"" MAXLENGTH=""6"" VALUE=""" & w_sq_siscol & """ ONMOUSEOVER=""popup('Informe o número siscol da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "      </table>"  
-  ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>M</u>ensagem:</b><br><input " & w_Disabled & " accesskey=""M"" type=""text"" name=""w_ds_mensagem"" class=""STI"" SIZE=""80"" MAXLENGTH=""80"" VALUE=""" & Nvl(w_ds_mensagem,"GDF - As grandes transformações também no ensino público.") & """ ONMOUSEOVER=""popup('Informe o mensagem rolante da tela da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
+  ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>M</u>ensagem:</b><br><input " & w_Disabled & " accesskey=""M"" type=""text"" name=""w_ds_mensagem"" class=""STI"" SIZE=""80"" MAXLENGTH=""80"" VALUE=""" & Nvl(w_ds_mensagem,"Brasília - Patrimônio Cultural da Humanidade") & """ ONMOUSEOVER=""popup('Informe o mensagem rolante da tela da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "      <tr><td valign=""top"" colspan=""2""><font  size=""1""><b><U>I</U>nstitucional:</b><br><TEXTAREA ACCESSKEY=""I"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_institucional"" ROWS=4 COLS=76>"  & Nvl(w_ds_institucional,"Desenvolvemos essa solução a fim de prestar serviços eficientes e gratuitos à comunidade, criando um espaço de intercâmbio com a escola para, juntos, trabalharmos pela melhora do ensino público.") &"</TEXTAREA ></td>"
   ShowHTML "      <tr><td valign=""top"" colspan=""2""><font  size=""1""><b><U>T</U>exto de abertura:</b><br><TEXTAREA ACCESSKEY=""X"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_texto_abertura"" ROWS=4 COLS=76>"  & Nvl(w_ds_texto_abertura,"O ensino moderno oferece amplo apoio tecnológico ao estudante. A Internet modificou, substancialmente, o paradigma existente na área educacional. Modernizamos nossas atividades a fim de garantir a nossos alunos, pais e responsáveis qualidade, eficiência e rapidez na prestação de nossos serviços.") & "</TEXTAREA ></td>"
   
@@ -5842,6 +6762,7 @@ Private Sub MainBody
       Case "NEWSLETTER"                 GetNewsletter
       Case conWhatEspecialidade         GetEspecialidade
       Case conRelEscolas                ShowEscolas
+      Case "ESCPART"                    ShowEscolaParticular
       Case "GETESCOLAS"                 GetEscolas
       Case "CADASTROESCOLA"             CadastroEscolas
       Case conWhatSGE                   GetSistema
@@ -5849,7 +6770,8 @@ Private Sub MainBody
       Case "VERSAO"                     GetVersao
       Case "TIPOCLIENTE"                GetTipoCliente
       Case "VERIFARQ"                   GetVerifArquivo
-	  Case "GRAVA"                      Grava
+      Case "REDEPART"                   GetRedeParticular
+      Case "GRAVA"                      Grava
       Case Else
            If ( Not Request.QueryString( conToMakeSystem ) > "" ) Then
               ShowFrames

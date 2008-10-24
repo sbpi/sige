@@ -147,6 +147,7 @@ Sub showMenu
    ShowHTML "<HTML>"
    ShowHTML "<HEAD>"
    ShowHTML "<TITLE>" & "Controle Central" & "</TITLE>"
+   ShowHTML "   <link href=""/css/particular.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
    ShowHTML "<style>"
    ShowHTML "<// a { color: ""#000000""; text-decoration: ""none""; } "
    ShowHTML "    a:hover { color:""#000000""; text-decoration: ""underline""; }"
@@ -155,8 +156,8 @@ Sub showMenu
    ShowHTML "//></style>"
    ShowHTML "</HEAD>"
    ShowHTML "<BASEFONT FACE=""Verdana, Helvetica, Sans-Serif"" SIZE=""2"">"
-   Response.Write "<BODY topmargin=0 bgcolor=""#FFFFFF"" BACKGROUND=""img/fundo.jpg"" BGPROPERTIES=""FIXED"" text=""#000000"" link=""#000000"" vlink=""#000000"" alink=""#FF0000""> "
-   ShowHTML "  <table border=0 cellpadding=0 height=""80"" width=""100%""><tr><td nowrap><font size=1><b>"
+   Response.Write "<BODY topmargin=0 bgcolor=""#FFFFFF"" BACKGROUND=""img/background.gif"" BGPROPERTIES=""FIXED"" text=""#000000"" link=""#000000"" vlink=""#000000"" alink=""#FF0000""> "
+   ShowHTML "  <table style=""background-image:url(img/background.gif);"" border=0 cellpadding=0 height=""80"" width=""100%""><tr><td nowrap><font size=1><b>"
    ShowHTML "  <TR><TD><font size=2><b>Atualização</TD></TR>"
    ShowHTML "  <TR><TD align=""center""><br><font size=1>Usuário:<b>" & Session("username") & "</TD></TR>"
    ShowHTML "  <TR><TD><font size=1><br>"
@@ -643,7 +644,7 @@ Sub GetEspecialidadeCliente
      SQL = "select a.sq_especialidade, a.ds_especialidade, a.tp_especialidade, b.sq_codigo_cli " & VbCrLf & _
            "  from escEspecialidade a " & VbCrLf & _
            "       left outer join escEspecialidade_Cliente b on (a.sq_especialidade = b.sq_codigo_espec and b." & CL & ") " & VbCrLf & _
-           "order by a.nr_ordem, a.ds_especialidade " & VbCrLf
+           "where tp_especialidade <> 'M' order by a.nr_ordem, a.ds_especialidade " & VbCrLf
      ConectaBD SQL
   End If
 
@@ -1864,7 +1865,8 @@ Sub GetCalendario
      w_ds_ocorrencia      = Request("w_ds_ocorrencia")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select * from escCalendario_Cliente where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by year(dt_ocorrencia) desc, dt_ocorrencia"
+     'SQL = "select * from escCalendario_Cliente where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by year(dt_ocorrencia) desc, dt_ocorrencia"
+     SQL = "select a.*, b.nome from escCalendario_Cliente a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by year(dt_ocorrencia) desc, dt_ocorrencia"
      ConectaBD SQL
   ElseIf InStr("AEV",w_ea) > 0 and w_Troca = "" Then
      ' Recupera os dados do endereço informado
@@ -1911,6 +1913,7 @@ Sub GetCalendario
     ShowHTML "    <TABLE WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""" & conTableCellSpacing & """ CELLPADDING=""" & conTableCellPadding & """ BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
     ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
     ShowHTML "          <td><font size=""1""><b>Data</font></td>"
+    ShowHTML "          <td><font size=""1""><b>Tipo</font></td>"
     ShowHTML "          <td><font size=""1""><b>Ocorrência</font></td>"
     ShowHTML "          <td><font size=""1""><b>Operações</font></td>"
     ShowHTML "        </tr>"
@@ -1927,6 +1930,7 @@ Sub GetCalendario
         End If
         ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"
         ShowHTML "        <td align=""center""><font size=""1"">" & FormataDataEdicao(FormatDateTime(RS("dt_ocorrencia"),2)) & "</td>"
+        ShowHTML "        <td><font size=""1"">" & nvl(RS("nome"),"---") & "</td>"
         ShowHTML "        <td><font size=""1"">" & RS("ds_ocorrencia") & "</td>"
         ShowHTML "        <td align=""top"" nowrap><font size=""1"">"
         ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=A&CL=" & CL & "&w_chave=" & RS("sq_ocorrencia") & """>Alterar</A>&nbsp"
@@ -1959,6 +1963,19 @@ Sub GetCalendario
     ShowHTML "        <tr valign=""top"">"
     ShowHTML "          <td valign=""top""><font size=""1""><b><u>D</u>ata:</b><br><input accesskey=""D"" type=""text"" name=""w_dt_ocorrencia"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(Nvl(w_dt_ocorrencia,Date()),2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a data de ocorrência. O sistema colocará as barras automaticamente.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><input " & w_Disabled & " accesskey=""E"" type=""text"" name=""w_ds_ocorrencia"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_ocorrencia & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a ocorrência.','white')""; ONMOUSEOUT=""kill()""></td>"
+    SQL = "SELECT * FROM escTipo_Data a WHERE a.abrangencia <> 'U' ORDER BY a.nome" & VbCrLf
+    ConectaBD SQL
+    ShowHTML "          <td><font size=""1""><b>Tipo da ocorrência:</b><br><SELECT CLASS=""STI"" NAME=""w_tipo"">"
+    ShowHTML "          <option value=""""> ---"
+    While Not RS.EOF
+       If cDbl(nvl(RS("sq_tipo_data"),0)) = cDbl(nvl(w_tipo,0)) Then
+          ShowHTML "          <option value=""" & RS("sq_tipo_data") & """ SELECTED>" & RS("nome")
+       Else
+          ShowHTML "          <option value=""" & RS("sq_tipo_data") & """>" & RS("nome")
+       End If
+       RS.MoveNext
+    Wend
+    ShowHTML "          </select>"
     ShowHTML "        </table>"
     ShowHTML "      <tr>"
     ShowHTML "      <tr><td align=""center"" colspan=4><hr>"
@@ -2023,7 +2040,7 @@ Sub ShowLog
   
   If w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select * from escCliente_Log where " & CL & " order by year(data) desc, month(data) desc, data desc"
+     SQL = "select a.*, b.nome from escCalendario_Base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) order by year(dt_ocorrencia) desc, dt_ocorrencia"
      ConectaBD SQL
   End If
 
@@ -2801,11 +2818,11 @@ Public Sub Grava
 
           ' Insere o arquivo
           SQL = " insert into escCalendario_Cliente " & VbCrLf & _
-                "    (sq_ocorrencia, sq_site_cliente, dt_ocorrencia, ds_ocorrencia) " & VbCrLf & _
+                "    (sq_ocorrencia, sq_site_cliente, dt_ocorrencia, ds_ocorrencia, sq_tipo_data) " & VbCrLf & _
                 " values ( " & w_chave & ", " & VbCrLf & _
                 "     " & Request("w_sq_cliente") & ", " & VbCrLf & _
                 "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
-                "     '" & Request("w_ds_ocorrencia") & "' " & VbCrLf & _
+                "     '" & Request("w_ds_ocorrencia") & "', " & Request("w_tipo") &  VbCrLf & _
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
@@ -2825,7 +2842,8 @@ Public Sub Grava
        ElseIf w_ea = "A" Then
           SQL = " update escCalendario_Cliente set " & VbCrLf & _
                 "     dt_ocorrencia  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
-                "     ds_ocorrencia  = '" & Request("w_ds_ocorrencia") & "' " & VbCrLf & _
+                "     ds_ocorrencia  = '" & Request("w_ds_ocorrencia") & "', " & VbCrLf & _
+                "     sq_tipo_data   = "  & Request("w_tipo") & VbCrLf & _   
                 "where sq_ocorrencia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 

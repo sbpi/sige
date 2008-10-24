@@ -29,7 +29,7 @@ Private sstrCL
 Private w_ano_letivo
 
 sstrSN = "Default.Asp"
-sstrCL = "Aluno.Asp"
+sstrCL = "Aluno.asp"
 w_dir  = "Modelos/Mod16/"
 
 Public sstrEA
@@ -86,27 +86,43 @@ ShowHTML "</head>"
 ShowHTML "<BASE HREF=""" & conSite & "/"">"
 ShowHTML "<body>"
 If sstrEW <> "conWhatExBoletimImp" Then  
-   ShowHTML "<div id=""container"">"
-   ShowHTML "  <div id=""cab"">" 
-   ShowHTML "    <div id=""cabtopo"">"
-   ShowHTML "      <div id=""logoesq""><img src=""img/fundo_logoesq.gif"" border=0></div>"
-   ShowHTML "      <div id=""logodir""><a href=""http://www.se.df.gov.br""><img src=""img/fundo_logodir.jpg"" border=0></a></div>"   
-   ShowHTML "    </div>"
-   
+   ShowHTML "    <div id=""pagina"">"
+   ShowHTML "    <div id=""topo""></div>"
+   %>
+   <div id="busca">
+    <div class="data"> <% Response.Write(ExibeData(date())) %> </div>
+    <div class="clear"></div>
+  </div>
+  <div id="menu">
+    <div id="menuTop">
+      <div class="esquerda">
+        <ul>
+          <li><a href="http://www.se.df.gov.br/300/30001001.asp">Secretaria de Educação</a></li>
+          <li><a href="http://www.se.df.gov.br/300/30001009.asp">mapa do site</a></li>
+          <li class="ultimo"><a class="ultimo" href="http://www.se.df.gov.br/300/30001005.asp">fale conosco</a></li>
+        </ul>
+      </div>
+      <div class="direita">
+        <ul>
+          <li><a class="aluno" href="http://www.se.df.gov.br/300/30002001.asp">Aluno</a></li>
+          <li><a class="educador" href="http://www.se.df.gov.br/300/30003001.asp">Educador</a></li>
+          <li><a class="comunidade" href="http://www.se.df.gov.br/300/30004001.asp">Comunidade</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="menuMiddle"> </div>
+  </div>
+  <div class="clear"></div>
+
+   <%
    sql = "SELECT a.sq_cliente, a.ds_cliente, b.ds_mensagem, c.no_aluno, c.nr_matricula " & VbCrLf & _
          "  FROM escCliente a " & VbCrLf & _
          "       inner join escCliente_site b on (a.sq_cliente = b.sq_cliente) " & VbCrLf & _
          "       inner join escAluno        c on (b.sq_site_cliente = c.sq_site_cliente) " & VbCrLf & _
          " WHERE c." & sstrEA
    RS.Open sql, sobjConn, adOpenForwardOnly, adLockReadOnly
-   ShowHTML "    <div id=""cabbase"">"
-   ShowHTML "      <div id=""busca"" valign=""center""><marquee width=""100%"" align=""middle""><font color=""white"" face=""Arial"" size=""2""><b>" & server.HTMLEncode(RS("ds_mensagem")) & "</b></font></marquee></div> "
-   ShowHTML "    </div>"
-   ShowHTML "  </div>"
-   ShowHTML "  <div id=""corpo"">"
-   ShowHTML "    <div id=""menuesq"">"
-   ShowHTML "      <div id=""logomenuesq""><img src=""img/fundo_logomenuesq.gif"" border=0></div>"
-   ShowHTML "      <ul id=""menugov"">"
+   ShowHTML "      <div id=""menuBottom"">"
+   ShowHTML "      <ul>"
    ShowHTML "      <script language=""JavaScript"" src=""inc/mm_menu.js"" type=""text/JavaScript""></script>"
    ShowHTML "      <li><a href=""" & w_dir & sstrCL & "?EW=118&CL=" & CL & "&EA=" & sstrEA & """ >Inicial</a> </li>"
    ShowHTML "      <li><a href=""" & w_dir & sstrCL & "?EW=119&CL=" & CL & "&EA=" & sstrEA & """ id=""link1"">Troca de senha</a> </li>"
@@ -114,23 +130,17 @@ If sstrEW <> "conWhatExBoletimImp" Then
    ShowHTML "      <li><a href=""" & w_dir & sstrCL & "?EW=121&CL=" & CL & "&EA=" & sstrEA & """ id=""link2"">Grade horária</a> </li>"
    ShowHTML "      <li><a href=""" & w_dir & sstrCL & "?EW=122&CL=" & CL & "&EA=" & sstrEA & """ id=""link5"">Mensagens</a>"
    ShowHTML "	    </ul>"
-   ShowHTML "      <div id=""menusep""><hr /></div>"
-   ShowHTML "      <div id=""menunav"">"
-   ShowHTML "      <ul id=""menunav"">"
-   ShowHTML "      <li><a href=""newsletter.asp?ew=i"">Clique aqui para receber informativos da SEDF</a>"
-   ShowHTML "	    </ul>"
    ShowHTML "      </div>"
-   ShowHTML "    </div>"
-   ShowHTML "	  <div id=""menutxt"">"
-   ShowHTML "      <ul id=""menutexto"">"
-   ShowHTML "      <li><b>" & RS("ds_cliente") & "</b></li>"
-   ShowHTML "      <li><b>" & RS("no_aluno") & " (" & RS("nr_matricula") & ")</b></li>"
+   ShowHTML "      <div id=""conteudo"">"   
+   ShowHTML "      <h2>" & RS("ds_cliente") & "</h2>"
+   ShowHTML "      <p><b>" & RS("no_aluno") & " (" & RS("nr_matricula") & ")</b> »"
+   
    Select Case sstrEW
-     Case conWhatMenu        ShowHTML "      <li><b>Inicial</b></li>"
-     Case conWhatExBoletim   ShowHTML "      <li><b>Boletim</b></li>"
-     Case conWhatExGrade     ShowHTML "      <li><b>Grade horária</b></li>"
-     Case conWhatSenha       ShowHTML "      <li><b>Troca de senha</b></li>"
-     Case conWhatExMens      ShowHTML "      <li><b>Mensagens</b></li>"
+     Case conWhatMenu        ShowHTML "   <b>Inicial</b></p>"
+     Case conWhatExBoletim   ShowHTML "   <b>Boletim</b></p>"
+     Case conWhatExGrade     ShowHTML "   <b>Grade horária</b></p>"
+     Case conWhatSenha       ShowHTML "   <b>Troca de senha</b></p>"
+     Case conWhatExMens      ShowHTML "   <b>Mensagens</b></p>"
    End Select
 
    ShowHTML "	    </ul>"
@@ -145,20 +155,26 @@ Main
 ShowHTML "        </table>"
 If sstrEW <> "conWhatExBoletimImp" Then  
    ShowHTML "    </div>"
-   ShowHTML "  </div> "
 End If
 
 ShowHTML "  <br clear=""all"" />"
-ShowHTML "</div>"
 
 If sstrEW <> "conWhatExBoletimImp" Then
-   ShowHTML "<div id=""rodape"">"
-   ShowHTML "  <div id=""endereco"">"
-   ShowHTML "      <div></div>"
-   ShowHTML "      <div></div>"
-   ShowHTML "      <div><br /></div> "
-   ShowHTML "  </div>"
-   ShowHTML "</div>"
+ShowHTML "</div>"
+%>
+<div id="rodape">
+  <ul>
+    <li><a href="index.htm">Página Inicial</a></li>
+    <li><a href="21.Fale-conosco.html">Fale conosco</a></li>
+    <li class="ultimo"><a href="texto.htm">Mapa do site</a></li>
+  </ul>
+  <div class="clear"></div>
+  <p class="endereco">Anexo do Palácio do Buriti - 9º andar  - Brasília |   Centro Administrativo QNG Lote 22 Área Especial - Taguatinga   Norte<br/>
+    Tel : (61) 3224 0016 (61) 3225 1266 | Fax (61) 3213 6360 </p>
+  <p class="copy">Copyright ® 2000/2008 - SE/GDF - Todos os Direitos Reservados</p>
+</div>
+
+<%
 End If
 ShowHTML "</body>"
 ShowHTML "</html>"
@@ -693,14 +709,7 @@ Public Sub ShowBoletim
      If w_ds_mensagem_boletim > "" Then
         ShowHTML "    <TR><TD colspan=14 align=""left""><b>Mensagem:<BR><font color=""#FF0000""><b>" & w_ds_mensagem_boletim
      End If
-
-  Else
-     ShowHTML "    <TR><TD colspan=14><b>Não há notas informadas.</b>"
-  End If
-  ShowHTML "</FORM>"
-  ShowHTML "    </TABLE>"
-
-  ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+       ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
   ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
   RS.MoveFirst
   While Not RS.EOF
@@ -708,8 +717,13 @@ Public Sub ShowBoletim
     ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
     RS.MoveNext
   Wend
+    ShowHTML "    </TABLE>"
+    RS.Close
+  Else
+     ShowHTML "    <TR><TD colspan=14><b>Não há notas informadas.</b>"
+  End If
+  ShowHTML "</FORM>"
   ShowHTML "    </TABLE>"
-  RS.Close
 End Sub
 REM -------------------------------------------------------------------------
 REM Final da Página de Boletim
@@ -896,6 +910,17 @@ Public Sub ShowBoletimImp
      If w_ds_mensagem_boletim > "" Then
         ShowHTML "    <TR><TD colspan=14 align=""left""><FONT FACE=VERDANA SIZE=1><b>Mensagem:<BR><font color=""#FF0000""><b>" & w_ds_mensagem_boletim
      End If
+     ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+     ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
+     RS.MoveFirst
+     While Not RS.EOF
+       ShowHTML "  <TR><TD><FONT FACE=VERDANA SIZE=1>" & RS("sg_disciplina") & ":"
+       ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
+       RS.MoveNext
+     Wend
+     ShowHTML "    </TABLE>"
+
+     RS.Close
 
   Else
      ShowHTML "    <TR><TD colspan=14><FONT FACE=VERDANA SIZE=1><b>Não há notas informadas.</b>"
@@ -903,17 +928,7 @@ Public Sub ShowBoletimImp
   ShowHTML "</FORM>"
   ShowHTML "    </TABLE>"
 	 
-  ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
-  ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
-  RS.MoveFirst
-  While Not RS.EOF
-    ShowHTML "  <TR><TD><FONT FACE=VERDANA SIZE=1>" & RS("sg_disciplina") & ":"
-    ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
-    RS.MoveNext
-  Wend
-  ShowHTML "    </TABLE>"
-
-  RS.Close
+  
 
 End Sub
 REM -------------------------------------------------------------------------
@@ -1076,6 +1091,26 @@ Public Sub ShowGrade
 	    NEXT
      ShowHTML "  </TR>"
      Next
+     ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+     ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
+     sql = "SELECT distinct c.sg_disciplina, c.ds_disciplina " & VbCrLf & _
+          "  FROM escAluno_Turma              a " & VbCrLf & _
+          "       INNER JOIN escGrade_horaria b ON (a.sq_turma        = b.sq_turma and  " & VbCrLf & _
+          "                                         a.sq_site_cliente = b.sq_site_cliente and " & VbCrLf & _
+          "                                         a.ano_letivo      = b.ano_letivo and " & VbCrLf & _
+          "                                         a.ano_letivo      = " & w_ano_letivo & VbCrLf & _
+          "                                        ) " & VbCrLf & _
+          "       INNER JOIN escDisciplina    c ON (b.sq_disciplina = c.sq_disciplina) " & VbCrLf & _
+          "WHERE a." & sstrEA & " " & VbCrLf & _
+          "ORDER BY c.sg_disciplina" & VbCrLf
+     RS.Open sql, sobjConn, adOpenForwardOnly
+     While Not RS.EOF
+       ShowHTML "  <TR><TD><FONT FACE=VERDANA SIZE=1>" & RS("sg_disciplina") & ":"
+       ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
+       RS.MoveNext
+     Wend
+     ShowHTML "    </TABLE>"
+     RS.Close
   Else
      ShowHTML "    <TR><TD colspan=14><b>A grade horária não foi informada.</b>"
   End If
@@ -1083,28 +1118,7 @@ Public Sub ShowGrade
 
   RS.Close
 
-  ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
-  ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
-  sql = "SELECT distinct c.sg_disciplina, c.ds_disciplina " & VbCrLf & _
-        "  FROM escAluno_Turma              a " & VbCrLf & _
-        "       INNER JOIN escGrade_horaria b ON (a.sq_turma        = b.sq_turma and  " & VbCrLf & _
-        "                                         a.sq_site_cliente = b.sq_site_cliente and " & VbCrLf & _
-        "                                         a.ano_letivo      = b.ano_letivo and " & VbCrLf & _
-        "                                         a.ano_letivo      = " & w_ano_letivo & VbCrLf & _
-        "                                        ) " & VbCrLf & _
-        "       INNER JOIN escDisciplina    c ON (b.sq_disciplina = c.sq_disciplina) " & VbCrLf & _
-        "WHERE a." & sstrEA & " " & VbCrLf & _
-        "ORDER BY c.sg_disciplina" & VbCrLf
-  RS.Open sql, sobjConn, adOpenForwardOnly
-  While Not RS.EOF
-    ShowHTML "  <TR><TD><FONT FACE=VERDANA SIZE=1>" & RS("sg_disciplina") & ":"
-    ShowHTML "      <TD><FONT FACE=VERDANA SIZE=1>" & RS("ds_disciplina")
-    RS.MoveNext
-  Wend
-  ShowHTML "    </TABLE>"
 
-
-  RS.Close
 
 End Sub
 REM -------------------------------------------------------------------------
