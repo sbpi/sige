@@ -175,4 +175,5 @@ inc/scripts.js -text
 /results.asp -text
 sp/diasLetivos.sql -text
 sp/lastDay.sql -text
+sp/validaCalendario.sql -text
 treinamento/default.asp -text
