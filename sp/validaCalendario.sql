@@ -23,14 +23,17 @@ begin
 
   -- Verifica se o calendário tem início/fim de ano/semestre letivo. Qtd deve ser igual a 1
   Declare c_ano_letivo cursor for
-    select a.sq_particular_calendario, c.sigla, c.nome, count(*) qtd
-      from escParticular_Calendario           a
-           inner   join escCalendario_Cliente b on (a.sq_particular_calendario = b.sq_particular_calendario)
-             inner join escTipo_Data          c on (b.sq_tipo_data             = c.sq_tipo_data)
-     where a.sq_particular_calendario = @calendario
-       and (c.sigla in ('IA','T1','I2','TA'))
-    group by a.sq_particular_calendario, c.sigla, c.nome
-    order by a.sq_particular_calendario, c.sigla, c.nome;
+    select c.sigla, c.nome, count(*) qtd
+      from escTipo_Data c
+           left join (select a.sq_particular_calendario, b.sq_tipo_data
+                        from escCalendario_Cliente               b
+                             inner join escParticular_Calendario a on (a.sq_particular_calendario = b.sq_particular_calendario)
+                       where a.sq_particular_calendario = @calendario
+                     )  d on (d.sq_tipo_data             = c.sq_tipo_data)
+     where (c.sigla in ('IA','T1','I2','TA'))
+       and d.sq_tipo_data is null
+    group by c.sigla, c.nome
+    order by c.sigla, c.nome;
 
   -- Verifica se foi inserida alguma data que coincida com o calendário oficial
   Declare c_base cursor for
@@ -58,9 +61,7 @@ begin
   Open c_ano_letivo
   Fetch Next from c_ano_letivo into @w_chave, @w_sigla, @w_nome, @w_existe;
   While @@fetch_status = 0 Begin
-      If @w_existe = 0 Begin
-         Set @texto = @texto + '<li>' + @w_nome + ' deve ser informado';
-      End
+      Set @texto = @texto + '<li>' + @w_nome + ' deve ser informado';
       Fetch Next from c_ano_letivo into @w_chave, @w_nome, @w_sigla, @w_existe;
   End
   Close c_ano_letivo;
