@@ -59,10 +59,10 @@ begin
 
   -- Verifica se o calendário tem início/fim de ano/semestre letivo. Qtd deve ser igual a 1
   Open c_ano_letivo
-  Fetch Next from c_ano_letivo into @w_chave, @w_sigla, @w_nome, @w_existe;
+  Fetch Next from c_ano_letivo into @w_sigla, @w_nome, @w_existe;
   While @@fetch_status = 0 Begin
       Set @texto = @texto + '<li>' + @w_nome + ' deve ser informado';
-      Fetch Next from c_ano_letivo into @w_chave, @w_nome, @w_sigla, @w_existe;
+      Fetch Next from c_ano_letivo into @w_nome, @w_sigla, @w_existe;
   End
   Close c_ano_letivo;
   Deallocate c_ano_letivo;
