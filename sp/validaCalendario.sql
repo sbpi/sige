@@ -1,4 +1,4 @@
-ALTER function dbo.ValidaCalendario(@calendario numeric(18)) returns varchar(2000) as
+ALTER function dbo.ValidaCalendario(@calendario numeric(18), @ano int) returns varchar(2000) as
 /**********************************************************************************
 * Nome      : ValidaCalendario
 * Finalidade: Valida as datas de um calendário
@@ -29,6 +29,7 @@ begin
                         from escCalendario_Cliente               b
                              inner join escParticular_Calendario a on (a.sq_particular_calendario = b.sq_particular_calendario)
                        where a.sq_particular_calendario = @calendario
+                       and   year(b.dt_ocorrencia) = @ano
                      )  d on (d.sq_tipo_data             = c.sq_tipo_data)
      where (c.sigla in ('IA','T1','I2','TA'))
        and d.sq_tipo_data is null
@@ -43,6 +44,7 @@ begin
              inner join escTipo_Data          c on (b.sq_tipo_data             = c.sq_tipo_data)
              inner join escCalendario_Base    d on (b.dt_ocorrencia            = d.dt_ocorrencia)
      where a.sq_particular_calendario = @calendario
+     and   year(b.dt_ocorrencia) = @ano
     group by a.sq_particular_calendario, b.dt_ocorrencia
     order by a.sq_particular_calendario, b.dt_ocorrencia;
 
@@ -53,6 +55,7 @@ begin
            inner   join escCalendario_Cliente b on (a.sq_particular_calendario = b.sq_particular_calendario)
              inner join escTipo_Data          c on (b.sq_tipo_data             = c.sq_tipo_data)
      where a.sq_particular_calendario = @calendario
+     and   year(b.dt_ocorrencia) = @ano
     group by a.sq_particular_calendario, b.dt_ocorrencia, b.sq_tipo_data
     having count(*) > 1
     order by a.sq_particular_calendario, b.dt_ocorrencia;
@@ -71,9 +74,7 @@ begin
   Open c_base
   Fetch Next from c_base into @w_chave, @w_data, @w_existe;
   While @@fetch_status = 0 Begin
-      If @w_existe > 0 Begin
-         Set @texto = @texto + '<li>' + convert(varchar,@w_data,103) + ' consta do Calendário Oficial e deve ser removida deste calendário';
-      End
+      Set @texto = @texto + '<li>' + convert(varchar,@w_data,103) + ' consta do Calendário Oficial e deve ser removida deste calendário';
       Fetch Next from c_base into @w_chave, @w_data, @w_existe;
   End
   Close c_base;
@@ -83,9 +84,7 @@ begin
   Open c_duplicata
   Fetch Next from c_duplicata into @w_chave, @w_data, @w_tipo, @w_existe;
   While @@fetch_status = 0 Begin
-      If @w_existe > 1 Begin
-         Set @texto = @texto + '<li>' + convert(varchar,@w_data,103) + ' só pode ser informada uma vez';
-      End
+      Set @texto = @texto + '<li>' + convert(varchar,@w_data,103) + ' só pode ser informada uma vez';
       Fetch Next from c_duplicata into @w_chave, @w_data, @w_tipo, @w_existe;
   End
   Close c_duplicata;
