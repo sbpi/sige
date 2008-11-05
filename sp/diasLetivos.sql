@@ -130,7 +130,7 @@ begin
         select @w_feriado = count(*) 
           from escParticular_Calendario         c
                inner join escCalendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario)
-               inner join escTipo_Data          b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla not in ('IA','TA','T1','I2','CN','SL','OU','PR','HC'))
+               inner join escTipo_Data          b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla in ('RE'))
          where a.sq_site_cliente = @cliente
            and c.sq_particular_calendario = coalesce(@calendario,0)
            and (datepart(dw,a.dt_ocorrencia) not in (1,7) or (datepart(dw,a.dt_ocorrencia) in (1,7)) and b.sigla = 'SL')
