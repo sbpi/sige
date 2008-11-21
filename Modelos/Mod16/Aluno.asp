@@ -709,7 +709,7 @@ Public Sub ShowBoletim
      If w_ds_mensagem_boletim > "" Then
         ShowHTML "    <TR><TD colspan=14 align=""left""><b>Mensagem:<BR><font color=""#FF0000""><b>" & w_ds_mensagem_boletim
      End If
-       ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+       ShowHTML "<tr><td colspan=""14""><TABLE border=0 cellpadding=1>"
   ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
   RS.MoveFirst
   While Not RS.EOF
@@ -910,7 +910,7 @@ Public Sub ShowBoletimImp
      If w_ds_mensagem_boletim > "" Then
         ShowHTML "    <TR><TD colspan=14 align=""left""><FONT FACE=VERDANA SIZE=1><b>Mensagem:<BR><font color=""#FF0000""><b>" & w_ds_mensagem_boletim
      End If
-     ShowHTML "<tr><td><TABLE border=0 cellpadding=1>"
+     ShowHTML "<tr><td colspan=14><TABLE border=0 cellpadding=1>"
      ShowHTML "  <TR><TD colspan=""2""><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>"
      RS.MoveFirst
      While Not RS.EOF

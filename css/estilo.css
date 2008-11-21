@@ -1,447 +1,632 @@
-body {
-margin: 0;
-}
-a {
-	color: #006600;
-	text-decoration: none;
-}
-a:hover {
-	color: #333333;
-}
-#pagina {
-	font-family:Verdana, Arial, Helvetica, sans-serif;
-	background:url(../img/fundo.jpg) repeat-x;
-	font-size:75%;
-}
-#conteudo {
-	width: 790px;
-	margin: 20px 10px;
-}
-#form1 {
-	width:510px;
-}
-#topo {
-	height:80px;
-	background:url(../img/topo.jpg) no-repeat;
-}
-#busca {
-	margin-left:10px;
-	color:#FFFFFF;
-	height:30px;
-	line-height:200%;
-	width: 790px;
-	}
-#busca .data {
-	float:left;
-	text-align: right;
-}
-#formBusca {
-	float:right;
-	text-align: right;
-	display: block;
-	margin: 0;
-}
-#formBusca label {
-	display: inline;
-	margin:0;
-	font-family:"Trebuchet MS", Arial;
-	font-size:.9em;
-}
-#formBusca input {
-	margin-left:5px;
-	height:18px;
-	display: inline;
-	border: 1px solid #000;
-	vertical-align: middle;
-}
-#formBusca .submit {
-	display: inline;
-	margin-left:2px;
-	height:22px;
-	background: #009900;
-	color: #fff;
-	border: 1px solid #000;
-	vertical-align: middle;
-}
-#menu{
-	width: 790px;
-	}
-#menuTop {
-	font-family:"Trebuchet MS", Arial;
-	font-size: .9em;
-	height: 30px;
-}
-#menuTop .esquerda {
-	width:550px;
-	float:left;
-}
-#menuTop .direita {
-	float:right;
-}
-#menuTop .direita ul {
-	margin:0;
-	padding: 0;
-}
-#menuTop .direita li {
-	margin:0;
-	display: block;
-	float: left;
-	margin-left:10px
-}
-#menuTop .direita .aluno {
-	text-indent: -9999px;
-	width: 40px;
-	height: 30px;
-	display: block;
-	background:url(../img/btaluno.gif) top;
-}
-#menuTop .aluno:hover {
-	background-position:0% -30px;
-}
-#menuTop .direita .comunidade {
-	text-indent: -9999px;
-	width: 40px;
-	height: 30px;
-	display: block;
-	background:url(../img/btcomunidade.gif) top;
-}
-#menuTop .comunidade:hover {
-	background-position:0% -30px;
-}
-#menuTop .direita .educador {
-	text-indent: -9999px;
-	width: 40px;
-	height: 30px;
-	display: block;
-	background:url(../img/bteducador.gif) top;
-}
-#menuTop .educador:hover {
-	background-position:0% -30px;
-}
-#menuTop .esquerda li {
-	border-right:1px solid #fff;
-	margin-right:10px;
-	padding-right:10px;
-	display: block;
-	float: left;
-}
-#menuTop .esquerda li a {
-	color:#fff;
-	text-decoration:none;
-}
-#menuTop .esquerda li a:hover {
-	text-decoration:underline;
-}
-#menuTop .esquerda ul {
-	text-transform:uppercase;
-	margin:5px 0px 0px 10px;
-	padding:0;
-}
-#conteudo {
-	clear:both;
-}
-#rodape {
-	border-top:10px solid #9CC251;
-	padding:10px 0px 0px 30px;
-	background:url(../img/fundorodape.jpg) repeat-x;
-	margin:0;
-	font-size:.9em;
-	font-family:"Trebuchet MS", Arial;
-	color:#2B2B04;
-	height:110px;
-}
-#rodape li {
-	border-right:1px solid #555;
-	margin-right:10px;
-	padding-right:10px;
-	display: block;
-	float: left;
-}
-.ultimo {
-	border-right:none!important;
-}
-#rodape li a {
-	color:#2B2B04;
-	text-decoration:none;
-}
-#rodape li a:hover {
-	color:#2B2B04;
-	text-decoration:underline;
-}
-#rodape ul {
-	margin: 0px;
-	padding: 0;
-	list-style: none;
-}
-#rodape p {
-	clear:both;
-	margin:0px;
-}
-.clear {
-	clear:both;
-}
-#menuMiddle {
-	height: 10px;
-}
-/*- Menu Tabs F--------------------------- */
-#menuBottom {
-	height: 50px;
-	margin:0;
-	padding:0;
-	font-size: .8em;
-}
-#menuBottom ul {
-	padding:0;
-	margin: 10px 0 0 10px;
-	_margin: 5px 0 0 10px;
-	list-style:none;
-}
-#menuBottom li {
-	display:block;
-	float:left;
-	margin: 0 10px 0 0;
-	padding:0;
-	height: 40px;
-}
-#menuBottom a {
-	display:block;
-	width: 87px;
-	height: 40px;
-	background:url("../img/menu.jpg") no-repeat top;
-	margin: 0;
-	padding: 0;
-	text-decoration:none;
-	text-align: center;
-	font-weight: bold;
-	color: #00260D;
-}
-#menuBottom a span {
-	display: block;
-	margin: auto;
-	padding: 5px;
-	cursor: pointer;
-}
-#menuBottom a.selected {
-	background-position:0% -80px;
-}
-#menuBottom a:hover {
-	color:#fff;
-	background-position:0% -40px;
-}
-/*---------------------------- */
-.texto {
-	margin-left: 20px;
-	width: 448px;
-	border: #006600 solid 1px;
-}
-#regional {
-	margin-left:20px;
-	background-color:#9CC251;
-}
-#regional .topo {
-	margin-top:20px;
-	height:18px;
-	background:url(../img/regionaltopo.jpg) no-repeat top;
-}
-#regional .base {
-	height:18px;
-	background:url(../img/regionalbase.jpg) no-repeat top;
-}
-#instituicao {
-	margin-left:20px;
-	background:#C6DC98;
-}
-#instituicao .topo {
-	margin-top:8px;
-	height:18px;
-	background:url(../img/tipotopo.jpg) no-repeat top;
-}
-#instituicao .base {
-	height:18px;
-	background: url(../img/tipobase.jpg) no-repeat top;
-}
-#opcoes {
-	margin-left:20px;
-	background:#EBF3DB;
-}
-#opcoes .topo {
-	margin-top:8px;
-	height:18px;
-	background:url(../img/etapastopo.jpg) no-repeat top;
-}
-#opcoes .base {
-	height:18px;
-	background:url(../img/etapasbase.jpg) no-repeat top;
-}
-#botao {
-	text-align: right;
-}
-#pesquisar {
-	margin-top: 20px;
-	width: 140px;
-	height: 40px;
-	background: url(../img/btpesquisar.jpg) no-repeat top;
-	border: none;
-	color: #fff;
-	font-weight: bold;
-	font-size: 1.2em;
-	cursor: pointer;
-}
-#pesquisar:hover {
-	background: url(../img/btpesquisar.jpg) no-repeat bottom;
-}
-label {
-	cursor:pointer;
-}
-#resultado {
-	margin:20px;
-}
-#resultado li {
-	font-weight:bold;
-	list-style:none;
-	line-height: 160%;
-}
-#resultado li li {
-	font-weight: normal;
-	line-height: 120%;
-}
-h2 {
-	color: #003300;
-}
-h3 {
-	color: #003300;
-}
-h4 {
-	margin:0;
-	padding:0 20px 10px 20px;
-	color: #003300;
-}
-dl {
-	margin: 0;
-}
-dt {
-	margin: 0;
-	padding: 10px 20px 10px 20px;
-	color: #003300;
-	font-size: 1em;
-	font-weight: bold;
-}
-.pag a, .pag span {
-	display: block;
-	text-indent: -9999px;
-	width: 90px;
-	height: 20px;
-	float: left;
-	margin-right: 10px;
-}
-.pag .primeira {
-	background: url(../img/bt-primeira.jpg) top;
-}
-.pag .primeira:hover {
-	background: url(../img/bt-primeira.jpg) bottom;
-}
-.pag .primeiraOff {
-	background: url(../img/bt-primeira.jpg) center;
-}
-.pag .anterior {
-	background: url(../img/bt-anterior.jpg) top;
-}
-.pag .anterior:hover {
-	background: url(../img/bt-anterior.jpg) bottom;
-}
-.pag .anteriorOff {
-	background: url(../img/bt-anterior.jpg) center;
-}
-.pag .proxima {
-	background: url(../img/bt-proxima.jpg) top;
-}
-.pag .proxima:hover {
-	background: url(../img/bt-proxima.jpg) bottom;
-}
-.pag .proximaOff {
-	background: url(../img/bt-proxima.jpg) center;
-}
-.pag .ultima {
-	background: url(../img/bt-ultima.jpg) top;
-}
-.pag .ultima:hover {
-	background: url(../img/bt-ultima.jpg) bottom;
-}
-.pag .ultimaOff {
-	background: url(../img/bt-ultima.jpg) center;
-}
-.fotos img {
-	margin-bottom: 5px;
-}
-.fotos ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-.fotos li {
-	display: block;
-	float: left;
-	margin: 20px 0 0 20px;
-	padding: 5px;
-	border: 1px solid #ddd;
-	width: 305px;
-	text-align: center;
-}
-.fotos span {
-	display: block;
-	height: 36px;
-	font-size: .9em;
-	color: #666666
-}
-a.imprimir {
-	display: block;
-	height: 30px;
-	margin-left: 10px;
-	padding-right: 30px;
-	line-height: 30px;
-}
-a.imprimir {
-	background: url(../img/ico_imprimir.jpg) top right no-repeat;
-}
-a.imprimir:hover {
-	background: url(../img/ico_imprimir.jpg) bottom right no-repeat;
-}
-#rodape {
-	border-top: 10px solid #9CC251;
-}
-#rodape ul {
-	display: block;
-	margin: 10px 0;
-	padding: 0;
-}
-#rodape p {
-	margin: 5px 0;
-}
-#rodape .endereco {
-	color: #666;
-}
-#rodape .copy {
-	color: #999;
-	font-size:.8em;
-}
-#rodape li {
-	text-align:center;
-	display:block;
-	float:left;
-	padding-right:10px;
-	border-right:1px solid;
-}
-#rodape .ultimo {
-	border-right:none;
-}
-#rodape a {
-	color:#000000;
-	text-decoration:none;
-}
-#rodape a:hover {
-	text-decoration:underline;
-}
-#rodape .buriti, #rodape .buritinga {
-	width: 50%;
-	float: left;
+BODY
+{
+    MARGIN: 0px
+}
+A
+{
+    COLOR: #006600;
+    TEXT-DECORATION: none
+}
+A:hover
+{
+    COLOR: #333333
+}
+#pagina
+{
+    FONT-SIZE: 75%;
+    BACKGROUND: url(../img/fundo.jpg) repeat-x;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+#conteudo
+{
+    MARGIN: 20px 10px;
+    WIDTH: 790px
+}
+#form1
+{
+    WIDTH: 510px
+}
+#topo
+{
+    BACKGROUND: url(../img/topo.jpg) no-repeat;
+    HEIGHT: 80px
+}
+#busca
+{
+    MARGIN-LEFT: 10px;
+    WIDTH: 790px;
+    COLOR: #ffffff;
+    LINE-HEIGHT: 200%;
+    HEIGHT: 30px
+}
+#busca .data
+{
+    FLOAT: left;
+    TEXT-ALIGN: right
+}
+#formBusca
+{
+    DISPLAY: block;
+    FLOAT: right;
+    MARGIN: 0px;
+    TEXT-ALIGN: right
+}
+#formBusca LABEL
+{
+    DISPLAY: inline;
+    FONT-SIZE: 0.9em;
+    MARGIN: 0px;
+    FONT-FAMILY: "Trebuchet MS", Arial
+}
+#formBusca INPUT
+{
+    BORDER-RIGHT: #000 1px solid;
+    BORDER-TOP: #000 1px solid;
+    DISPLAY: inline;
+    MARGIN-LEFT: 5px;
+    VERTICAL-ALIGN: middle;
+    BORDER-LEFT: #000 1px solid;
+    BORDER-BOTTOM: #000 1px solid;
+    HEIGHT: 18px
+}
+#formBusca .submit
+{
+    BORDER-RIGHT: #000 1px solid;
+    BORDER-TOP: #000 1px solid;
+    DISPLAY: inline;
+    BACKGROUND: #009900;
+    MARGIN-LEFT: 2px;
+    VERTICAL-ALIGN: middle;
+    BORDER-LEFT: #000 1px solid;
+    COLOR: #fff;
+    BORDER-BOTTOM: #000 1px solid;
+    HEIGHT: 22px
+}
+#menu
+{
+    WIDTH: 790px
+}
+#menuTop
+{
+    FONT-SIZE: 0.9em;
+    FONT-FAMILY: "Trebuchet MS", Arial;
+    HEIGHT: 30px
+}
+#menuTop .esquerda
+{
+    FLOAT: left;
+    WIDTH: 550px
+}
+#menuTop .direita
+{
+    FLOAT: right
+}
+#menuTop .direita UL
+{
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    PADDING-TOP: 0px
+}
+#menuTop .direita LI
+{
+    DISPLAY: block;
+    FLOAT: left;
+    MARGIN: 0px 0px 0px 10px
+}
+#menuTop .direita .aluno
+{
+    DISPLAY: block;
+    BACKGROUND: url(../img/btaluno.gif) 50% top;
+    WIDTH: 40px;
+    TEXT-INDENT: -9999px;
+    HEIGHT: 30px
+}
+#menuTop .aluno:hover
+{
+    BACKGROUND-POSITION: 0% -30px
+}
+#menuTop .direita .comunidade
+{
+    DISPLAY: block;
+    BACKGROUND: url(../img/btcomunidade.gif) 50% top;
+    WIDTH: 40px;
+    TEXT-INDENT: -9999px;
+    HEIGHT: 30px
+}
+#menuTop .comunidade:hover
+{
+    BACKGROUND-POSITION: 0% -30px
+}
+#menuTop .direita .educador
+{
+    DISPLAY: block;
+    BACKGROUND: url(../img/bteducador.gif) 50% top;
+    WIDTH: 40px;
+    TEXT-INDENT: -9999px;
+    HEIGHT: 30px
+}
+#menuTop .educador:hover
+{
+    BACKGROUND-POSITION: 0% -30px
+}
+#menuTop .esquerda LI
+{
+    BORDER-RIGHT: #fff 1px solid;
+    PADDING-RIGHT: 10px;
+    DISPLAY: block;
+    FLOAT: left;
+    MARGIN-RIGHT: 10px
+}
+#menuTop .esquerda LI A
+{
+    COLOR: #fff;
+    TEXT-DECORATION: none
+}
+#menuTop .esquerda LI A:hover
+{
+    TEXT-DECORATION: underline
+}
+#menuTop .esquerda UL
+{
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 5px 0px 0px 10px;
+    TEXT-TRANSFORM: uppercase;
+    PADDING-TOP: 0px
+}
+#conteudo
+{
+    CLEAR: both
+}
+#rodape
+{
+    PADDING-RIGHT: 0px;
+    BORDER-TOP: #9cc251 10px solid;
+    PADDING-LEFT: 30px;
+    FONT-SIZE: 0.9em;
+    BACKGROUND: url(../img/fundorodape.jpg) repeat-x;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    COLOR: #2b2b04;
+    PADDING-TOP: 10px;
+    FONT-FAMILY: "Trebuchet MS", Arial;
+    HEIGHT: 110px
+}
+#rodape LI
+{
+    BORDER-RIGHT: #555 1px solid;
+    PADDING-RIGHT: 10px;
+    DISPLAY: block;
+    FLOAT: left;
+    MARGIN-RIGHT: 10px
+}
+.ultimo
+{
+    BORDER-RIGHT: medium none
+}
+#rodape LI A
+{
+    COLOR: #2b2b04;
+    TEXT-DECORATION: none
+}
+#rodape LI A:hover
+{
+    COLOR: #2b2b04;
+    TEXT-DECORATION: underline
+}
+#rodape UL
+{
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    PADDING-TOP: 0px;
+    LIST-STYLE-TYPE: none
+}
+#rodape P
+{
+    CLEAR: both;
+    MARGIN: 0px
+}
+.clear
+{
+    CLEAR: both
+}
+#menuMiddle
+{
+    HEIGHT: 10px
+}
+#menuBottom
+{
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    FONT-SIZE: 0.8em;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    PADDING-TOP: 0px;
+    HEIGHT: 50px
+}
+#menuBottom UL
+{
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 5px 0px 0px 10px;
+    PADDING-TOP: 0px;
+    LIST-STYLE-TYPE: none
+}
+#menuBottom LI
+{
+    PADDING-RIGHT: 0px;
+    DISPLAY: block;
+    PADDING-LEFT: 0px;
+    FLOAT: left;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px 10px 0px 0px;
+    PADDING-TOP: 0px;
+    HEIGHT: 40px
+}
+#menuBottom A
+{
+    PADDING-RIGHT: 0px;
+    DISPLAY: block;
+    PADDING-LEFT: 0px;
+    FONT-WEIGHT: bold;
+    BACKGROUND: url(../img/menu.jpg) no-repeat 50% top;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    WIDTH: 87px;
+    COLOR: #00260d;
+    PADDING-TOP: 0px;
+    HEIGHT: 40px;
+    TEXT-ALIGN: center;
+    TEXT-DECORATION: none
+}
+#menuBottom A SPAN
+{
+    PADDING-RIGHT: 5px;
+    DISPLAY: block;
+    PADDING-LEFT: 5px;
+    PADDING-BOTTOM: 5px;
+    MARGIN: auto;
+    CURSOR: pointer;
+    PADDING-TOP: 5px
+}
+#menuBottom A.selected
+{
+    BACKGROUND-POSITION: 0% -80px
+}
+#menuBottom A:hover
+{
+    BACKGROUND-POSITION: 0% -40px;
+    COLOR: #fff
+}
+.texto
+{
+    BORDER-RIGHT: #006600 1px solid;
+    BORDER-TOP: #006600 1px solid;
+    MARGIN-LEFT: 20px;
+    BORDER-LEFT: #006600 1px solid;
+    WIDTH: 448px;
+    BORDER-BOTTOM: #006600 1px solid
+}
+#regional
+{
+    MARGIN-LEFT: 20px;
+    BACKGROUND-COLOR: #9cc251
+}
+#regional .topo
+{
+    MARGIN-TOP: 20px;
+    BACKGROUND: url(../img/regionaltopo.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#regional .base
+{
+    BACKGROUND: url(../img/regionalbase.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#instituicao
+{
+    BACKGROUND: #c6dc98;
+    MARGIN-LEFT: 20px
+}
+#instituicao .topo
+{
+    MARGIN-TOP: 8px;
+    BACKGROUND: url(../img/tipotopo.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#instituicao .base
+{
+    BACKGROUND: url(../img/tipobase.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#opcoes
+{
+    BACKGROUND: #ebf3db;
+    MARGIN-LEFT: 20px
+}
+#opcoes .topo
+{
+    MARGIN-TOP: 8px;
+    BACKGROUND: url(../img/etapastopo.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#opcoes .base
+{
+    BACKGROUND: url(../img/etapasbase.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#botao
+{
+    TEXT-ALIGN: right
+}
+#pesquisar
+{
+    BORDER-RIGHT: medium none;
+    BORDER-TOP: medium none;
+    MARGIN-TOP: 20px;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 1.2em;
+    BACKGROUND: url(../img/btpesquisar.jpg) no-repeat 50% top;
+    BORDER-LEFT: medium none;
+    WIDTH: 140px;
+    CURSOR: pointer;
+    COLOR: #fff;
+    BORDER-BOTTOM: medium none;
+    HEIGHT: 40px
+}
+#pesquisar:hover
+{
+    BACKGROUND: url(../img/btpesquisar.jpg) no-repeat 50% bottom
+}
+LABEL
+{
+    CURSOR: pointer
+}
+#resultado
+{
+    MARGIN: 20px
+}
+#resultado LI
+{
+    FONT-WEIGHT: bold;
+    LINE-HEIGHT: 160%;
+    LIST-STYLE-TYPE: none
+}
+#resultado LI LI
+{
+    FONT-WEIGHT: normal;
+    LINE-HEIGHT: 120%
+}
+H2
+{
+    COLOR: #003300
+}
+H3
+{
+    COLOR: #003300
+}
+H4
+{
+    PADDING-RIGHT: 20px;
+    PADDING-LEFT: 20px;
+    PADDING-BOTTOM: 10px;
+    MARGIN: 0px;
+    COLOR: #003300;
+    PADDING-TOP: 0px
+}
+DL
+{
+    MARGIN: 0px
+}
+DT
+{
+    PADDING-RIGHT: 20px;
+    PADDING-LEFT: 20px;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 1em;
+    PADDING-BOTTOM: 10px;
+    MARGIN: 0px;
+    COLOR: #003300;
+    PADDING-TOP: 10px
+}
+.pag A
+{
+    DISPLAY: block;
+    FLOAT: left;
+    WIDTH: 90px;
+    TEXT-INDENT: -9999px;
+    MARGIN-RIGHT: 10px;
+    HEIGHT: 20px
+}
+.pag SPAN
+{
+    DISPLAY: block;
+    FLOAT: left;
+    WIDTH: 90px;
+    TEXT-INDENT: -9999px;
+    MARGIN-RIGHT: 10px;
+    HEIGHT: 20px
+}
+.pag .primeira
+{
+    BACKGROUND: url(../img/bt-primeira.jpg) 50% top
+}
+.pag .primeira:hover
+{
+    BACKGROUND: url(../img/bt-primeira.jpg) 50% bottom
+}
+.pag .primeiraOff
+{
+    BACKGROUND: url(../img/bt-primeira.jpg) center 50%
+}
+.pag .anterior
+{
+    BACKGROUND: url(../img/bt-anterior.jpg) 50% top
+}
+.pag .anterior:hover
+{
+    BACKGROUND: url(../img/bt-anterior.jpg) 50% bottom
+}
+.pag .anteriorOff
+{
+    BACKGROUND: url(../img/bt-anterior.jpg) center 50%
+}
+.pag .proxima
+{
+    BACKGROUND: url(../img/bt-proxima.jpg) 50% top
+}
+.pag .proxima:hover
+{
+    BACKGROUND: url(../img/bt-proxima.jpg) 50% bottom
+}
+.pag .proximaOff
+{
+    BACKGROUND: url(../img/bt-proxima.jpg) center 50%
+}
+.pag .ultima
+{
+    BACKGROUND: url(../img/bt-ultima.jpg) 50% top
+}
+.pag .ultima:hover
+{
+    BACKGROUND: url(../img/bt-ultima.jpg) 50% bottom
+}
+.pag .ultimaOff
+{
+    BACKGROUND: url(../img/bt-ultima.jpg) center 50%
+}
+.fotos IMG
+{
+    MARGIN-BOTTOM: 5px
+}
+.fotos UL
+{
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    PADDING-TOP: 0px;
+    LIST-STYLE-TYPE: none
+}
+.fotos LI
+{
+    BORDER-RIGHT: #ddd 1px solid;
+    PADDING-RIGHT: 5px;
+    BORDER-TOP: #ddd 1px solid;
+    DISPLAY: block;
+    PADDING-LEFT: 5px;
+    FLOAT: left;
+    PADDING-BOTTOM: 5px;
+    MARGIN: 20px 0px 0px 20px;
+    BORDER-LEFT: #ddd 1px solid;
+    WIDTH: 305px;
+    PADDING-TOP: 5px;
+    BORDER-BOTTOM: #ddd 1px solid;
+    TEXT-ALIGN: center
+}
+.fotos SPAN
+{
+    DISPLAY: block;
+    FONT-SIZE: 0.9em;
+    COLOR: #666666;
+    HEIGHT: 36px
+}
+A.imprimir
+{
+    PADDING-RIGHT: 30px;
+    DISPLAY: block;
+    MARGIN-LEFT: 10px;
+    LINE-HEIGHT: 30px;
+    HEIGHT: 30px
+}
+A.imprimir
+{
+    BACKGROUND: url(../img/ico_imprimir.jpg) no-repeat right top
+}
+A.imprimir:hover
+{
+    BACKGROUND: url(../img/ico_imprimir.jpg) no-repeat right bottom
+}
+#rodape
+{
+    BORDER-TOP: #9cc251 10px solid
+}
+#rodape UL
+{
+    PADDING-RIGHT: 0px;
+    DISPLAY: block;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 10px 0px;
+    PADDING-TOP: 0px
+}
+#rodape P
+{
+    MARGIN: 5px 0px
+}
+#rodape .endereco
+{
+    COLOR: #666
+}
+#rodape .copy
+{
+    FONT-SIZE: 0.8em;
+    COLOR: #999
+}
+#rodape LI
+{
+    BORDER-RIGHT: 1px solid;
+    PADDING-RIGHT: 10px;
+    DISPLAY: block;
+    FLOAT: left;
+    TEXT-ALIGN: center
+}
+#rodape .ultimo
+{
+    BORDER-RIGHT: medium none
+}
+#rodape A
+{
+    COLOR: #000000;
+    TEXT-DECORATION: none
+}
+#rodape A:hover
+{
+    TEXT-DECORATION: underline
+}
+#rodape .buriti
+{
+    FLOAT: left;
+    WIDTH: 50%
+}
+#rodape .buritinga
+{
+    FLOAT: left;
+    WIDTH: 50%
+}
+#urbana
+{
+    MARGIN-LEFT: 20px;
+    BACKGROUND-COLOR: #ebf3db
+}
+#urbana .base
+{
+    BACKGROUND: url(../img/etapasbase.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#urbana .topo
+{
+    MARGIN-TOP: 8px;
+    BACKGROUND: url(../img/etapastopo.jpg) no-repeat 50% top;
+    HEIGHT: 18px
+}
+#urbana .radio_option
+{
+    MARGIN-LEFT: 20px
 }

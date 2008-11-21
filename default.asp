@@ -105,7 +105,7 @@ End If
 <div id="menuBottom">
   <ul>
     <li><a href="#"><span>Inicial</span></a></li>
-    <li><a href="#"><span>Assine nosso boletim</span></a></li>
+    <li><a href="newsletter.asp?ew=i"><span>Assine nosso boletim</span></a></li>
   </ul>
   <div class="clear"></div>
 </div>
@@ -209,6 +209,18 @@ ShowHTML " <h3>Busca avançada</h3>"
 
        ShowHTML " <div class=""base""> </div>"
        ShowHTML " </div>"
+
+       ShowHTML " <div id=""urbana"">"
+       ShowHTML " <div class=""topo""> </div>"
+  
+       ShowHTML "         <h4>Localização:</h4><div class=""radio_option"">"
+       If Request("Z") = "2" Then ShowHtml("<input type=""radio"" name=""Z"" value=""2"" checked=""checked""> Rural")  Else ShowHtml("<input type=""radio"" name=""Z"" value=""2""> Rural")  End If
+       If Request("Z") = "1" Then ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""1"" checked=""checked""> Urbana") Else ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""1""> Urbana") End If
+       If Request("Z") = ""  Then ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""""  checked=""checked""> Ambas")  Else ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value="""" > Ambas")  End If
+
+       ShowHTML " </div><div class=""base""> </div>"  
+       ShowHTML " </div>"  
+
        ShowHTML " <div id=""opcoes"">"
        ShowHTML " <div class=""topo""> </div>"
   
@@ -222,7 +234,9 @@ ShowHTML " <h3>Busca avançada</h3>"
              "      INNER JOIN escTurma                 AS c ON (a.serie           = c.ds_serie) " & VbCrLf & _
              "      INNER JOIN escCliente               AS d ON (c.sq_site_cliente = d.sq_cliente) " & VbCrLf & _
              "UNION " & VbCrLf & _ 
-             "SELECT DISTINCT cast(a.sq_especialidade as varchar) as sq_especialidade, a.ds_especialidade, a.nr_ordem, a.tp_especialidade " & VbCrLf & _ 
+             "SELECT DISTINCT cast(a.sq_especialidade as varchar) as sq_especialidade, a.ds_especialidade,  " & VbCrLf & _ 
+             "       case a.tp_especialidade when 'J' then '1' else a.nr_ordem end as nr_ordem, " & VbCrLf & _ 
+             "       case a.tp_especialidade when 'J' then 'M' else a.tp_especialidade end as tp_especialidade" & VbCrLf & _ 
              " from escEspecialidade AS a " & VbCrLf & _ 
              "      INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
              "      INNER JOIN escCliente               AS d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
@@ -305,9 +319,9 @@ ShowHTML " <h3>Busca avançada</h3>"
           "                                                     ) " & VbCrLf & _
           "       LEFT OUTER JOIN escCliente_Dados         e ON (d.sq_cliente       = e.sq_cliente) " & VbCrLf & _
           "       INNER      JOIN escRegiao_Administrativa r ON (d.sq_regiao_adm    = r.sq_regiao_adm) " & VbCrLf & _
-          " where d.publica = 'S' and 'P' <> '" & REQUEST("T") & "' and d.sq_cliente = " & Nvl(Request("p_regional"),0) & " " & VbCrLf
-    If Request("Z") > "" Then sql = sql + "    and 0 < (select count(sq_cliente) from escCliente where sq_cliente_pai = d.sq_cliente and localizacao = " & Request("Z") & ") " & VbCrLf End If
-    If Request("q") > "" Then sql = sql + "    and 0 < (select count(sq_cliente) from escCliente where sq_cliente_pai = d.sq_cliente and d.sq_tipo_cliente= " & Request("q") & ") " & VbCrLf End If
+          " where d.ativo <> 'Nao' and d.publica = 'S' and 'P' <> '" & REQUEST("T") & "' and d.sq_cliente = " & Nvl(Request("p_regional"),0) & " " & VbCrLf
+    If Request("Z") > "" Then sql = sql + "    and 0 < (select count(*) from escCliente where sq_cliente_pai = d.sq_cliente and localizacao = " & Request("Z") & ") " & VbCrLf End If
+    If Request("q") > "" Then sql = sql + "    and 0 < (select count(*) from escCliente where sq_cliente_pai = d.sq_cliente and d.sq_tipo_cliente= " & Request("q") & ") " & VbCrLf End If
     If sql1 > "" Then 
        sql = sql & _
              "    and (0 < (select count(sq_cliente) from escEspecialidade_Cliente where sq_cliente_pai = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + w_h + ")) or " & VbCrLf & _
@@ -327,7 +341,7 @@ ShowHTML " <h3>Busca avançada</h3>"
           "                                                     ) " & VbCrLf & _
           "       INNER      JOIN escCliente               c ON (d.sq_cliente       = c.sq_cliente_pai) " & VbCrLf & _
           "       INNER      JOIN escRegiao_Administrativa r ON (d.sq_regiao_adm    = r.sq_regiao_adm) " & VbCrLf & _
-          " where 'P' <> '" & REQUEST("T") & "' " & VbCrLf
+          " where d.ativo <> 'Nao' and 'P' <> '" & REQUEST("T") & "' " & VbCrLf
           
         
     If Request("Z") > ""          Then sql = sql + "    and d.localizacao    = " & Request("Z")          & VbCrLf End If
@@ -348,7 +362,7 @@ ShowHTML " <h3>Busca avançada</h3>"
           "       INNER JOIN escCliente_Particular    f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
           "       LEFT  JOIN escEspecialidade_cliente g ON (d.sq_cliente       = g.sq_cliente) " & VbCrLf & _
           "       INNER JOIN escRegiao_Administrativa r ON (d.sq_regiao_adm    = r.sq_regiao_adm) " & VbCrLf & _
-          " where f.situacao = 1 and d.publica = 'N' and 'S' <> '" & REQUEST("T") & "' " & VbCrLf
+          " where d.ativo <> 'Nao' and f.situacao = 1 and d.publica = 'N' and 'S' <> '" & REQUEST("T") & "' " & VbCrLf
           
         
     If Request("Z") > ""          Then sql = sql + "    and d.localizacao    = " & Request("Z")          & VbCrLf End If
@@ -365,7 +379,7 @@ ShowHTML " <h3>Busca avançada</h3>"
           "  from escCliente                            d " & VbCrLf & _
           "       INNER JOIN escCliente_Dados           e ON (d.sq_cliente       = e.sq_cliente) " & VbCrLf & _
           "       INNER   JOIN escRegiao_Administrativa r ON (d.sq_regiao_adm    = r.sq_regiao_adm) " & VbCrLf & _
-          " where d.publica = 'S' and 'P' <> '" & REQUEST("T") & "' " & VbCrLf
+          " where d.ativo <> 'Nao' and d.publica = 'S' and 'P' <> '" & REQUEST("T") & "' " & VbCrLf
           
     If Request("Z") > ""          Then sql = sql + "    and d.localizacao    = " & Request("Z")          & VbCrLf End If
     If Request("p_regional") > "" Then sql = sql + "    and d.sq_cliente_pai = " & Request("p_regional") & VbCrLf End If
@@ -373,7 +387,7 @@ ShowHTML " <h3>Busca avançada</h3>"
 
     If sql1 > ""         Then 
        sql = sql & _
-             "    and (0 < (select count(sq_cliente) from escEspecialidade_Cliente where sq_cliente = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + w_h + ")) or " & VbCrLf & _
+             "    and (0 < (select count(*) from escEspecialidade_Cliente where sq_cliente = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + w_h + ")) or " & VbCrLf & _
              "         0 < (select count(*) from escTurma_Modalidade  w INNER JOIN escTurma x ON (w.serie = x.ds_serie) INNER JOIN escCliente y ON (x.sq_site_cliente = y.sq_cliente) where y.sq_cliente = d.sq_cliente and w.curso in (" + w_h + ")) " & VbCrLf & _
              "        ) " & VbCrLf 
     End If
@@ -702,7 +716,6 @@ Public Sub ShowPesquisa
     ShowHTML "          </select>"
     DesconectaBD
   End If
-
 
   ShowHtml("<tr><td colspan=2><b>Localização</b>:<br>")
   If Request("Z") = "2" Then ShowHtml("<input type=""radio"" name=""Z"" value=""2"" checked=""checked""> Rural")  Else ShowHtml("<input type=""radio"" name=""Z"" value=""2""> Rural")  End If

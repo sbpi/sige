@@ -61,13 +61,31 @@ ShowHTML "  </div> "
 ShowHTML "  <br clear=""all"" />"
 ShowHTML "</div>"
 
-ShowHTML "<div id=""rodape"">"
-ShowHTML "  <div id=""endereco"">"
-ShowHTML "      <div></div>"
-ShowHTML "      <div></div>"
-ShowHTML "      <div><br /></div> "
-ShowHTML "  </div>"
-ShowHTML "</div>"
+%><div id="rodape">
+  <!-- Menu Rodape -->
+  <ul>
+    <li><a href="http://www.se.df.gov.br">Página Inicial</a></li>
+    <li><a href="http://www.se.df.gov.br/300/30001005.asp">Fale conosco</a></li>
+    <li class="ultimo"><a href="http://www.se.df.gov.br/300/30001009.asp">Mapa do site</a></li>
+  </ul>
+  <!-- Fim Menu Rodape -->
+  <div class="clear"/>
+  <!-- Endereço -->
+  <div class="endereco">
+  <div class="buriti">
+  <p>Anexo do Palácio do Buriti - 9º andar  - Brasília </p>
+  <p>Telefone (61) 3224 0016 (61) 3225 1266 | Fax (61) 3901 3171</p>
+  </div>
+  <div class="buritinga">
+  <p>QNG AE Lote 22 bl 05 sala 03 - Taguatinga   Norte</p>
+  <p>Telefone (61) 3355 86 30 | Fax 3355 86 94</p>
+  </div>
+  </div>
+  
+  <p class="copy">Copyright ® 2000/2008 - SE/GDF - Todos os Direitos Reservados</p>
+  <!-- Fim Endereço -->
+</div>
+  <%
 ShowHTML "</body>"
 ShowHTML "</html>"
 
@@ -92,27 +110,38 @@ Public Sub GetCadastro
   ScriptClose
   ShowHTML "</head>"
   ShowHTML "<body>"
-  ShowHTML "<div id=""container"">"
-  ShowHTML "  <div id=""cab"">"
-  ShowHTML "    <div id=""cabtopo"">"
-  ShowHTML "      <div id=""logoesq""><img src=""img/fundo_logoesq.gif"" border=0></div>"
-  ShowHTML "      <div id=""logodir""><a href=""http://www.se.df.gov.br""><img src=""img/fundo_logodir.jpg"" border=0></a></div>"
-  ShowHTML "    </div>"
-  ShowHTML "    <div id=""cabbase"">"
-  ShowHTML "      <div id=""busca"" valign=""center""><marquee width=""100%"" align=""middle""><font color=""white"" face=""Arial"" size=""2""><b>GDF - As grandes transformações também no ensino público.</b></font></marquee></div> "
-  ShowHTML "    </div>"
-  ShowHTML "  </div>"
-  ShowHTML "  <div id=""corpo"">"
-  ShowHTML "    <div id=""menuesq"">"
-  ShowHTML "      <div id=""logomenuesq""><img src=""img/fundo_logomenuesq.gif"" border=0></div>"
-  ShowHTML "      <ul id=""menugov"">"
-  ShowHTML "        <li>Registrando-se nesta tela você receberá periodicamente informativos preparados pela SEDF."
-  ShowHTML "        <li>A qualquer momento você poderá retirar seu e-mail da lista de distribuição, usando a <a href=""" & sstrSN & "?EW=Remover"">tela de remoção</a>."
-  ShowHTML "        <li><font color=""#FF0000"">ATENÇÃO:</font> você deve ter um e-mail válido para registrar-se."
-  ShowHTML "      </ul>"
-  ShowHTML "      <div id=""menusep""><hr /></div>"
-  ShowHTML "      <div id=""menunav""></div>"
-  ShowHTML "    </div>"
+  %>
+<div id="pagina">
+  <div id="topo"> </div>
+  <div id="busca">
+    <div class="data"> <% Response.Write(ExibeData(date())) %> </div>
+    <div class="clear"></div>
+  </div>
+  <div id="menu">
+    <div id="menuTop">
+      <div class="esquerda">
+        <ul>
+          <li><a href="http://www.se.df.gov.br/300/30001001.asp">Secretaria de Educação</a></li>
+          <li><a href="http://www.se.df.gov.br/300/30001009.asp">mapa do site</a></li>
+          <li class="ultimo"><a class="ultimo" href="http://www.se.df.gov.br/300/30001005.asp">fale conosco</a></li>
+        </ul>
+      </div>
+      <div class="direita">
+        <ul>
+          <li><a class="aluno" href="http://www.se.df.gov.br/300/30002001.asp">Aluno</a></li>
+          <li><a class="educador" href="http://www.se.df.gov.br/300/30003001.asp">Educador</a></li>
+          <li><a class="comunidade" href="http://www.se.df.gov.br/300/30004001.asp">Comunidade</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="menuMiddle"> </div>
+  </div>
+  <div class="clear"></div>
+<div id="menuBottom">
+  <div class="clear"></div>
+</div>
+<div id="conteudo"><h2>Solução Integrada de Gestão Educacional - SIGE</h2>
+<%
   ShowHTML "    <div id=""texto""><!-- Conteúdo -->"
   ShowHTML "        <table width=""570"" border=""0"">"
 
@@ -130,6 +159,8 @@ Public Sub GetCadastro
   ShowHTML "               <input type=""submit"" name=""Botao"" value=""Registrar"" class=""botao"">"
   ShowHTML "               <input type=""button"" name=""Botao"" value=""Voltar"" class=""botao"" onClick=""javascript: history.back(1);"">"
   ShowHTML "        </FORM>" & VbCrLf
+  ShowHTML "<br/><br/> Se desejar remover seu e-mail, clique <a class=""SS"" href=""http://www.gdfsige.df.gov.br/newsletter.asp?EW=Remover"" target=""_self"">aqui</a>."
+ 
 End Sub
 REM -------------------------------------------------------------------------
 REM Final da Página de Pesquisa
@@ -151,27 +182,39 @@ Public Sub Remove
   ScriptClose
   ShowHTML "</head>"
   ShowHTML "<body>"
-  ShowHTML "<div id=""container"">"
-  ShowHTML "  <div id=""cab"">"
-  ShowHTML "    <div id=""cabtopo"">"
-  ShowHTML "      <div id=""logoesq""><img src=""img/fundo_logoesq.gif"" border=0></div>"
-  ShowHTML "      <div id=""logodir""><a href=""http://www.se.df.gov.br""><img src=""img/fundo_logodir.jpg"" border=0></a></div>"
-  ShowHTML "    </div>"
-  ShowHTML "    <div id=""cabbase"">"
-  ShowHTML "      <div id=""busca"" valign=""center""><marquee width=""100%"" align=""middle""><font color=""white"" face=""Arial"" size=""2""><b>GDF - As grandes transformações também no ensino público.</b></font></marquee></div> "
-  ShowHTML "    </div>"
-  ShowHTML "  </div>"
-  ShowHTML "  <div id=""corpo"">"
-  ShowHTML "    <div id=""menuesq"">"
-  ShowHTML "      <div id=""logomenuesq""><img src=""img/fundo_logomenuesq.gif"" border=0></div>"
-  ShowHTML "      <ul id=""menugov"">"
-  ShowHTML "        <li>Removendo seu e-mail você deixará de fazer parte da lista de distribuição de informativos da SEDF."
-  ShowHTML "        <li>A qualquer momento você poderá cadastrar-se novamente, usando a <a href=""" & sstrSN & """>tela de cadastro</a>."
-  ShowHTML "      </ul>"
-  ShowHTML "      <div id=""menusep""><hr /></div>"
-  ShowHTML "      <div id=""menunav""></div>"
-  ShowHTML "    </div>"
-  ShowHTML "    <div id=""texto""><!-- Conteúdo -->"
+    %>
+<div id="pagina">
+  <div id="topo"> </div>
+  <div id="busca">
+    <div class="data"> <% Response.Write(ExibeData(date())) %> </div>
+    <div class="clear"></div>
+  </div>
+  <div id="menu">
+    <div id="menuTop">
+      <div class="esquerda">
+        <ul>
+          <li><a href="http://www.se.df.gov.br/300/30001001.asp">Secretaria de Educação</a></li>
+          <li><a href="http://www.se.df.gov.br/300/30001009.asp">mapa do site</a></li>
+          <li class="ultimo"><a class="ultimo" href="http://www.se.df.gov.br/300/30001005.asp">fale conosco</a></li>
+        </ul>
+      </div>
+      <div class="direita">
+        <ul>
+          <li><a class="aluno" href="http://www.se.df.gov.br/300/30002001.asp">Aluno</a></li>
+          <li><a class="educador" href="http://www.se.df.gov.br/300/30003001.asp">Educador</a></li>
+          <li><a class="comunidade" href="http://www.se.df.gov.br/300/30004001.asp">Comunidade</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="menuMiddle"> </div>
+  </div>
+  <div class="clear"></div>
+<div id="menuBottom">
+  <div class="clear"></div>
+</div>
+<div id="conteudo"><h2>Solução Integrada de Gestão Educacional - SIGE</h2>
+<%
+
   ShowHTML "        <table width=""570"" border=""0"">"
   ShowHTML "        <FORM ACTION=""newsletter.asp"" method=""POST"" name=""Form"" onSubmit=""return(Validacao(this));"">"
   ShowHTML "        <input type=""hidden"" name=""EW"" value=""Grava"">"

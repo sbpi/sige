@@ -3,6 +3,7 @@ body{
 	font: 10px Verdana, Arial, Helvetica, sans-serif;
 	color: #333333;
 	background-color:#F0F0E8;
+    background-repeat: no-repeat;
 }
 
 table{
@@ -32,4 +33,25 @@ a:hover{
 
 #campopesquisa{
     background-image:url(../img/background.gif);
+}
+
+#dtcalendarios li{
+        list-style-image: url(../img/asterisco.gif)
+}
+
+#conteudo  li{
+        list-style-image: url(../img/asterisco.gif)
+}
+
+#dtcalendarios a {
+    color:#FF3737;
+}
+#dtcalendarios a:hover {
+    font-weight:bold;
+    text-decoration:none;
+}
+
+#tbhomologacao select{
+    font:Verdana;
+    font:10px #CCC;
 }

@@ -279,6 +279,8 @@ Function MontaCalendario(p_mes, p_datas, p_cores, p_imagem)
              l_img = " style=""background-color: #DAEABD;"""
              If p_imagem(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
                 l_img = " style=""background: url(/img/" & p_imagem(l_item, l_mes, Mid(l_ano,3,2)) & ") no-repeat center; background-color: #DAEABD;"""
+                'l_img = " bgcolor=""#DAEABD"" background=""/img/" & p_imagem(l_item, l_mes, Mid(l_ano,3,2)) & """"
+                'l_img = "
              End If
           ElseIf l_item <> "&nbsp;" Then 
              If p_cores(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
@@ -286,13 +288,14 @@ Function MontaCalendario(p_mes, p_datas, p_cores, p_imagem)
              End If
              If p_imagem(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
                 l_img = " style=""background: url(/img/" & p_imagem(l_item, l_mes, Mid(l_ano,3,2)) & ") no-repeat center;" & l_cor & """"
+                'l_img = " background=""/img/" & p_imagem(l_item, l_mes, Mid(l_ano,3,2)) & l_cor & """"
                 'Response.Write l_img
                 'Response.End
              End If
           End If
           
           ' Coloca uma célula do calendário
-          l_html = l_html & "    <td><div " & l_img & l_ocorrencia & ">" & l_item & "</div></td>" & VbCrLf 
+          l_html = l_html & "    <td " & l_img & l_ocorrencia & ">" & l_item & "</td>" & VbCrLf 
           
           ' Trata a quebra de linha ao final de cada semana
           If ((l_cont Mod 7) = 0) Then
@@ -483,6 +486,77 @@ Sub SelecaoEscola (label, accesskey, hint, chave, chaveAux, campo, restricao, at
     ShowHTML "          </select>"
     DesconectaBD
 End Sub
+
+
+REM =========================================================================
+REM Montagem da seleção de escolas
+REM -------------------------------------------------------------------------
+Sub SelecaoEscolaParticular (label, accesskey, hint, chave, chaveAux, campo, restricao, atributo)
+
+    SQL = "SELECT distinct a.sq_cliente cliente, a.sq_tipo_cliente, case b.tipo when 1 then upper(a.ds_username) else a.ds_cliente end ds_cliente, b.tipo " & VbCrLf & _
+          "  FROM escCLIENTE            a" & VbCrLf & _
+          "      inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
+          "      inner join escParticular_Calendario c on (a.sq_cliente = c.sq_cliente) " & VbCrLf & _
+          " WHERE PUBLICA = 'N' and upper(a.ds_username) <> 'SBPI' "
+    If chaveAux > "" Then
+       SQL = SQL & "   and IsNull(sq_cliente_pai,0) = " & chaveAux & VbCrLf
+    End If
+    SQL = SQL & "ORDER BY b.tipo, ds_cliente" & VbCrLf
+    ConectaBD SQL
+    If IsNull(hint) Then
+       ShowHTML "          <td valign=""top""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
+    Else
+       ShowHTML "          <td valign=""top""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
+    End If
+    ShowHTML "          <option value="""">---"
+    While Not RS.EOF
+       If cDbl(nvl(RS("cliente"),-1)) = cDbl(nvl(chave,-1)) Then
+          ShowHTML "          <option value=""" & RS("cliente") & """ SELECTED>" & RS("ds_cliente")
+       Else
+          ShowHTML "          <option value=""" & RS("cliente") & """>" & RS("ds_cliente")
+       End If
+       RS.MoveNext
+    Wend
+    ShowHTML "          </select>"
+    DesconectaBD
+End Sub
+
+REM =========================================================================
+REM Montagem da seleção de calendários das escolas particulares
+REM -------------------------------------------------------------------------
+Sub SelecaoCalendarioParticular (label, accesskey, hint, chave, chaveAux, campo, restricao, atributo)
+
+    
+    'SQL = "SELECT a.sq_cliente cliente, a.sq_tipo_cliente, case b.tipo when 1 then upper(a.ds_username) else a.ds_cliente end ds_cliente, b.tipo " & VbCrLf & _
+    '      "  FROM escCLIENTE            a" & VbCrLf & _
+    '      "      inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
+    '      " WHERE PUBLICA = 'N' and upper(a.ds_username) <> 'SBPI' "
+    If Nvl(chaveAux,"nulo") <> "nulo" then          
+        SQL = " SELECT sq_cliente as cliente, nome FROM escParticular_Calendario" 
+        If chaveAux > "" Then
+           SQL = SQL & "   WHERE sq_cliente = " & chaveAux& VbCrL
+        End If
+        ConectaBD SQL
+        If IsNull(hint) Then
+           ShowHTML "          <td valign=""top""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
+        Else
+           ShowHTML "          <td valign=""top"" ONMOUSEOVER=""popup('" & hint & "','white')""; ONMOUSEOUT=""kill()""><font size=""1""><b>" & Label & "</b><br><SELECT ACCESSKEY=""" & accesskey & """ CLASS=""STS"" NAME=""" & campo & """ " & w_Disabled & " " & atributo & ">"
+        End If
+        ShowHTML "          <option value="""">---"
+        While Not RS.EOF
+           If cDbl(nvl(RS("cliente"),-1)) = cDbl(nvl(chave,-1)) Then
+              ShowHTML "          <option value=""" & RS("cliente") & """ SELECTED>" & RS("nome")
+           Else
+              ShowHTML "          <option value=""" & RS("cliente") & """>" & RS("nome")
+           End If
+           RS.MoveNext
+        Wend
+        ShowHTML "          </select>"
+'        MontaRadioSN "<b>Homologado?</b>", w_homologado, "w_homologado"
+        DesconectaBD
+    End If
+End Sub
+
 
 REM =========================================================================
 REM Função que formata dias, horas, minutos e segundos a partir dos segundos
@@ -921,7 +995,7 @@ ShowHTML "   }" & chr(13) & chr(10)
 ShowHTML " }" & chr(13) & chr(10)
 ShowHTML " </script>" & chr(13) & chr(10)
 
-SQL = "select sq_particular_calendario, nome from escParticular_Calendario " & VbCrLf & _
+SQL = "select homologado, sq_particular_calendario, nome from escParticular_Calendario " & VbCrLf & _
       " where ativo <> 'N' and sq_cliente = " & cliente
 ConectaBD SQL
 
@@ -929,7 +1003,12 @@ If RS.RecordCount > 0 Then
     ShowHTML "<label><font size=""1""><b>Atribuição:</b></font></label>"
     ShowHTML "<br><a href=""javascript:void(null)"" onClick=""CheckAll();""><font size=""1"">Marcar/Desmarcar Todos</font></a><br/>"
     While Not RS.EOF
-        ShowHTML "<br style=""""><font size=""1""><input type=""checkbox"" name=""checkbox"" value=""" & RS("sq_particular_calendario") & """>" & RS("nome") & "</label>"
+       If(Instr(RS("homologado"),"S")) Then
+          ShowHTML "<br style=""""><font size=""1""><input disabled type=""checkbox"" name=""homologado"" value=""" & RS("sq_particular_calendario") & """>" & RS("nome") & "<font color=""#ff3737""> (Homologado pela SEDF)</font></label>"
+       Else
+          ShowHTML "<br style=""""><font size=""1""><input type=""checkbox"" name=""checkbox"" value=""" & RS("sq_particular_calendario") & """>" & RS("nome") & "</label>"
+       End If
+       
         RS.MoveNext
     Wend
 End If

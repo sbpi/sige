@@ -302,6 +302,9 @@ Public Sub ShowPrincipal
         "ORDER BY e.nr_ordem"
 
   RS.Open sql, dbms, adOpenForwardOnly
+  
+  'Response.Write sql
+  'Response.End 
 
   ShowHTML "    <tr valign=""top""><td> "
 
@@ -315,7 +318,7 @@ Public Sub ShowPrincipal
     If RS("sq_cliente_foto") > "" Then
        ShowHTML "        <td align=""right"">"
        Do While Not RS.EOF
-          ShowHTML "        <img class=""foto"" src=""" & RS("diretorio") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
+          ShowHTML "        <img class=""foto"" src=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ width=""302"" height=""206""><br>" & RS("ds_foto") & "<br>"
           RS.MoveNext
        Loop
     End If
@@ -358,7 +361,7 @@ Public Sub ShowQuem
        ShowHTML "  <td align=""right""><font size=""1""><b>Fotografias</b><font size=1> (Clique sobre a imagem para ampliar)</b><br>"
        ShowHTML "<ul class=""fotos"">"
        Do While Not RS.EOF
-          ShowHTML "   <li><a href=""" & RS("diretorio") & "/" & RS("ln_foto") & """ target=""_blank""><img align=""top"" class=""foto"" src=""" & RS("diretorio") & "/" & RS("ln_foto") & """ width=""201"" height=""153""> " & RS("ds_foto") & "</a></li>"
+          ShowHTML "   <li><a href=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ target=""_blank""><img align=""top"" class=""foto"" src=""" & RS("ds_diretorio") & "/" & RS("ln_foto") & """ width=""201"" height=""153""> " & RS("ds_foto") & "</a></li>"
           RS.MoveNext
        Loop
        ShowHTML "</ul>"
@@ -806,7 +809,7 @@ Public Sub ShowCalend
               RS.Close 
            End If
            
-           sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & CL & ") qtd" & VbCrLf 
+           sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & CL & ",null) qtd" & VbCrLf 
            RS.Open sql, dbms, adOpenForwardOnly
            If RS("qtd") > 0 Then
               ShowHTML "  <TR>"
@@ -927,7 +930,7 @@ Public Sub ShowEscolas
            ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, verifique se o Word foi corretamente instalado em seu computador."        
         End If
         ShowHTML "<table align=""center"" width=""100%"" cellspacing=0 style=""border: 1px solid rgb(0,0,0);""><tr><td>"
-        ShowHTML "    <iframe src=""" & RS("diretorio") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
+        ShowHTML "    <iframe src=""" & RS("ds_diretorio") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
         ShowHTML "    </iframe>"
         ShowHTML "</table>"
      Else

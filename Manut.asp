@@ -685,7 +685,7 @@ Sub GetEspecialidadeCliente
   While Not RS.EOF
     If wAtual = "" or wAtual <> RS("tp_especialidade") Then
        wAtual = RS("tp_especialidade")
-       If wAtual = "M" Then
+       If wAtual = "J" Then
           ShowHTML "          <TR><TD><font size=1><b>Etapas / Modalidades de ensino</b>:"
        ElseIf wAtual = "R" Then
           ShowHTML "          <TR><TD><font size=1><b>Em Regime de Intercomplementaridade</b>:"
@@ -1539,10 +1539,11 @@ Sub GetSite
 
   Dim w_sq_cliente, w_no_contato_internet, w_ds_email_internet
   Dim w_nr_fone_internet, w_nr_fax_internet, w_ds_texto_abertura, w_ds_institucional, w_ds_mensagem
-  Dim w_pedagogica
+  Dim w_pedagogica, w_tipo
 
   If w_ea = "A" Then
-     SQL = "select * from escCliente_Site where " & CL
+     'SQL = "select * from escCliente_Site where " & CL
+     SQL = "select a.*, b.ds_diretorio as tipo from escCliente_Site a inner join escModelo b on (a.sq_modelo = b.sq_modelo) where a." & CL
      ConectaBD SQL
      w_sq_cliente           = RS("sq_cliente")
      w_no_contato_internet  = RS("no_contato_internet")
@@ -1554,6 +1555,7 @@ Sub GetSite
      w_ds_mensagem          = RS("ds_mensagem")
      w_ds_diretorio         = RS("ds_diretorio")
      w_pedagogica           = RS("ln_prop_pedagogica")
+     w_tipo                 = Replace(RS("tipo"),"Mod","")
   End If
 
   Cabecalho
@@ -1567,19 +1569,21 @@ Sub GetSite
      Validate "w_nr_fax_internet", "Fax", "1", "", "6", "20", "1", "1"
      Validate "w_ds_texto_abertura", "Texto de abertura", "1", "1", "4", "8000", "1", "1"
      Validate "w_ds_institucional", "Texto da seção \""Quem somos\""", "1", "1", "4", "8000", "1", "1"
-     If w_tipo = 2 Then ' Se for regional
-        Validate "w_pedagogica", "Composição administrativa", "1", "", "5", "100", "1", "1"
-     Else
-        Validate "w_pedagogica", "Projeto", "1", "", "5", "100", "1", "1"
+     If w_tipo <> 13 Then
+        If w_tipo = 2 Then ' Se for regional
+           Validate "w_pedagogica", "Composição administrativa", "1", "", "5", "100", "1", "1"
+        Else
+           Validate "w_pedagogica", "Projeto", "1", "", "5", "100", "1", "1"
+        End If
+        ShowHTML " if (theForm.w_pedagogica.value > """"){"
+        ShowHTML "    if((theForm.w_pedagogica.value.lastIndexOf('.PDF')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.pdf')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.DOC')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.doc')==-1)) {"
+        ShowHTML "       alert('Esolha arquivos com as extensões \'.doc\' ou \'.pdf\'!');"
+        ShowHTML "       theForm.w_pedagogica.value=''; "
+        ShowHTML "       theForm.w_pedagogica.focus(); "
+        ShowHTML "       return false;"
+        ShowHTML "    }"
+        ShowHTML "  }"
      End If
-     ShowHTML " if (theForm.w_pedagogica.value > """"){"
-     ShowHTML "    if((theForm.w_pedagogica.value.lastIndexOf('.PDF')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.pdf')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.DOC')==-1) && (theForm.w_pedagogica.value.lastIndexOf('.doc')==-1)) {"
-     ShowHTML "       alert('Esolha arquivos com as extensões \'.doc\' ou \'.pdf\'!');"
-     ShowHTML "       theForm.w_pedagogica.value=''; "
-     ShowHTML "       theForm.w_pedagogica.focus(); "
-     ShowHTML "       return false;"
-     ShowHTML "    }"
-     ShowHTML "  }"
      Validate "w_ds_mensagem", "\""Texto da mensagem em destaque\""", "1", "1", "4", "80", "1", "1"
   End If
   ValidateClose
@@ -1630,10 +1634,9 @@ Sub GetSite
      ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
      ShowHTML "      <tr><td><font size=""1""><b>Composição adminis<u>t</u>rativa (arquivo Word ou PDF):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém a composição administrativa da regional. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
   Else
-     SQL = "select b.ds_especialidade from escEspecialidade_Cliente a inner join escEspecialidade b on (a.sq_codigo_espec = b.sq_especialidade and a." & CL & ")"
-     ConectaBD SQL
-     If Not RS.EOF Then
-        If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
+     'SQL = "select b.ds_especialidade from escEspecialidade_Cliente a inner join escEspecialidade b on (a.sq_codigo_espec = b.sq_especialidade and a." & CL & ")"
+     If w_tipo <> 13 Then
+     '   If uCase(RS("ds_especialidade")) <> uCase("Biblioteca") Then
            ShowHTML "      <tr><td valign=""top"" align=""center"" bgcolor=""#D0D0D0""><font size=""1""><b>Página ""Projeto""</td></td></tr>"
            ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
            ShowHTML "      <tr><td><font size=1>Informe o arquivo Word ou PDF a ser exibido na página ""Projeto"" do site."
@@ -1641,7 +1644,7 @@ Sub GetSite
            ShowHTML "      </font></td></tr>"
            ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
            ShowHTML "      <tr><td><font size=""1""><b>Proje<u>t</u>o (arquivo Word):</b><br><INPUT ACCESSKEY=""T"" " & w_Disabled & " class=""STI"" type=""file"" name=""w_pedagogica"" size=""60"" maxlength=""100"" value="""" ONMOUSEOVER=""popup('OPCIONAL. Clique no botão ao lado para localizar o arquivo que contém o projeto da escola. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
-        End If
+     '   End If
      End If
      DesconectaBD
   End If
@@ -2040,7 +2043,8 @@ Sub ShowLog
   
   If w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select a.*, b.nome from escCalendario_Base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) order by year(dt_ocorrencia) desc, dt_ocorrencia"
+     'SQL = "select a.*, b.nome, a.dt_ocorrencia as data, b.abrangencia from escCalendario_Base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) order by year(dt_ocorrencia) desc, dt_ocorrencia"
+     SQL = "select * from escCliente_Log where " & CL & " order by year(data) desc, month(data) desc, data desc"
      ConectaBD SQL
   End If
 

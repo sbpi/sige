@@ -1,3 +1,5 @@
+@media print {
+
 #impressora{
     display:none;
 }
@@ -9,4 +11,7 @@
 body{
  size:100%;
  background-color:#fff;
+ font: 30px Verdana, Arial, Helvetica, sans-serif;
+ background-repeat: no-repeat;
+}
 }

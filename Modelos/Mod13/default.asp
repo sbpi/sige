@@ -145,7 +145,7 @@ Select Case sstrEW
   Case conWhatExCalend    ShowHTML "      <h3>Calendário</h3>"
   Case conWhatValida
      If sstrIN > 0 Then
-        ShowHTML "      <li><b>Projeto</b></li>"
+     '   ShowHTML "      <li><b>Projeto</b></li>"
      Else
         ShowHTML "      <li><b>Alunos</b></li>"
      End If
@@ -822,7 +822,7 @@ Public Sub ShowCalend
               RS.Close 
            End If
            
-           sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & CL & ") qtd" & VbCrLf 
+           sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & CL & ",null) qtd" & VbCrLf 
            RS.Open sql, sobjConn, adOpenForwardOnly
            If RS("qtd") > 0 Then
               ShowHTML "  <TR>"
@@ -894,7 +894,7 @@ Public Sub ShowCalend
      ShowHTML "    <TD COLSPAN=""2"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
      ShowHTML "  </TR>"
      For wCont = 1 to 12
-        sql = "SELECT dbo.diasLetivos('01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),convert(varchar,dbo.lastDay(convert(datetime,'01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),103)),103)," & CL & ") qtd" & VbCrLf 
+        sql = "SELECT dbo.diasLetivos('01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),convert(varchar,dbo.lastDay(convert(datetime,'01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),103)),103)," & CL & ",null) qtd" & VbCrLf 
         RS1.Open sql, sobjConn, adOpenForwardOnly
         
         If RS1("qtd") > 0 Then

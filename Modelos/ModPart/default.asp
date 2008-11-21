@@ -521,7 +521,7 @@ Public Sub ShowCalend
      ShowHTML "    <TD COLSPAN=""2"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
      ShowHTML "  </TR>"
      For wCont = 1 to 12
-        sql = "SELECT dbo.diasLetivos('01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),convert(varchar,dbo.lastDay(convert(datetime,'01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),103)),103)," & CL & ") qtd" & VbCrLf 
+        sql = "SELECT dbo.diasLetivos('01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),convert(varchar,dbo.lastDay(convert(datetime,'01/" & mid(100+wCont,2,2) & "/'+cast(year(getDate()) as varchar),103)),103)," & CL & ",null) qtd" & VbCrLf 
         RS1.Open sql, sobjConn, adOpenForwardOnly
         
         If RS1("qtd") > 0 Then
@@ -718,7 +718,7 @@ Public Sub ShowArquivo
      RS.Open sql, sobjConn, adOpenForwardOnly
 
      ShowHTML "<tr><td><p align=""center""><font size=""4""><b>" & RS("ds_titulo") & "</b></font><p align=""left"">"
-     ShowHTML replace(server.HTMLEncode(RS("ds_noticia")),chr(13)&chr(10), "<br>")
+     ShowHTML replace(RS("ds_noticia"),chr(13)&chr(10), "<br>")
      ShowHTML "<p><center><img src=""Img/bt_voltar.gif"" border=0 valign=""center"" onClick=""history.go(-1)"" alt=""Volta"">"
      RS.Close
   End If

@@ -49,6 +49,8 @@ REM -------------------------------------------------------------------------
      p_tipo = Nvl(Request("p_tipo"),"H")
      p_layout = Nvl(Request("p_layout"),"PORTRAIT")
      p_campos = Request("p_campos")
+     p_escola_particular = Request("p_escola_particular")
+     p_calendario        = Request("p_calendario")
   End If
 
   w_Data = Mid(100+Day(Date()),2,2) & "/" & Mid(100+Month(Date()),2,2) & "/" &Year(Date())
@@ -90,6 +92,7 @@ REM -------------------------------------------------------------------------
   Set SQL            = Nothing
   Set RS             = Nothing
   Set RS1            = Nothing
+  Set RS2            = Nothing
   Set DBMS           = Nothing
   Set w_Data         = Nothing
   Set w_Pagina       = Nothing
@@ -190,6 +193,10 @@ Sub showMenu
    
    If Session("username") = "SEDF" or Session("username") = "SBPI" Then
       ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=escPart&&w_ee=1"" Title=""Pesquisa unidades de ensino da rede privada"">Escolas Particulares</A><br>"
+   End If
+   
+   If Session("username") = "SEDF" or Session("username") = "SBPI" Then
+      ShowHTML "    <img src=""" & w_imagem & """ border=0 align=""center""> <A TARGET=""Body"" CLASS=""SS"" HREF=""Controle.asp?CL=" & CL & "&w_ea=L&w_ew=escPartHomolog&&w_ee=1"" Title=""Pesquisa unidades de ensino da rede privada"">Homologação de Calendário</A><br>"
    End If
 
    If Session("username") = "IMPRENSA" or Session("username") = "SEDF" or Session("username") = "SBPI" Then
@@ -3302,14 +3309,23 @@ Public Sub GetVerifArquivo
   wCont = 0
   sql1 = ""
 
-  If p_tipo = "H" Then
-     sql = "SELECT DISTINCT a.* " & _ 
-           "from escEspecialidade AS a " & _ 
-           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
-           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
-           "ORDER BY a.nr_ordem, a.ds_especialidade "
-    ConectaBD SQL
+  ' Seleção de etapas/modalidades
+  sql = "SELECT DISTINCT a.curso as sq_especialidade, a.curso as ds_especialidade, 1 as nr_ordem, 'M' as tp_especialidade " & VbCrLf & _ 
+        " from escTurma_Modalidade                 AS a " & VbCrLf & _ 
+        "      INNER JOIN escTurma                 AS c ON (a.serie           = c.ds_serie) " & VbCrLf & _
+        "      INNER JOIN escCliente               AS d ON (c.sq_site_cliente = d.sq_cliente) " & VbCrLf & _
+        "UNION " & VbCrLf & _ 
+        "SELECT DISTINCT cast(a.sq_especialidade as varchar) as sq_especialidade, a.ds_especialidade,  " & VbCrLf & _ 
+        "       case a.tp_especialidade when 'J' then '1' else a.nr_ordem end as nr_ordem, " & VbCrLf & _ 
+        "       case a.tp_especialidade when 'J' then 'M' else a.tp_especialidade end as tp_especialidade" & VbCrLf & _ 
+        " from escEspecialidade AS a " & VbCrLf & _ 
+        "      INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
+        "      INNER JOIN escCliente               AS d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
+        " where a.tp_especialidade <> 'M' " & VbCrLf & _
+        "ORDER BY a.nr_ordem, a.ds_especialidade " & VbCrLf
+  ConectaBD sql
    
+  If p_tipo = "H" Then
      If Not RS.EOF Then
         wCont = 0
         wAtual = ""
@@ -3330,12 +3346,14 @@ Public Sub GetVerifArquivo
            wCont = wCont + 1
            marcado = "N"
            For i = 1 to Request("p_modalidade").Count
-               If cDbl(RS("sq_especialidade")) = cDbl(Nvl(Request("p_modalidade")(i),0)) Then marcado = "S" End If
+               If RS("sq_especialidade") = Request("p_modalidade")(i) Then 
+                  marcado = "S" 
+                  sql1 = ",'" & Request("p_modalidade")(i) & "'" & sql1
+               End If
            Next
               
            If marcado = "S" Then
               ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """ checked><td><font size=1>" & RS("ds_especialidade")
-              sql1 = Request("p_modalidade")
               wIN = 1
            Else
               ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """><td><font size=1>" & RS("ds_especialidade")
@@ -3348,17 +3366,9 @@ Public Sub GetVerifArquivo
  
         Loop
         DesconectaBD
+        sql1 = Mid(sql1,2)
      End If
   ElseIf Nvl(Request("p_modalidade"), "") > "" Then
-     sql = "SELECT DISTINCT a.* " & _ 
-           "from escEspecialidade AS a " & _ 
-           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
-           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
-           "where a.sq_especialidade in (" & Request("p_modalidade") & ") " & _
-           "ORDER BY a.nr_ordem, a.ds_especialidade "
- 
-     ConectaBD SQL
-   
      If Not RS.EOF Then
         wCont = 0
  
@@ -3366,12 +3376,14 @@ Public Sub GetVerifArquivo
         Do While Not RS.EOF
                     
            ShowHTML chr(13) & "           <li><font size=1>" & RS("ds_especialidade")
-           sql1 = Request("p_modalidade")
+           If RS("sq_especialidade") = Request("p_modalidade")(i) Then 
+              sql1 = ",'" & Request("p_modalidade")(i) & "'" & sql1
+           End If
            wIN = 1
            RS.MoveNext
- 
         Loop
         DesconectaBD
+        sql1 = Mid(sql1,2)
      End If
   End If
   ShowHTML "          </tr>"
@@ -3399,8 +3411,6 @@ Public Sub GetVerifArquivo
               "       h.sq_arquivo as chave, h.ds_titulo, h.nr_ordem, h.ln_arquivo " & VbCrLf & _
               "  from escCliente                                 d " & VbCrLf & _ 
               "       INNER      JOIN escCliente                 b ON (b.sq_cliente       = d.sq_cliente_pai) " & VbCrLf & _
-              "       INNER      JOIN escEspecialidade_cliente   c ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
-              "       INNER      JOIN escEspecialidade           a ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
               "       INNER      JOIN escCliente_Site            f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
               "       INNER      JOIN escTipo_Cliente            g ON (d.sq_tipo_cliente  = g.sq_tipo_cliente) " & VbCrLf & _
               "       INNER      JOIN escCliente_Arquivo         h ON (d.sq_cliente       = h.sq_site_cliente) " & VbCrLf & _
@@ -3419,15 +3429,16 @@ Public Sub GetVerifArquivo
         If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
 
         if sql1 > "" then
-           sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
+          sql = sql & _
+                "    and (0 < (select count(*) from escEspecialidade_Cliente where sq_cliente = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + sql1 + ")) or " & VbCrLf & _
+                "         0 < (select count(*) from escTurma_Modalidade  w INNER JOIN escTurma x ON (w.serie = x.ds_serie) where x.sq_site_cliente = d.sq_cliente and w.curso in (" + sql1 + ")) " & VbCrLf & _
+                "        ) " & VbCrLf 
         end if
         sql = sql & _
               "UNION SELECT DISTINCT 'FOTO' as tipo, d.ds_username, d.sq_cliente, d.ds_cliente, d.ds_apelido, d.ln_internet, f.ds_diretorio," & VbCrLf & _
               "       h.sq_cliente_foto as chave, h.ds_foto as ds_titulo, h.nr_ordem, h.ln_foto as ln_arquivo " & VbCrLf & _
               "  from escCliente                                 d " & VbCrLf & _ 
               "       INNER      JOIN escCliente                 b ON (b.sq_cliente       = d.sq_cliente_pai) " & VbCrLf & _
-              "       INNER      JOIN escEspecialidade_cliente   c ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
-              "       INNER      JOIN escEspecialidade           a ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
               "       INNER      JOIN escCliente_Site            f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
               "       INNER      JOIN escTipo_Cliente            g ON (d.sq_tipo_cliente  = g.sq_tipo_cliente) " & VbCrLf & _
               "       INNER      JOIN escCliente_Foto            h ON (d.sq_cliente       = h.sq_cliente) " & VbCrLf & _
@@ -3446,13 +3457,13 @@ Public Sub GetVerifArquivo
         If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
 
         if sql1 > "" then
-           sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
+          sql = sql & _
+                "    and (0 < (select count(*) from escEspecialidade_Cliente where sq_cliente = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + sql1 + ")) or " & VbCrLf & _
+                "         0 < (select count(*) from escTurma_Modalidade  w INNER JOIN escTurma x ON (w.serie = x.ds_serie) where x.sq_site_cliente = d.sq_cliente and w.curso in (" + sql1 + ")) " & VbCrLf & _
+                "        ) " & VbCrLf 
         end if
         sql = sql + "ORDER BY d.ds_cliente, tipo desc, h.nr_ordem, h.ds_titulo " & VbCrLf
         ConectaBD SQL
-        
-        'Response.Write(SQL)
-        'Response.End()
         
         ShowHTML "<TR><TD valign=""top""><br><table border=0 width=""100%"" cellpadding=0 cellspacing=0>"
         If Not RS.EOF Then
@@ -3497,32 +3508,32 @@ Public Sub GetVerifArquivo
 
              ' Remove o arquivo, caso ele já exista
              If Not FS.FileExists (strFile) then
-             If checkbox <> "ok" Then
-                          ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
-                          checkbox = "ok"
+                If checkbox <> "ok" Then
+                   ShowHTML "    <script>document.getElementById('checkbox').style.display='block';</script>"
+                   checkbox = "ok"
+                End If
+                If w_atual = "" or w_atual <> RS("DS_CLIENTE") Then
+                   If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
+                   ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+                   If Not IsNull (RS("LN_INTERNET")) Then
+                      If inStr(lcase(RS("LN_INTERNET")),"http://") > 0 Then
+                         ShowHTML "                <a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
+                      Else
+                         ShowHTML "                <a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
                       End If
-               If w_atual = "" or w_atual <> RS("DS_CLIENTE") Then
-                  If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
-                  ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
-                  If Not IsNull (RS("LN_INTERNET")) Then
-                     If inStr(lcase(RS("LN_INTERNET")),"http://") > 0 Then
-                        ShowHTML "                <a href=""http://" & replace(RS("LN_INTERNET"),"http://","") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
-                     Else
-                        ShowHTML "                <a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b>"
-                     End If
-                  Else
-                     ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
-                  End If
-                  w_atual = RS("DS_CLIENTE")
-               Else
-                  ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
-                  ShowHTML "    <td><font face=""Verdana"" size=""1"">&nbsp;</font></td>"
-               End If
-              ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("tipo") 
-              ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("nr_ordem") 
-              ShowHTML "    <TD><font face=""Verdana"" size=""1"">" & RS("ds_titulo")
-              ShowHTML "    <TD><font face=""Verdana"" size=""1""><a href=""" & RS("ln_internet") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ln_arquivo") & "</a>"
-              ShowHTML "<td align=""center"" width=""1%"" nowrap><input type=""checkbox"" name=""arquivo"" value=""" & RS("tipo") & "=|=" & RS("chave") & """></td>"
+                   Else
+                      ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
+                   End If
+                   w_atual = RS("DS_CLIENTE")
+                Else
+                   ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+                   ShowHTML "    <td><font face=""Verdana"" size=""1"">&nbsp;</font></td>"
+                End If
+                ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("tipo") 
+                ShowHTML "    <TD align=""center""><font face=""Verdana"" size=""1"">" & RS("nr_ordem") 
+                ShowHTML "    <TD><font face=""Verdana"" size=""1"">" & RS("ds_titulo")
+                ShowHTML "    <TD><font face=""Verdana"" size=""1""><a href=""" & RS("ln_internet") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ln_arquivo") & "</a>"
+                ShowHTML "<td align=""center"" width=""1%"" nowrap><input type=""checkbox"" name=""arquivo"" value=""" & RS("tipo") & "=|=" & RS("chave") & """></td>"
              End If
 
              RS.MoveNext
@@ -3559,7 +3570,10 @@ Public Sub GetVerifArquivo
         If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
 
         if sql1 > "" then
-           sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
+          sql = sql & _
+                "    and (0 < (select count(*) from escEspecialidade_Cliente where sq_cliente = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + sql1 + ")) or " & VbCrLf & _
+                "         0 < (select count(*) from escTurma_Modalidade  w INNER JOIN escTurma x ON (w.serie = x.ds_serie) where x.sq_site_cliente = d.sq_cliente and w.curso in (" + sql1 + ")) " & VbCrLf & _
+                "        ) " & VbCrLf 
         end if
         sql = sql + "ORDER BY d.ds_cliente " & VbCrLf
         ConectaBD SQL
@@ -3678,7 +3692,7 @@ Public Sub Grava
   
   
   ' Recupera o código a ser gravado na tabela de log
-  If Instr("REDEPART,VERIFBANCO,VERIFARQ,BASE,NEWSLETTER,TIPOCLIENTE,COMPONENTE, VERSAO,CADASTROESCOLA",w_R) > 0 or w_R = conWhatAdmin or w_R = conWhatSGE Then
+  If Instr("REDEPART,VERIFBANCO,VERIFARQ,ESCPARTHOMOLOG,BASE,NEWSLETTER,TIPOCLIENTE,COMPONENTE, VERSAO,CADASTROESCOLA",w_R) > 0 or w_R = conWhatAdmin or w_R = conWhatSGE Then
      w_funcionalidade = "null"
   Else
      SQL = "select sq_funcionalidade from escFuncionalidade where tipo = 1 and codigo = '" & w_R & "'"
@@ -4761,6 +4775,7 @@ Public Sub Grava
                     If idAutHabSecretario = "NULL"  Then : idAutHabSecretario = "0" : End If
                     If idCodinep = "NULL"           Then : idCodinep = "0" : End If
                     If idRegiao = "'0'"             Then : idRegiao = "1" : End If
+                    If idVencimento = "'0000-00-00'" Then : idVencimento = "NULL" : End If
                     ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": " & replace(idInstituicao,"'","")
                     Response.Flush
                     
@@ -4773,8 +4788,8 @@ Public Sub Grava
                        ConectaBD SQL
                        sq_cliente = cInt(RS("MaxValue"))
           
-                       SQL = "INSERT INTO escCliente (sq_cliente,sq_tipo_cliente, ds_cliente, no_municipio, sg_uf, ds_username, ds_senha_acesso, localizacao, publica, sq_regiao_adm) " & VbCrLf & _
-                             "(SELECT " & sq_cliente & ", a.sq_tipo_cliente, " & idInstituicao & ", " & VbCrLf & _
+                       SQL = "INSERT INTO escCliente (sq_cliente,ativo,sq_tipo_cliente, ds_cliente, no_municipio, sg_uf, ds_username, ds_senha_acesso, localizacao, publica, sq_regiao_adm) " & VbCrLf & _
+                             "(SELECT " & sq_cliente & ", 'Sim', a.sq_tipo_cliente, " & idInstituicao & ", " & VbCrLf & _
                              "        substring(b.no_regiao, charIndex(' ',b.no_regiao)+1,500), 'DF', " & VbCrLf & _
                              "        " & login & ", " & senha & ", " & idLocalizacao & ", 'N', " & idRegiao & VbCrLf & _
                              "   FROM escTipo_Cliente a, " & VbCrLf & _
@@ -4783,6 +4798,7 @@ Public Sub Grava
                              "    and b.sq_regiao_adm = " & idRegiao & VbCrLf & _
                              ")"
                        ExecutaSQL(SQL)
+                       
 
                        SQL = "INSERT INTO escCliente_Particular (sq_cliente, Pasta, Diretor, Mantenedora, Endereco, Telefone_1, Fax, Vencimento, Observacao, idEscola, Codinep, Telefone_2, Email_1, Email_2, Cnpj_Executora, Cnpj_Escola, Secretario, Cep, Aut_Hab_Secretario, Infantil, Fundamental, EJA, Medio, Distancia, Profissional, Regiao, mantenedora_endereco, url, situacao) " & VbCrLf & _
                              "VALUES(" & sq_cliente & ", " & idPasta & ", " & idDiretor & ", " & idMantenedora & ", " & idEndereco & ", " & idTelefone_1 & ", " & idFax & ", " & idVencimento & ", " & idObservacao & ", " & idEscola & ", " & idCodinep & ", " & idTelefone_2 & ", " & idEmail_1 & ", " & idEmail_2 & ", " & idCnpjExecutora & ", " & idCnpjEscola & ", " & idSecretario & ", " & idCep & ", " & idAutHabSecretario & ", " & idEinf & ", " & idEf & ", " & idEja & ", " & idEm & ", " & idEDA & ", " & idEprof & ", " & idRegiao & ", " & idEndMantenedora & ", " & SiteEscola & ", " & situacao & ")"
@@ -5361,11 +5377,12 @@ Public Sub Grava
           'Criação das escolas na tabela principal
           SQL = "insert into escCliente (sq_cliente,              sq_cliente_pai,              sq_tipo_cliente,                            ds_cliente,  " & VbCrLf &_
                 "                        ds_apelido,              no_municipio,                sg_uf,                                      ds_username, " & VbCrLf &_ 
-                "                        ds_senha_acesso,         ln_internet,                 ds_email,                                   dt_cadastro  " & VbCrLf &_ 
+                "                        ds_senha_acesso,         ln_internet,                 ds_email,                                   dt_cadastro,  " & VbCrLf &_ 
+                "                        ativo  " & VbCrLf &_ 
                 " )values( " & VbCrLf &_
                 "                        " & w_chave & "," & Request("w_sq_cliente_pai") & "," &  Request("w_sq_tipo_cliente") & ",'" & Request("w_ds_cliente") & "'," & VbCrLf &_ 
                 "                        '" & Request("w_ds_apelido") & "','" & Request("w_no_municipio")& "','" & Request("w_sg_uf") & "','" & Request("w_ds_username") & "'," & VbCrLf &_ 
-                "                        '9"&w_chave & "','" & Request("w_ln_internet") & "','" & Nvl(Request("w_ds_email"),"Não informado") & "', getDate()); " & VbCrLf
+                "                        '9"&w_chave & "','" & Request("w_ln_internet") & "','" & Nvl(Request("w_ds_email"),"Não informado") & "', getDate(),'" & Request("w_ativo") & "'); " & VbCrLf
           
           ExecutaSQL(SQL)
                 
@@ -5417,7 +5434,8 @@ Public Sub Grava
                 "   sg_uf           = '" & Request("w_sg_uf") & "'," & VbCrLf &_
                 "   ds_username     = '" & Request("w_ds_username") & "'," & VbCrLf &_
                 "   ln_internet     = '" & Request("w_ln_internet") & "'," & VbCrLf &_
-                "   ds_email        = '" & Request("w_ds_email") & "'" & VbCrLf &_
+                "   ds_email        = '" & Request("w_ds_email") & "'," & VbCrLf &_
+                "   ativo        = '" & Request("w_ativo") & "'" & VbCrLf &_
                 " where sq_cliente = " & w_chave & VbCrLf
           ExecutaSQL(SQL)
           'Altera as escolas na tabela que contém dados complementares
@@ -5509,8 +5527,22 @@ Public Sub Grava
        ScriptOpen "JavaScript"
        ShowHTML "  location.href='" & w_pagina & "VERIFARQ&w_ea=L&cl=" & cl & "';"
        ScriptClose       
+       
+    Case "ESCPARTHOMOLOG"
+       dbms.BeginTrans()
+       For w_cont = 1 To Request.Form("w_chave").Count
+          SQL = "UPDATE escParticular_Calendario SET homologado = '" & Request.Form("w_homologado")(w_cont) & "' , ultima_homologacao = getdate() WHERE sq_particular_calendario = " & Request.Form("w_chave")(w_cont)
+          ExecutaSQL(SQL)       
+       Next
+       dbms.CommitTrans()
+        
+       ScriptOpen "JavaScript"
+       ShowHTML "  location.href='" & w_pagina & "ESCPARTHOMOLOG&w_ea=L&cl=" & cl & "';"
+       ScriptClose         
 
     Case Else
+    'Response.Write w_R
+    'Response.End 
        ScriptOpen "JavaScript"
        ShowHTML "  alert('Bloco de dados não encontrado: " & SG & "');"
        ShowHTML "  history.back(1);"
@@ -5640,15 +5672,23 @@ Public Sub ShowEscolas
   wCont = 0
   sql1 = ""
 
-  If p_tipo = "H" Then
-     sql = "SELECT DISTINCT a.* " & _ 
-           "from escEspecialidade AS a " & _ 
-           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
-           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
-           "ORDER BY a.nr_ordem, a.ds_especialidade "
- 
-     ConectaBD SQL
+  ' Seleção de etapas/modalidades
+  sql = "SELECT DISTINCT a.curso as sq_especialidade, a.curso as ds_especialidade, 1 as nr_ordem, 'M' as tp_especialidade " & VbCrLf & _ 
+        " from escTurma_Modalidade                 AS a " & VbCrLf & _ 
+        "      INNER JOIN escTurma                 AS c ON (a.serie           = c.ds_serie) " & VbCrLf & _
+        "      INNER JOIN escCliente               AS d ON (c.sq_site_cliente = d.sq_cliente) " & VbCrLf & _
+        "UNION " & VbCrLf & _ 
+        "SELECT DISTINCT cast(a.sq_especialidade as varchar) as sq_especialidade, a.ds_especialidade,  " & VbCrLf & _ 
+        "       case a.tp_especialidade when 'J' then '1' else a.nr_ordem end as nr_ordem, " & VbCrLf & _ 
+        "       case a.tp_especialidade when 'J' then 'M' else a.tp_especialidade end as tp_especialidade" & VbCrLf & _ 
+        " from escEspecialidade AS a " & VbCrLf & _ 
+        "      INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
+        "      INNER JOIN escCliente               AS d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
+        " where a.tp_especialidade <> 'M' " & VbCrLf & _
+        "ORDER BY a.nr_ordem, a.ds_especialidade " & VbCrLf
+  ConectaBD sql
    
+  If p_tipo = "H" Then
      If Not RS.EOF Then
         wCont = 0
         wAtual = ""
@@ -5669,12 +5709,14 @@ Public Sub ShowEscolas
            wCont = wCont + 1
            marcado = "N"
            For i = 1 to Request("p_modalidade").Count
-               If cDbl(RS("sq_especialidade")) = cDbl(Nvl(Request("p_modalidade")(i),0)) Then marcado = "S" End If
+               If RS("sq_especialidade") = Request("p_modalidade")(i) Then 
+                  marcado = "S" 
+                  sql1 = ",'" & Request("p_modalidade")(i) & "'" & sql1
+               End If
            Next
               
            If marcado = "S" Then
               ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """ checked><td><font size=1>" & RS("ds_especialidade")
-              sql1 = Request("p_modalidade")
               wIN = 1
            Else
               ShowHTML chr(13) & "           <tr><td><input type=""checkbox"" name=""p_modalidade"" value=""" & RS("sq_especialidade") & """><td><font size=1>" & RS("ds_especialidade")
@@ -5687,28 +5729,22 @@ Public Sub ShowEscolas
  
         Loop
         DesconectaBD
+        sql1 = Mid(sql1,2)
      End If
   ElseIf Nvl(Request("p_modalidade"), "") > "" Then
-     sql = "SELECT DISTINCT a.* " & _ 
-           "from escEspecialidade AS a " & _ 
-           "     INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & _
-           "     INNER JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente) " & _
-           "where a.sq_especialidade in (" & Request("p_modalidade") & ") " & _
-           "ORDER BY a.nr_ordem, a.ds_especialidade "
- 
-     ConectaBD SQL
-   
      If Not RS.EOF Then
         wCont = 0
  
         ShowHTML "          <li><b>Modalidades de ensino:</b><ul>"
+        sql1 = "'" & replace(Request("p_modalidade"),", ","','") & "'"
         Do While Not RS.EOF
-                    
-           ShowHTML chr(13) & "           <li><font size=1>" & RS("ds_especialidade")
-           sql1 = Request("p_modalidade")
+           For i = 1 to Request("p_modalidade").Count
+               If InStr(sql1,"'"&RS("sq_especialidade")&"'")>0 Then 
+                  ShowHTML chr(13) & "           <li><font size=1>" & RS("ds_especialidade")
+               End If
+           Next
            wIN = 1
            RS.MoveNext
- 
         Loop
         DesconectaBD
      End If
@@ -5758,11 +5794,9 @@ Public Sub ShowEscolas
            "       d.ds_username, d.ds_senha_acesso, d.no_municipio, d.sg_uf, d.dt_alteracao, " & VbCrLf & _ 
            "       e.no_diretor, e.no_secretario, e.no_bairro, e.nr_cep, e.ds_logradouro, " & VbCrLf & _ 
            "       f.ds_email_internet, f.no_contato_internet, nr_fone_internet, nr_fax_internet, " & VbCrLf & _ 
-           "       IsNull(h.existe,0) alunos, i.sq_cliente adm " & VbCrLf & _ 
+           "       IsNull(h.existe,0) alunos, i.sq_cliente adm, d.ativo " & VbCrLf & _ 
            "  from escCliente                                 d " & VbCrLf & _ 
            "       INNER      JOIN escCliente                 b ON (b.sq_cliente       = d.sq_cliente_pai) " & VbCrLf & _
-           "       INNER      JOIN escEspecialidade_cliente   c ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
-           "       INNER      JOIN escEspecialidade           a ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
            "       LEFT OUTER JOIN escCliente_Dados           e ON (d.sq_cliente       = e.sq_cliente) " & VbCrLf & _
            "       INNER      JOIN escCliente_Site            f ON (d.sq_cliente       = f.sq_cliente) " & VbCrLf & _
            "       INNER      JOIN escTipo_Cliente            g ON (d.sq_tipo_cliente  = g.sq_tipo_cliente) " & VbCrLf & _
@@ -5794,7 +5828,10 @@ Public Sub ShowEscolas
      If Request("p_tipo_cliente") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("p_tipo_cliente")          & VbCrLf End If
 
      if sql1 > "" then
-        sql = sql + "  and a.sq_especialidade in (" + Request("p_modalidade") + ")" & VbCrLf 
+       sql = sql & _
+             "    and (0 < (select count(*) from escEspecialidade_Cliente where sq_cliente = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + sql1 + ")) or " & VbCrLf & _
+             "         0 < (select count(*) from escTurma_Modalidade  w INNER JOIN escTurma x ON (w.serie = x.ds_serie) where x.sq_site_cliente = d.sq_cliente and w.curso in (" + sql1 + ")) " & VbCrLf & _
+             "        ) " & VbCrLf 
      end if
      sql = sql + "ORDER BY d.ds_cliente " & VbCrLf
      ConectaBD SQL
@@ -5841,12 +5878,22 @@ Public Sub ShowEscolas
   
         w_cor = "#FDFDFD"
         While Not RS.EOF and cDbl(RS.AbsolutePage) = cDbl(Nvl(Request("P3"),RS.AbsolutePage))
-          If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
+          If RS("ativo")="Nao" Then 
+             w_cor = "#31BCBC" 
+          ElseIf w_cor = "#EFEFEF" or w_cor = "" Then 
+             w_cor = "#FDFDFD" 
+          Else 
+             w_cor = "#EFEFEF" 
+          End If
           ShowHTML "<tr valign=""top"" bgcolor=""" & w_cor & """>"
+          ShowHTML "    <td><font face=""Verdana"" size=""1"">"
+          If RS("ativo")="Nao" Then 
+             ShowHTML "      (DESATIVADA) "
+          End If
           If p_tipo = "H" Then 
-             ShowHTML "    <td><font face=""Verdana"" size=""1""><a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b></font></td>"
+             ShowHTML "      <a href=""" & RS("LN_INTERNET") & """ target=""_blank"">" & RS("DS_CLIENTE") & "</a></b></font></td>"
           Else
-             ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_CLIENTE") & "</font></td>"
+             ShowHTML "      " & RS("DS_CLIENTE") & "</font></td>"
           End If
           If Session("username") = "SEDF" or Session("username") = "CTIS" or Mid(Session("username"),1,2) = "RE" or Session("username") = "SBPI" Then
              If Instr(p_campos,"username") > 0 Then ShowHTML "    <td><font face=""Verdana"" size=""1"">" & RS("DS_USERNAME") & "</font></td>" End If
@@ -5958,7 +6005,6 @@ Public Sub ShowEscolaParticular
            " WHERE  a.sq_cliente = " & p_regiao & VbCrLf & _
            "ORDER BY a.ds_cliente "
      ConectaBD SQL
-     Response.Write SQL
      Response.Write "          <li><font size=""1""><b>Escolas da " & RS("ds_cliente") & "</b>"
      DesconectaBD
   End If
@@ -6145,15 +6191,13 @@ Public Sub ShowEscolaParticular
            
      sql = " SELECT DISTINCT a.sq_cliente, a.ds_cliente, a.ds_apelido, a.ln_internet, a.ds_username, a.ds_senha_acesso, a.no_municipio, a.sg_uf, a.dt_alteracao, d.diretor, d.secretario, d.telefone_1, d.fax, d.cep, d.endereco, d.email_1 " & VbCrLf & _ 
            "   from escCliente a " & VbCrLf & _ 
-           "        INNER JOIN escTipo_Cliente b ON (a.sq_tipo_cliente = b.sq_tipo_cliente) "
+           "        INNER JOIN escTipo_Cliente b ON (a.sq_tipo_cliente = b.sq_tipo_cliente and b.tipo=4) "
            if (Request("c") > "") Then 
               sql = sql & "      INNER JOIN escCalendario_cliente c ON (a.sq_cliente = c.sq_site_cliente) " & VbCrLf & _ 
-              "        INNER JOIN escCliente_Particular d ON (a.sq_cliente = d.sq_cliente) " & VbCrLf & _ 
-              "        where a.sq_tipo_cliente = 14 "           
+              "        INNER JOIN escCliente_Particular d ON (a.sq_cliente = d.sq_cliente) " & VbCrLf
            else
               sql = sql & VbCrLf & _ 
-              "        INNER JOIN escCliente_Particular d ON (a.sq_cliente = d.sq_cliente) " & VbCrLf & _ 
-              "        where a.sq_tipo_cliente = 14 "           
+              "        INNER JOIN escCliente_Particular d ON (a.sq_cliente = d.sq_cliente) " & VbCrLf
            end if
            
 
@@ -6265,6 +6309,131 @@ Public Sub ShowEscolaParticular
 End Sub
 REM Fim da Pesquisa de Escolas Particulares
 
+
+REM =========================================================================
+REM Monta a tela de Homologação do Calendário das Escolas Particulares
+REM -------------------------------------------------------------------------
+Public Sub ShowEscolaParticularHomolog
+
+  Dim RS1, p_regiao
+
+  Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade
+  
+  Set RS1 = Server.CreateObject("ADODB.RecordSet")
+  
+  p_regiao = Request("p_regiao")
+  w_homologado = Request("w_homologado")
+  if(w_homologado <> "S") Then
+    w_homologado = "Não"
+  Else
+    w_homologado = "Sim"
+  End If
+
+  If p_tipo = "W" Then
+      Response.ContentType = "application/msword"
+      HeaderWord p_layout
+      ShowHTML "<TABLE WIDTH=""100%"" BORDER=0><TR><TD ROWSPAN=2><FONT SIZE=4 COLOR=""#000000"">SIGE-WEB<TD ALIGN=""RIGHT""><B><FONT SIZE=4 COLOR=""#000000"">"
+      ShowHTML "Consulta a escolas"
+      ShowHTML "</FONT><TR><TD ALIGN=""RIGHT""><B><FONT SIZE=2 COLOR=""#000000"">" & DataHora() & "</B></TD></TR>"
+      ShowHTML "</FONT></B></TD></TR></TABLE>"
+      ShowHTML "<HR>"
+  Else
+     Cabecalho
+     ShowHTML "<HEAD>"
+     ShowHTML "   <link href=""/css/particular.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
+     ShowHTML "</HEAD>"
+     If Request("pesquisa") > "" Then
+        BodyOpen " onLoad=""location.href='#lista'"""
+     'Else
+        'BodyOpen "onLoad='document.Form.p_regional.focus()';"
+     End If
+  End If
+  ShowHTML "<B><FONT COLOR=""#000000"">" & w_TP & "</FONT></B>"
+  ShowHTML "<B><FONT size=""2"" COLOR=""#000000"">Vinculação e tipologia</FONT></B>"
+  ShowHTML "<HR>"
+  ShowHTML "<div align=center><center>"
+  ShowHTML "<table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""100%"">"
+  ShowHTML "<tr bgcolor=""" & conTrBgColor & """><td align=""center"">" 
+  ShowHTML "      <tr bgcolor=""" & conTrBgColor & """><td align=""center"" valign=""top""><table border=0 width=""90%"" cellspacing=0>"
+  AbreForm "Form", w_Pagina & "Grava", "POST", "return(Validacao(this));", null
+  ShowHTML "<INPUT type=""hidden"" name=""R"" value=""" & w_ew & """>"
+  ShowHTML "<INPUT type=""hidden"" name=""w_ea"" value=""" & w_ea & """>"
+  ShowHTML "<INPUT type=""hidden"" name=""w_troca"" value="""">"
+  ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
+  ShowHTML "      <tr><td colspan=2><table border=0 width=""90%"" cellspacing=0>"
+  ShowHTML "        <tr valign=""top"">"
+  SelecaoEscolaParticular         "Unidad<u>e</u> de ensino:", "E", "Selecione unidade." , p_escola_particular, null, "p_escola_particular", null, "onChange=""document.Form.action='" & w_pagina & w_ew & "'; document.Form.w_ea.value='P'; document.Form.w_troca.value='p_calendario'; document.Form.submit();"""
+  'ShowHTML "        <tr valign=""top"">"
+  'SelecaoCalendarioParticular         "<u>C</u>alendário:", "E", "Selecione unidade." , p_calendario, p_escola_particular, "p_calendario", null, "onChange=""document.Form.action='" & w_pagina & w_ew & "'; document.Form.w_ea.value='P'; document.Form.w_troca.value='w_homologado'; document.Form.submit();"""
+  'ShowHTML "        <tr valign=""top"">"
+  'SelecaoRegionalEscola "Regional de en<u>s</u>ino:", "S", "Indique a regional de ensino.", p_regional, p_escola_particular, "p_regional", null, null
+  'ShowHTML "        <tr valign=""top"">"
+  'SelecaoTipoEscola     "<u>T</u>ipo de Escola:", "T", "Selecione o tipo da Escola.", p_tipo_escola, p_escola_particular, "p_tipo_escola", null, null
+  if(p_escola_particular > "") Then
+  SQL = "SELECT sq_particular_calendario, sq_cliente as cliente, nome, homologado FROM escParticular_Calendario WHERE sq_cliente = " & p_escola_particular
+  ConectaBD SQL
+  
+  ShowHTML "<font color=""#ff3737""><strong><a href=""javascript:this.status.value;"" onClick=""window.open('calendario.asp?CL=sq_cliente=" & RS("cliente") & "&w_ea=L&w_ew=formcal&w_ee=1','MetaWord','width=600, height=350, top=65, left=65, menubar=yes, scrollbars=yes, resizable=yes, status=no');"">Acessar o(s) calendário(s)</a></strong></font>"
+    
+  ShowHTML "<table id=""tbhomologacao"" border=""1"">"
+  ShowHTML "<tr><td>Título do Calendário</td><td>Homologado?</td></tr>"
+  
+  Dim homologado
+  While Not RS.EOF
+     homologado = RS("homologado")
+     ShowHTML "<INPUT type=""hidden"" name=""w_cliente""    value=""" & RS("cliente") & """>"
+     ShowHTML "<tr><td>" &  RS("nome") & "</td>"     
+     ShowHTML "<INPUT type=""hidden"" name=""w_chave"" value=""" & RS("sq_particular_calendario") &""">"
+     ShowHTML "<td><select name=""w_homologado"">"          
+     if(inStr(uCase(homologado),"N"))Then
+        ShowHTML "<option value=""N"" SELECTED>Não"
+        ShowHTML "<option value=""S"">Sim"
+     elseif(inStr(uCase(homologado),"S")) Then
+        ShowHTML "<option value=""S"" SELECTED>Sim"
+        ShowHTML "<option value=""N"">Não"
+     end if     
+     ShowHTML "</select></td>"
+     'ShowHTML " <td><a href=""http://netuno:8080/calendario.asp?CL=sq_cliente=" & RS("cliente") & "&w_ea=L&w_ew=formcal&w_ee=1"">Acessar</a></td>"
+     'if(inStr(uCase(homologado),"N"))Then
+     '   ShowHTML "<td><a href=""homolog.asp?homologado="S"&calendario="& RS("sq_particular_calendario") & """>Sim</a>"
+     '   ShowHTML "<span>Não</span></td>"          
+     'elseif(inStr(uCase(homologado),"S")) Then
+     '   ShowHTML "<td><span>Sim</span>"
+     '   ShowHTML "<a href=""homolog.asp?homologado=S&calendario="& RS("sq_particular_calendario") & """>Não</a></td>"
+     'end if     
+
+     ShowHTML "<td align=""center"" colspan=""2"">"
+     'ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Gravar"">"
+
+     ShowHTML "          </td>"
+     ShowHTML "</tr>" 
+     RS.MoveNext
+  Wend  
+  ShowHTML "</table>"
+  DesconectaBD
+  
+  End If
+  ShowHTML "         <tr valign=""top"">"
+
+  ShowHTML "          </table>"
+  ShowHTML "      <tr valign=""top"">"
+  ShowHTML "      <tr>"
+  ShowHTML "      <tr><td align=""center"" colspan=""2"" height=""1"" bgcolor=""#000000"">"
+  ShowHTML "      <tr><td align=""center"" colspan=""2"">"
+  ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Gravar"">"
+  ShowHTML "          </td>"
+  ShowHTML "      </tr>"
+  ShowHTML "    </table>"
+  ShowHTML "    </TD>"
+  ShowHTML "</tr>"
+  ShowHTML "</FORM>"
+  ShowHTML "</table>"
+  ShowHTML "</table>"
+  ShowHTML "</center>"
+  Rodape
+End Sub
+REM Fim da Pesquisa de Escolas Particulares
+
 REM =========================================================================
 REM Cadastro de escolas
 REM -------------------------------------------------------------------------
@@ -6277,6 +6446,7 @@ Sub CadastroEscolas
   Dim w_ds_diretorio, w_sq_siscol, w_ds_mensagem, w_ds_institucional
   Dim w_ds_texto_abertura, w_sq_codigo_espec
   Dim w_diretorio, w_username_atual
+  Dim w_ativo
   
   Dim w_troca, i, w_texto
   
@@ -6294,7 +6464,7 @@ Sub CadastroEscolas
            "        ds_logradouro, no_bairro, sq_modelo, " & VbCrLf &_
            "        no_contato_internet, nr_fone_internet, nr_fax_internet, ds_email_internet, " & VbCrLf &_
            "        ds_diretorio, sq_siscol, ds_mensagem, " & VbCrLf &_ 
-           "        ds_institucional, ds_texto_abertura " & VbCrLf &_
+           "        ds_institucional, ds_texto_abertura, a.ativo " & VbCrLf &_
            "   FROM escCliente a " & VbCrLf &_
            "        LEFT OUTER JOIN escCliente_Dados b on (a.sq_cliente   = b.sq_cliente)  " & VbCrLf &_
            "        LEFT OUTER JOIN escCliente_Site  c on (a.sq_cliente   = c.sq_cliente)  " & VbCrLf &_
@@ -6330,6 +6500,7 @@ Sub CadastroEscolas
      w_ds_institucional    = RS("ds_institucional")  
      w_ds_texto_abertura   = RS("ds_texto_abertura")
      w_username_atual      = RS("ds_username")
+     w_ativo               = RS("ativo")
      DesconectaBD
   ElseIf InStr("I",w_ea) > 0 Then
   
@@ -6444,6 +6615,7 @@ Sub CadastroEscolas
   ShowHTML "      <tr><td valign=""top""><font size=""1""><b>Nome <u>d</u>a escola:</b><br><input " & w_Disabled & " accesskey=""D"" type=""text"" name=""w_ds_cliente"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_cliente & """ ONMOUSEOVER=""popup('Informe uma descrição para a escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "          <td valign=""top""><font size=""1""><b><u>A</u>pelido:</b><br><input " & w_Disabled & " accesskey=""A"" type=""text"" name=""w_ds_apelido"" class=""STI"" SIZE=""30"" MAXLENGTH=""30"" VALUE=""" & w_ds_apelido & """ ONMOUSEOVER=""popup('Informe o apelido da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>U</u>sername:</b><br><input " & w_Disabled & " accesskey=""U"" type=""text"" name=""w_ds_username"" class=""STI"" SIZE=""14"" MAXLENGTH=""14"" VALUE=""" & w_ds_username & """ ONMOUSEOVER=""popup('Informe o usernanme para acesso.','white')""; ONMOUSEOUT=""kill()"" ONBLUR=""javascript:montaLink();""></td>"
+  MontaRadioSN "<b>Ativo?</b>", w_ativo, "w_ativo"
   ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>L</u>ink para acesso:</b><br><input " & w_Disabled & " accesskey=""L"" type=""text"" name=""w_ln_internet"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ln_internet & """ ONMOUSEOVER=""popup('Informe link de acesso para o site da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "          <td valign=""top""><font size=""1""><b><u>e</u>-Mail:</b><br><input " & w_Disabled & " accesskey=""E"" type=""text"" name=""w_ds_email"" class=""STI"" SIZE=""50"" MAXLENGTH=""60"" VALUE=""" & w_ds_email & """ ONMOUSEOVER=""popup('Informe e-Mail da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "      <tr><td valign=""top""><font size=""1""><b>Lo<u>g</u>radouro:</b><br><input " & w_Disabled & " accesskey=""G"" type=""text"" name=""w_ds_logradouro"" class=""STI"" SIZE=""50"" MAXLENGTH=""60"" VALUE=""" & w_ds_logradouro & """ ONMOUSEOVER=""popup('Informe o logradouro da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
@@ -6453,60 +6625,33 @@ Sub CadastroEscolas
   ShowHTML "          <tr><td valign=""top""><font size=""1""><b><u>C</u>idade:</b><br><input " & w_Disabled & " accesskey=""C"" type=""text"" name=""w_no_municipio"" class=""STI"" SIZE=""30"" MAXLENGTH=""30"" VALUE=""" & w_no_municipio & """ ONMOUSEOVER=""popup('Informe a cidade.','white')""; ONMOUSEOUT=""kill()""></td>"
   Dim AC,AM,AP,AL,BA,CE,DF,ES,GO,MA,MT,MS,MG,PA,PB,PR,PE,PI,RJ,RN,RO,RR,RGS,SC,SP,SE,TOC
   Select Case w_sg_uf
-     Case "AC"
-        AC = "selected"
-     Case "AM"
-        AM = "selected"
-     Case "AP"
-        AP = "selected"
-     Case "AL"
-        AL = "selected"
-     Case "BA"
-        BA = "selected"
-     Case "CE"
-        CE = "selected"
-     Case "DF"
-        DF = "selected"
-     Case "ES"
-        ES = "selected"
-     Case "GO"
-        GO = "selected"
-     Case "MA"
-        MA = "selected"
-     Case "MT"
-        MT = "selected"
-     Case "MS"
-        MS = "selected"
-     Case "MG"
-        MG = "selected"
-     Case "PA"
-        PA = "selected"
-     Case "PB"
-        PB = "selected"
-     Case "PR"
-        PR = "selected"
-     Case "PE"
-        PE = "selected"
-     Case "PI"
-        PI = "selected"
-     Case "RJ"
-        RJ = "selected"
-     Case "RN"
-        RN = "selected"
-     Case "RO"
-        RO = "selected"
-     Case "RR"
-        RR = "selected"
-     Case "RS"
-        RGS = "selected"
-     Case "SC"
-        SC = "selected"
-     Case "SP"
-        SP = "selected"
-     Case "SE"
-        SE = "selected"
-     Case "TO"
-         TOC = "selected"
+      Case "AC" AC = "selected"
+     Case "AM" AM = "selected"
+     Case "AP" AP = "selected"
+     Case "AL" AL = "selected"
+     Case "BA" BA = "selected"
+     Case "CE" CE = "selected"
+     Case "DF" DF = "selected"
+     Case "ES" ES = "selected"
+     Case "GO" GO = "selected"
+     Case "MA" MA = "selected"
+     Case "MT" MT = "selected"
+     Case "MS" MS = "selected"
+     Case "MG" MG = "selected"
+     Case "PA" PA = "selected"
+     Case "PB" PB = "selected"
+     Case "PR" PR = "selected"
+     Case "PE" PE = "selected"
+     Case "PI" PI = "selected"
+     Case "RJ" RJ = "selected"
+     Case "RN" RN = "selected"
+     Case "RO" RO = "selected"
+     Case "RR" RR = "selected"
+     Case "RS" RGS = "selected"
+     Case "SC" SC = "selected"
+     Case "SP" SP = "selected"
+     Case "SE" SE = "selected"
+     Case "TO" TOC = "selected"
   End Select
   ShowHTML "         <td valign=""top""><font  size=""1""><b>U<U>F</U>:<br></b> "
   ShowHTML "             <select ACCESSKEY=""F"" name=""w_sg_uf"" class=""STI"">"
@@ -6577,18 +6722,19 @@ Sub CadastroEscolas
   ShowHTML "      <tr><td valign=""top"" colspan=""2""><font  size=""1""><b><U>T</U>exto de abertura:</b><br><TEXTAREA ACCESSKEY=""X"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_texto_abertura"" ROWS=4 COLS=76>"  & Nvl(w_ds_texto_abertura,"O ensino moderno oferece amplo apoio tecnológico ao estudante. A Internet modificou, substancialmente, o paradigma existente na área educacional. Modernizamos nossas atividades a fim de garantir a nossos alunos, pais e responsáveis qualidade, eficiência e rapidez na prestação de nossos serviços.") & "</TEXTAREA ></td>"
   
   SQL = "SELECT a.*, c.sq_codigo_espec " & _ 
-        "from escEspecialidade AS a " & _ 
-        "     LEFT JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec and " & _
-        "                                   c.sq_cliente  = " & Nvl(w_chave,0) & ") " & _
-        "     LEFT JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente  and " & _
-        "                                   d.sq_cliente  = " & Nvl(w_chave,0) & ") " & _
+        "  from escEspecialidade AS a " & _ 
+        "       LEFT JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec and " & _
+        "                                     c.sq_cliente  = " & Nvl(w_chave,0) & ") " & _
+        "       LEFT JOIN escCliente AS d ON (c.sq_cliente = d.sq_cliente  and " & _
+        "                                     d.sq_cliente  = " & Nvl(w_chave,0) & ") " & _
+        " where a.tp_especialidade <> 'M' or a.tp_especialidade = 'J'" & VbCrLf & _
         "ORDER BY a.nr_ordem, a.ds_especialidade "
   ConectaBD SQL
    
   If Not RS.EOF Then
      wAtual = ""
      
-     ShowHTML "          <TR><TD valign=""top"" colspan=""2""><table border=""0"" align=""left"" cellpadding=0 cellspacing=0>"
+     ShowHTML "          <tr><TD colspan=2><table border=""0"" align=""left"" cellpadding=0 cellspacing=0>"
      Do While Not RS.EOF
         If wAtual = "" or wAtual <> RS("tp_especialidade") Then
            wAtual = RS("tp_especialidade")
@@ -6676,10 +6822,12 @@ REM -------------------------------------------------------------------------
 Public Sub ShowSenhaEspecial
 
   Dim RS1
+  Dim RS2
 
   Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade
   
   Set RS1 = Server.CreateObject("ADODB.RecordSet")
+  Set RS2 = Server.CreateObject("ADODB.RecordSet")
 
   Cabecalho
   BodyOpen "onLoad='document.focus()';"
@@ -6688,7 +6836,7 @@ Public Sub ShowSenhaEspecial
   sql = "SELECT a.ds_username, a.sq_cliente, a.ds_cliente,  " & VbCrLf & _
         "       a.ds_senha_acesso, a.no_municipio, a.sg_uf, a.dt_alteracao " & VbCrLf & _ 
         "  from escCliente a " & VbCrLf & _ 
-        " where a.sq_cliente_pai is null or a.sq_cliente_pai = 0 " & VbCrLf & _
+        " where a.publica = 'S' and a.sq_cliente_pai is null or a.sq_cliente_pai = 0 and a.ds_username <> 'SBPI'" & VbCrLf & _
         "ORDER BY a.sq_cliente_pai, a.ds_cliente " & VbCrLf
   ConectaBD SQL
 
@@ -6763,6 +6911,7 @@ Private Sub MainBody
       Case conWhatEspecialidade         GetEspecialidade
       Case conRelEscolas                ShowEscolas
       Case "ESCPART"                    ShowEscolaParticular
+      Case "ESCPARTHOMOLOG"             ShowEscolaParticularHomolog
       Case "GETESCOLAS"                 GetEscolas
       Case "CADASTROESCOLA"             CadastroEscolas
       Case conWhatSGE                   GetSistema
