@@ -186,7 +186,7 @@ Sub showMenu
    ShowHTML "//></style>"
    ShowHTML "</HEAD>"
    ShowHTML "<BASEFONT FACE=""Verdana, Helvetica, Sans-Serif"" SIZE=""2"">"
-   Response.Write "<BODY topmargin=0 bgcolor=""#FFFFFF"" BACKGROUND=""img/background.gif"" BGPROPERTIES=""FIXED"" text=""#000000"" link=""#000000"" vlink=""#000000"" alink=""#FF0000""> "
+   Response.Write "<BODY class=""fundo_menu"" topmargin=0 bgcolor=""#FFFFFF"" text=""#000000"" link=""#000000"" vlink=""#000000"" alink=""#FF0000""> "
    ShowHTML "  <table id=""menu"" border=0 cellpadding=0 height=""80"" width=""100%""><tr><td nowrap><font size=1><b>"
    ShowHTML "  <TR><TD><font size=2><b>Conferência</TD></TR>"
    ShowHTML "  <TR><TD><font size=1><br>"
@@ -1228,9 +1228,14 @@ Public Sub FormCal
      end if    
      If Request("w_ano") <> "" Then                   
          ShowHTML "<INPUT type=""hidden"" name=""w_print"" value=""s"">"
-         ShowHTML" <input type=submit name=""showCalendar"" value=""Exibir Calendário"">"
+         If Request("w_ocorrencia") > "" Then
+            ShowHTML " &nbsp;&nbsp;&nbsp;<input name=""w_ocorrencia"" type=""checkbox"" checked> <b>Detalhar ocorrências</b>"
+         Else
+            ShowHTML " &nbsp;&nbsp;&nbsp;<input name=""w_ocorrencia"" type=""checkbox""> <b>Detalhar ocorrências</b>"
+         End If
+         ShowHTML"<br><input type=submit name=""showCalendar"" value=""Exibir Calendário"">"
          If Request("w_print") = "s" Then
-            ShowHTML "<td align=""right""><A HREF=""calendario.asp?w_imprime=S&w_in=0&w_ew=FormCal&CL=" & CL & "&w_calendario=" & Request("w_calendario") & "&w_ano=" & Request("w_ano") & "&sstrIN=0"" target=""Calendario"" title=""Clique para visualizar a versão de impressão do calendário!""><img src=""img/impressora.gif"" border=0/></a>"
+            ShowHTML "<td align=""right""><A HREF=""calendario.asp?w_imprime=S&w_in=0&w_ew=FormCal&CL=" & CL & "&w_calendario=" & Request("w_calendario") & "&w_ano=" & Request("w_ano") & "&w_ocorrencia=" & Request("w_ocorrencia") & "&sstrIN=0"" target=""Calendario"" title=""Clique para visualizar a versão de impressão do calendário!""><img src=""img/impressora.gif"" border=0/></a>"
             ShowHTML "<tr><td colspan=""2""><font size=""1""><ul><b>Instruções para impressão:</b>"
             ShowHTML "<li>No Internet Explorer 6, use a opção ""Arquivo - Configurar página"" para usar papel A4 ou maior."
             ShowHTML "<li>No Internet Explorer 6, marque a opção ""Ferramentas - Opções da Internet - Avançadas - Impressão - Imprimir cores e imagens do plano de fundo""."
@@ -1592,6 +1597,60 @@ Public Sub FormCal
   ShowHTML "</TABLE>"
   ShowHTML "<H2>Observação</H2>"
   ShowHTML "<textarea name=""w_obs"" style=""width:450px; height:200px;"">" & wObs & "</textarea>"
+  If Request("w_ocorrencia")>"" Then
+    SQL = "select 'BASE' origem, NULL AS sq_particular_calendario, a.sq_ocorrencia, a.dt_ocorrencia, a.ds_ocorrencia, a.sq_tipo_data, b.nome " & VbCrLf & _
+          "  from escCalendario_Base       a " & VbCrLf & _
+          "       left join escTipo_Data   b on (a.sq_tipo_data = b.sq_tipo_data) " & VbCrLf & _
+          " where year(a.dt_ocorrencia) = " & Request("w_ano") & VbCrLf & _
+          "UNION " & VbCrLf & _
+          "select 'ESCOLA' origem, c.sq_particular_calendario, a.sq_ocorrencia, a.dt_ocorrencia, a.ds_ocorrencia, a.sq_tipo_data, b.nome " & VbCrLf & _
+          "  from escCalendario_Cliente              a " & VbCrLf & _
+          "       left join escTipo_Data             b on (a.sq_tipo_data             = b.sq_tipo_data) " & VbCrLf & _
+          "       left join escParticular_Calendario c on (a.sq_particular_calendario = c.sq_particular_calendario) " & VbCrLf & _
+          " where year(a.dt_ocorrencia) = " & Request("w_ano") & " and c.sq_particular_calendario = " & Request("w_calendario") & VbCrLf & _
+          " order by dt_ocorrencia"
+    ConectaBD SQL
+
+    ' Exibe a quantidade de registros apresentados na listagem e o cabeçalho da tabela de listagem
+    ShowHTML "<tr><td><HR><font size=""2""><b>Detalhamento das ocorrências do calendário"
+    ShowHTML "<tr><td align=""center"" colspan=3>"
+    ShowHTML "    <TABLE ID=""dtcalendarios"" WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""" & conTableCellSpacing & """ CELLPADDING=""" & conTableCellPadding & """ BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
+    ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
+    ShowHTML "          <td><font size=""1""><b>Data</font></td>"
+    ShowHTML "          <td><font size=""1""><b>Tipo</font></td>"
+    ShowHTML "          <td><font size=""1""><b>Ocorrência</font></td>"
+    ShowHTML "          <td><font size=""1""><b>Origem</font></td>"
+    ShowHTML "        </tr>"
+
+    If RS.EOF Then ' Se não foram selecionados registros, exibe mensagem
+        ShowHTML "      <tr bgcolor=""" & "#EFEFEF" & """><td colspan=7 align=""center""><font size=""2""><b>Não foram encontrados registros.</b></td></tr>"
+    Else
+      SQL = "select dbo.ValidaCalendario(" & Request("w_calendario") & "," & Request("w_ano") & ") as Validacao "
+      RS1.Open SQL, DBMS
+      ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center""><B>VALIDAÇÃO: " & RS1("Validacao")
+      RS1.Close
+      While Not RS.EOF        
+          ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"
+          ShowHTML "        <td align=""center""><font size=""1"">" & replace(FormataDataEdicao(FormatDateTime(RS("dt_ocorrencia"),2)),"/20","/") & "</td>"
+          ShowHTML "        <td><font size=""1"">" & nvl(RS("nome"),"---") & "</td>"
+          ShowHTML "        <td><font size=""1"">" & RS("ds_ocorrencia") & "</td>"
+          ShowHTML "        <td align=""top"" nowrap><font size=""1"">"
+          If RS("origem") = "BASE" Then
+            ShowHTML "          Calendário Oficial"
+          Else
+            ShowHTML "          I.E."
+          End If
+          ShowHTML "        </td>"
+          ShowHTML "      </tr>"
+          RS.MoveNext        
+      wend
+    End If
+    ShowHTML "      </center>"
+    ShowHTML "    </table>"
+    ShowHTML "  </td>"
+    ShowHTML "</tr>"
+    DesconectaBD
+  End If
   ShowHTML "</BODY>"
   ShowHTML "</HTML>"
 End Sub

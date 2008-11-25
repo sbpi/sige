@@ -1,57 +1,78 @@
-/*Folha de estilo - Escolas Particulares*/
-body{
-	font: 10px Verdana, Arial, Helvetica, sans-serif;
-	color: #333333;
-	background-color:#F0F0E8;
-    background-repeat: no-repeat;
+TABLE
+{
+    BORDER-RIGHT: #cccccc;
+    BORDER-TOP: #cccccc;
+    FONT: 10px Verdana, Arial, Helvetica, sans-serif;
+    BORDER-LEFT: #cccccc;
+    BORDER-BOTTOM: #cccccc;
+    BACKGROUND-COLOR: #fff
 }
-
-table{
-	font: 10px Verdana, Arial, Helvetica, sans-serif;
-	border:#CCCCCC;
-    background-color: #fff;
+#menu
+{
+    BACKGROUND-IMAGE: url(../img/background.gif)
 }
-
-#menu{
-	background-image:url(../img/background.gif);
+#trheader
+{
+    BORDER-RIGHT: medium none;
+    BORDER-TOP: medium none;
+    BACKGROUND-IMAGE: url(../img/gradient.jpg);
+    BORDER-LEFT: medium none;
+    BORDER-BOTTOM: medium none;
+    HEIGHT: 20px;
+    BACKGROUND-COLOR: #fff
 }
-
-#trheader, #pheader{
-	height: 20px;
-	background-image:url(../img/gradient.jpg);
-    background-color: #fff;
-	border:none;
+#pheader
+{
+    BORDER-RIGHT: medium none;
+    BORDER-TOP: medium none;
+    BACKGROUND-IMAGE: url(../img/gradient.jpg);
+    BORDER-LEFT: medium none;
+    BORDER-BOTTOM: medium none;
+    HEIGHT: 20px;
+    BACKGROUND-COLOR: #fff
 }
-
-a{
-    text-decoration : none;
-    color: #305052;
+A
+{
+    COLOR: #305052;
+    TEXT-DECORATION: none
 }
-a:hover{
-	font-weight: bold; 
+A:hover
+{
+    FONT-WEIGHT: bold
 }
-
-#campopesquisa{
-    background-image:url(../img/background.gif);
+#campopesquisa
+{
+    BACKGROUND-IMAGE: url(../img/background.gif)
 }
-
-#dtcalendarios li{
-        list-style-image: url(../img/asterisco.gif)
+#dtcalendarios LI
+{
+    LIST-STYLE-IMAGE: url(../img/asterisco.gif)
 }
-
-#conteudo  li{
-        list-style-image: url(../img/asterisco.gif)
+#conteudo LI
+{
+    LIST-STYLE-IMAGE: url(../img/asterisco.gif)
 }
-
-#dtcalendarios a {
-    color:#FF3737;
+#dtcalendarios A
+{
+    COLOR: #ff3737
 }
-#dtcalendarios a:hover {
-    font-weight:bold;
-    text-decoration:none;
+#dtcalendarios A:hover
+{
+    FONT-WEIGHT: bold;
+    TEXT-DECORATION: none
 }
-
-#tbhomologacao select{
-    font:Verdana;
-    font:10px #CCC;
+#tbhomologacao SELECT
+{
+    FONT: 10px #CCC
+}
+BODY
+{
+    FONT: 10px Verdana, Arial, Helvetica, sans-serif;
+    COLOR: #333333;
+    BACKGROUND-REPEAT: repeat;
+    BACKGROUND-COLOR: #f0f0e8
+}
+.fundo_menu
+{
+    BACKGROUND-IMAGE: url(../img/background.gif)
 }

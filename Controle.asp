@@ -5972,11 +5972,12 @@ Public Sub ShowEscolaParticular
   Else
      Cabecalho
      ShowHTML "<HEAD>"
+     
      ShowHTML "</HEAD>"
      If Request("pesquisa") > "" Then
         BodyOpen " onLoad=""location.href='#lista'"""
-     'Else
-        'BodyOpen "onLoad='document.Form.p_regional.focus()';"
+     Else
+        BodyOpen "onLoad='document.focus()';"
      End If
   End If
   ShowHTML "<B><FONT COLOR=""#000000"">" & w_TP & "</FONT></B>"

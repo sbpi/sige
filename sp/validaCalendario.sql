@@ -36,6 +36,21 @@ begin
     group by c.sigla, c.nome
     order by c.sigla, c.nome;
 
+  -- Impede duplicação nas datas de início/fim de ano/semestre letivo
+  Declare c_ano_letivo_dup cursor for
+    select c.sigla, c.nome, count(*) qtd
+      from escTipo_Data c
+           inner join (select a.sq_particular_calendario, b.sq_tipo_data
+                         from escCalendario_Cliente               b
+                              inner join escParticular_Calendario a on (a.sq_particular_calendario = b.sq_particular_calendario)
+                        where a.sq_particular_calendario = @calendario
+                        and   year(b.dt_ocorrencia) = @ano
+                      )  d on (d.sq_tipo_data             = c.sq_tipo_data)
+     where (c.sigla in ('IA','T1','I2','TA'))
+    group by c.sigla, c.nome
+    having count(*) > 1
+    order by c.sigla, c.nome;
+
   -- Verifica se foi inserida alguma data que coincida com o calendário oficial
   Declare c_base cursor for
     select a.sq_particular_calendario, b.dt_ocorrencia, count(*) qtd
@@ -69,6 +84,16 @@ begin
   End
   Close c_ano_letivo;
   Deallocate c_ano_letivo;
+
+  -- Impede duplicação nas datas de início/fim de ano/semestre letivo
+  Open c_ano_letivo_dup
+  Fetch Next from c_ano_letivo_dup into @w_sigla, @w_nome, @w_existe;
+  While @@fetch_status = 0 Begin
+      Set @texto = @texto + '<li>' + @w_nome + ' só pode ter uma data indicada';
+      Fetch Next from c_ano_letivo_dup into @w_nome, @w_sigla, @w_existe;
+  End
+  Close c_ano_letivo_dup;
+  Deallocate c_ano_letivo_dup;
 
   -- Verifica se foi inserida alguma data que coincida com o calendário oficial
   Open c_base

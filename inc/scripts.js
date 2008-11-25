@@ -49,7 +49,11 @@ function PopupPic(sPicURL) {
 	window.open('/gcs/foto.asp?id='+sPicURL, '', 'resizable=yes,width=200,height=200');
 }
 
+function Imprimir(id){
+    document.getElementById(' + id + ').contentWindow.focus();
+    document.getElementById(' + id + ').contentWindow.print(); 
 
+}
 
 
 

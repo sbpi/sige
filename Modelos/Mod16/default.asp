@@ -114,7 +114,7 @@ if(Request.QueryString("EW") = "117") Then
 else
     ShowHTML "      <li><a href=""" & w_dir & "default.asp?EW=117&CL=" & replace(CL,"sq_cliente=","") & """ >Fale conosco </a></li>"
 end if
-if(Request.QueryString("EW") = "116" AND Request.QueryString("EW") = "0") Then
+if(Request.QueryString("EW") = "116" AND Request.QueryString("IN") = "1") Then
     ShowHTML "      <li><a class=""selected"" href=""" & w_dir & "default.asp?EW=116&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Projeto</a></li>"
 else
     ShowHTML "      <li><a href=""" & w_dir & "default.asp?EW=116&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Projeto</a></li>"
@@ -134,7 +134,7 @@ if(Request.QueryString("EW") = "143") Then
 else
     ShowHTML "      <li><a href=""" & w_dir & "default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & """ >Arquivos (<i>download</i>)</a></li>"
 end if
-if(Request.QueryString("EW") = "116") Then
+if(Request.QueryString("EW") = "116" AND Request.QueryString("IN") = "0") Then
     ShowHTML "      <li><a class=""selected"" href=""" & w_dir & "default.asp?EW=116&IN=0&CL=" & replace(CL,"sq_cliente=","") & """ >Alunos</a></li>"
 else
     ShowHTML "      <li><a href=""" & w_dir & "default.asp?EW=116&IN=0&CL=" & replace(CL,"sq_cliente=","") & """ >Alunos</a></li>"
@@ -144,6 +144,7 @@ if(Request.QueryString("EW") = "oferta") Then
 else
     ShowHTML "      <li><a href=""" & w_dir & "default.asp?EW=oferta&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Oferta</a></li>"
 end if
+ShowHTML "      <li><a target=""_blank"" href=""http://siade.cesgranrio.org.br"" >Questionário SIADE</a></li>"
 ShowHTML "	    </ul>"
 ShowHTML "	    <div class=""clear""></div>"
 
@@ -352,7 +353,7 @@ Public Sub ShowPrincipal
 
   If Not RS.EOF Then
     If RS("ds_texto_abertura") > "" Then
-       ShowHTML "        <p class=""chamada"">" & replace(server.HTMLEncode(RS("ds_texto_abertura")),chr(13)&chr(10), "<br/>") & "</p>"
+       ShowHTML "        <p class=""chamada"">" & replace(RS("ds_texto_abertura"),chr(13)&chr(10), "<br/>") & "</p>"
     Else
        ShowHTML "        <p class=""chamada"">"
     End If
@@ -395,7 +396,7 @@ Public Sub ShowQuem
   
   If Not RS.EOF Then
     If RS("ds_institucional") > "" Then
-       ShowHTML "        <p align=""left"" style=""margin-top: 0; margin-bottom: 0"">" & replace(server.HTMLEncode(RS("ds_institucional")),chr(13)&chr(10), "<br>")
+       ShowHTML "        <p align=""left"" style=""margin-top: 0; margin-bottom: 0"">" & replace(RS("ds_institucional"),chr(13)&chr(10), "<br>")
     Else
        ShowHTML "        <P align=justify>"
     End If
@@ -624,7 +625,7 @@ Public Sub ShowNoticia
      RS.Open sql, sobjConn, adOpenForwardOnly
 
      ShowHTML "<tr><td><p align=""center""><font size=""4""><b>" & RS("ds_titulo") & "</b></font><p align=""left"">"
-     ShowHTML replace(server.HTMLEncode(RS("ds_noticia")),chr(13)&chr(10), "<br>")
+     ShowHTML replace(RS("ds_noticia"),chr(13)&chr(10), "<br>")
      ShowHTML "<p><center><img src=""Img/bt_voltar.gif"" border=0 valign=""center"" onClick=""history.go(-1)"" alt=""Volta"">"
      RS.Close
   End If
@@ -844,7 +845,7 @@ Public Sub ShowCalend
               RS.Close 
            End If
            
-           sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & CL & ") qtd" & VbCrLf 
+           sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & CL & ",null) qtd" & VbCrLf 
            RS.Open sql, sobjConn, adOpenForwardOnly
            If RS("qtd") > 0 Then
               ShowHTML "  <TR>"
@@ -1135,6 +1136,15 @@ Dim w_texto, w_numero, w_pos, i, w_cont, w_temp
 
     w_cont = 0
     
+    sql2 = "SELECT f.ds_especialidade " & VbCrLf & _ 
+           "  from escEspecialidade_cliente AS e " & VbCrLf & _
+           "       INNER JOIN escEspecialidade AS f ON (e.sq_codigo_espec = f.sq_especialidade and " & VbCrLf & _
+           "                                            'J'               = f.tp_especialidade " & VbCrLf & _
+           "                                           ) " & VbCrLf & _
+           " WHERE e.sq_cliente = " & CL & " " & VbCrLf & _
+           "ORDER BY ds_especialidade "
+    RS1.Open sql2, sobjConn, adOpenForwardOnly
+    
     ' Recupera a oferta a partir das turmas da escola
     sql  = "select distinct a.sq_site_cliente, b.nome ds_serie, b.curso ds_modalidade, case rtrim(ltrim(a.ds_turno)) when 'M' then 1 when 'V' then 2 else 3 end ds_turno " & VbCrLf & _ 
            "  from escTurma a inner join escTurma_Modalidade b on (upper(rtrim(ltrim(a.ds_serie)))=upper(rtrim(ltrim(b.serie))))" & VbCrLf & _
@@ -1142,67 +1152,76 @@ Dim w_texto, w_numero, w_pos, i, w_cont, w_temp
            "order by 3,2 "
     RS.Open sql, sobjConn, adOpenForwardOnly
 
-    If Not RS.EOF Then
-        w_cont = 1
-        While Not RS.EOF
-          oferta(w_cont) = RS("ds_modalidade") & "}" & RS("ds_serie") & "|" & exibeTurno(RS("ds_turno"))
-          w_cont = w_cont + 1
-          RS.MoveNext
-        Wend
-        Sort oferta
-
+    If (Not RS.EOF) or (Not RS1.EOF) Then
         ShowHTML("<p><b>Etapas / Modalidades de ensino oferecidas:</b>")
         ShowHTML("<dl>")
         
-        w_mod_atual = ""
-        w_ser_atual = ""
-        w_tur_atual = ""
-        For Each i In oferta
-          If i > "" Then
-            w_modalidade = mid(i,1,instr(i,"}")-1)
-            w_serie      =mid(i,instr(i,"}")+1,(instr(i,"|")-instr(i,"}")-1))
-            w_turno      = mid(i,instr(i,"|")+1,10)
-            if w_modalidade <> w_mod_atual then
-               ShowHTML("<dt><li>" & w_modalidade) 'exibeModal(w_modalidade))
-               w_mod_atual = w_modalidade
-               w_ser_atual = ""
-               w_tur_atual = ""
-            end if
-            if w_serie <> w_ser_atual then
-               if w_serie = "0" then
-                  ShowHTML("<dd>")
-               else
-                  ShowHTML("<dd>" & w_serie & ": ") 'exibeSerie(w_modalidade,w_serie))
-               end if
-               w_ser_atual = w_serie
-               w_tur_atual = ""
-               w_cont      = 0
-            end if
-            if w_turno <> w_tur_atual then
-               if w_cont > 0 then
-                  Response.Write ", " & w_turno 'exibeTurno(w_turno)
-               else
-                  Response.Write " " & w_turno 'exibeTurno(w_turno)
-               end if
-               w_cont = w_cont + 1
-            end if
-          End If
-        Next
+        If Not RS1.EOF Then
+           While Not RS1.EOF
+             ShowHTML("<dt>" & RS1("ds_especialidade") & "</dt>")
+             RS1.MoveNext
+           Wend
+           RS1.Close
+        End If
+
+        If Not RS.EOF Then
+            w_cont = 1
+            While Not RS.EOF
+              oferta(w_cont) = RS("ds_modalidade") & "}" & RS("ds_serie") & "|" & exibeTurno(RS("ds_turno"))
+              w_cont = w_cont + 1
+              RS.MoveNext
+            Wend
+            Sort oferta
+
+            w_mod_atual = ""
+            w_ser_atual = ""
+            w_tur_atual = ""
+            For Each i In oferta
+              If i > "" Then
+                w_modalidade = mid(i,1,instr(i,"}")-1)
+                w_serie      =mid(i,instr(i,"}")+1,(instr(i,"|")-instr(i,"}")-1))
+                w_turno      = mid(i,instr(i,"|")+1,10)
+                if w_modalidade <> w_mod_atual then
+                   ShowHTML("<dt><li>" & w_modalidade) 'exibeModal(w_modalidade))
+                   w_mod_atual = w_modalidade
+                   w_ser_atual = ""
+                   w_tur_atual = ""
+                end if
+                if w_serie <> w_ser_atual then
+                   if w_serie = "0" then
+                      ShowHTML("<dd>")
+                   else
+                      ShowHTML("<dd>" & w_serie & ": ") 'exibeSerie(w_modalidade,w_serie))
+                   end if
+                   w_ser_atual = w_serie
+                   w_tur_atual = ""
+                   w_cont      = 0
+                end if
+                if w_turno <> w_tur_atual then
+                   if w_cont > 0 then
+                      Response.Write ", " & w_turno 'exibeTurno(w_turno)
+                   else
+                      Response.Write " " & w_turno 'exibeTurno(w_turno)
+                   end if
+                   w_cont = w_cont + 1
+                end if
+              End If
+            Next
+        End If
         ShowHTML("</dl>")
     End If
+    RS1.Close
     
     sql2 = "SELECT f.ds_especialidade " & VbCrLf & _ 
            "  from escEspecialidade_cliente AS e " & VbCrLf & _
-           "       INNER JOIN escEspecialidade AS f ON (e.sq_codigo_espec = f.sq_especialidade and " & VbCrLf & _
-           "                                            'M'               <> f.tp_especialidade " & VbCrLf & _
+           "       INNER JOIN escEspecialidade AS f ON (e.sq_codigo_espec  = f.sq_especialidade and " & VbCrLf & _
+           "                                            f.tp_especialidade not in ('M','J') " & VbCrLf & _
            "                                           ) " & VbCrLf & _
            " WHERE e.sq_cliente = " & CL & " " & VbCrLf & _
            "ORDER BY ds_especialidade "
     RS1.Open sql2, sobjConn, adOpenForwardOnly
     
-    If RS1.EOF Then
-       ShowHTML "<tr><td><font size=1><b>Oferta não informada."
-    Else
+    If Not RS1.EOF Then
        ShowHTML("<p><b>Em Regime de Intercomplementaridade: </b></p><ul>")
        While Not RS1.EOF
          ShowHTML("<li>" & RS1("ds_especialidade") & "</li>")
