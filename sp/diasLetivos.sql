@@ -130,21 +130,24 @@ begin
         select @w_feriado = count(*) 
           from escParticular_Calendario         c
                inner join escCalendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario)
-               inner join escTipo_Data          b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla in ('RE','RA','RI'))
-         where a.sq_site_cliente = @cliente
-           and c.sq_particular_calendario = coalesce(@calendario,0)
-           and (datepart(dw,a.dt_ocorrencia) not in (1,7) or (datepart(dw,a.dt_ocorrencia) in (1,7)) and b.sigla = 'SL')
-           and a.dt_ocorrencia between @w_inicio and @w_fim
-           and (a.dt_ocorrencia between @w_let_ini and @w_let1_fim or
+               inner join escTipo_Data          b on (a.sq_tipo_data             = b.sq_tipo_data)
+           where a.sq_site_cliente           = @cliente
+           and a.dia_letivo                 = 'N'
+           and datepart(dw,a.dt_ocorrencia) not in (1,7)
+           and c.sq_particular_calendario   = coalesce(@calendario,0)
+           and a.dt_ocorrencia  between @w_inicio   and @w_fim
+           and (a.dt_ocorrencia between @w_let_ini  and @w_let1_fim or
                 a.dt_ocorrencia between @w_let2_ini and @w_let_fim
                );
      End Else Begin
         select @w_feriado = count(*) 
-          from escCalendario_Cliente a inner join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla not in ('IA','TA','T1','I2','CN','SL','OU','PR','HC'))
-         where a.sq_site_cliente = @cliente
-           and (datepart(dw,a.dt_ocorrencia) not in (1,7) or (datepart(dw,a.dt_ocorrencia) in (1,7)) and b.sigla = 'SL')
-           and a.dt_ocorrencia between @w_inicio and @w_fim
-           and (a.dt_ocorrencia between @w_let_ini and @w_let1_fim or
+          from escCalendario_Cliente   a 
+               inner join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data)
+         where a.sq_site_cliente             = @cliente
+           and a.dia_letivo                 = 'N'
+           and datepart(dw,a.dt_ocorrencia) not in (1,7)
+           and a.dt_ocorrencia  between @w_inicio   and @w_fim
+           and (a.dt_ocorrencia between @w_let_ini  and @w_let1_fim or
                 a.dt_ocorrencia between @w_let2_ini and @w_let_fim
                );
      End;
@@ -153,32 +156,34 @@ begin
 
      -- Trata recessos e datas da regional de ensino
      select @w_feriado = count(*) 
-       from escCalendario_Cliente a
-            inner join escTipo_Data a1 on (a.sq_tipo_data = a1.sq_tipo_data and a1.sigla not in ('IA','TA','T1','I2','CN','SL','OU','PR','HC'))
-            inner join escCliente b on (a.sq_site_cliente = b.sq_cliente)
-            inner join escCliente c on (b.sq_cliente      = c.sq_cliente_pai)
-      where c.sq_cliente = @cliente
-        and (datepart(dw,a.dt_ocorrencia) not in (1,7) or (datepart(dw,a.dt_ocorrencia) in (1,7)) and a1.sigla = 'SL')
-        and a.dt_ocorrencia between @w_inicio and @w_fim
-        and (a.dt_ocorrencia between @w_let_ini and @w_let1_fim or
+       from escCalendario_Cliente    a
+            inner join escTipo_Data a1 on (a.sq_tipo_data    = a1.sq_tipo_data)
+            inner join escCliente    b on (a.sq_site_cliente = b.sq_cliente)
+            inner join escCliente    c on (b.sq_cliente      = c.sq_cliente_pai)
+      where c.sq_cliente                 = @cliente
+        and a.dia_letivo                 = 'N'
+        and datepart(dw,a.dt_ocorrencia) not in (1,7)
+        and a.dt_ocorrencia  between @w_inicio   and @w_fim
+        and (a.dt_ocorrencia between @w_let_ini  and @w_let1_fim or
              a.dt_ocorrencia between @w_let2_ini and @w_let_fim
-            )
+            );
 
      If @w_feriado > 0 Begin Set @w_dias = @w_dias - @w_feriado; End
 
      -- Trata recessos e datas da secretaria de educacao
      select @w_feriado = count(*) 
-       from escCalendario_Cliente a
-            inner join escTipo_Data a1 on (a.sq_tipo_data = a1.sq_tipo_data and a1.sigla not in ('IA','TA','T1','I2','CN','SL','OU','PR','HC'))
-            inner join escCliente b on (a.sq_site_cliente = b.sq_cliente)
-            inner join escCliente c on (b.sq_cliente      = c.sq_cliente_pai)
-            inner join escCliente d on (c.sq_cliente      = d.sq_cliente_pai)
-      where d.sq_cliente = @cliente
-        and (datepart(dw,a.dt_ocorrencia) not in (1,7) or (datepart(dw,a.dt_ocorrencia) in (1,7)) and a1.sigla = 'SL')
-        and a.dt_ocorrencia between @w_inicio and @w_fim
-        and (a.dt_ocorrencia between @w_let_ini and @w_let1_fim or
+       from escCalendario_Cliente    a
+            inner join escTipo_Data a1 on (a.sq_tipo_data    = a1.sq_tipo_data)
+            inner join escCliente    b on (a.sq_site_cliente = b.sq_cliente)
+            inner join escCliente    c on (b.sq_cliente      = c.sq_cliente_pai)
+            inner join escCliente    d on (c.sq_cliente      = d.sq_cliente_pai)
+      where d.sq_cliente                 = @cliente
+        and a.dia_letivo                 = 'N'
+        and datepart(dw,a.dt_ocorrencia) not in (1,7)
+        and a.dt_ocorrencia  between @w_inicio   and @w_fim
+        and (a.dt_ocorrencia between @w_let_ini  and @w_let1_fim or
              a.dt_ocorrencia between @w_let2_ini and @w_let_fim
-            )
+            );
 
      If @w_feriado > 0 Begin Set @w_dias = @w_dias - @w_feriado; End
   End
