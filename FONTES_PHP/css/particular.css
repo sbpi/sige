@@ -1,0 +1,78 @@
+TABLE
+{
+    BORDER-RIGHT: #cccccc;
+    BORDER-TOP: #cccccc;
+    FONT: 10px Verdana, Arial, Helvetica, sans-serif;
+    BORDER-LEFT: #cccccc;
+    BORDER-BOTTOM: #cccccc;
+    BACKGROUND-COLOR: #fff
+}
+#menu
+{
+    BACKGROUND-IMAGE: url(../img/background.gif)
+}
+#trheader
+{
+    BORDER-RIGHT: medium none;
+    BORDER-TOP: medium none;
+    BACKGROUND-IMAGE: url(../img/gradient.jpg);
+    BORDER-LEFT: medium none;
+    BORDER-BOTTOM: medium none;
+    HEIGHT: 20px;
+    BACKGROUND-COLOR: #fff
+}
+#pheader
+{
+    BORDER-RIGHT: medium none;
+    BORDER-TOP: medium none;
+    BACKGROUND-IMAGE: url(../img/gradient.jpg);
+    BORDER-LEFT: medium none;
+    BORDER-BOTTOM: medium none;
+    HEIGHT: 20px;
+    BACKGROUND-COLOR: #fff
+}
+A
+{
+    COLOR: #305052;
+    TEXT-DECORATION: none
+}
+A:hover
+{
+    FONT-WEIGHT: bold
+}
+#campopesquisa
+{
+    BACKGROUND-IMAGE: url(../img/background.gif)
+}
+#dtcalendarios LI
+{
+    LIST-STYLE-IMAGE: url(../img/asterisco.gif)
+}
+#conteudo LI
+{
+    LIST-STYLE-IMAGE: url(../img/asterisco.gif)
+}
+#dtcalendarios A
+{
+    COLOR: #ff3737
+}
+#dtcalendarios A:hover
+{
+    FONT-WEIGHT: bold;
+    TEXT-DECORATION: none
+}
+#tbhomologacao SELECT
+{
+    FONT: 10px #CCC
+}
+BODY
+{
+    FONT: 10px Verdana, Arial, Helvetica, sans-serif;
+    COLOR: #333333;
+    BACKGROUND-REPEAT: repeat;
+    BACKGROUND-COLOR: #f0f0e8
+}
+.fundo_menu
+{
+    BACKGROUND-IMAGE: url(../img/background.gif)
+}

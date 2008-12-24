@@ -1,0 +1,41 @@
+<SCRIPT LANGUAGE=VBScript RUNAT=Server>
+REM -------------------------------------------------------------------------
+REM  /Global.asa
+REM -------------------------------------------------------------------------
+REM Descricao: Controle dos objetos Application e Session
+REM Criacao  : 15/03/2000 19:00PM
+REM Autor    : SBPI
+REM Versao   : 1.0.0.0
+REM Local    : Brasília - DF
+REM Companhia: 2000 by SBPI - Sociedade Brasileira para a Pesquisa em Informática
+REM -------------------------------------------------------------------------
+
+Sub Application_OnStart
+
+End Sub
+
+REM -------------------------------------------------------------------------
+Sub Application_OnEnd
+
+End Sub
+
+Sub Session_OnStart
+
+REM -------------------------------------------------------------------------
+REM     Criacao de objetos padroes para uso da sessao.
+REM -------------------------------------------------------------------------
+REM Obs: Colocar dentro do Application e deixar o session para as sessoes.
+
+  Session("SessionAplication") = "SIGE-WEB"
+  Session("ScriptTimeout") = 300
+  Session("ConnectionTimeout") = 300
+  Session("CommandTimeout")    = 300
+
+
+end Sub
+
+REM -------------------------------------------------------------------------
+Sub Session_OnEnd
+
+End Sub
+</SCRIPT>
