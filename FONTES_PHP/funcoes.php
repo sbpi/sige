@@ -23,7 +23,7 @@ date_default_timezone_set('America/Sao_Paulo');
 //echo "p_sign_posn:       {$locale_info["p_sign_posn"]}\n";
 //echo "n_sign_posn:       {$locale_info["n_sign_posn"]}\n";
 //echo "</pre>\n";
-
+  
 // =========================================================================
 // Função garante que as chaves de um array estarão no caso indicado
 // -------------------------------------------------------------------------
@@ -1827,6 +1827,11 @@ function CRLF2BR($expressao) {
 function Nvl($expressao,$valor) { if ((!isset($expressao)) || $expressao==='') { return $valor; } else { return $expressao; } }
 
 // =========================================================================
+// Trata valores nulos e cadeias vazias
+// -------------------------------------------------------------------------
+function trocaNulo($expressao,$valor='-') { return nvl(trim($expressao),$valor); }
+
+// =========================================================================
 // Retorna valores nulos se chegar cadeia vazia
 // -------------------------------------------------------------------------
 function Tvl($expressao) { if (!isset($expressao) || $expressao==='' || $expressao===false) { return  null; } else { return $expressao; } }
@@ -1907,23 +1912,15 @@ function MontaURL($p_sigla) {
 // =========================================================================
 // Montagem de cabeçalho padrão de formulário
 // -------------------------------------------------------------------------
-function AbreForm($p_Name,$p_Action,$p_Method,$p_onSubmit,$p_Target,$p_P1,$p_P2,$p_P3,$p_P4,$p_TP,$p_SG,$p_R,$p_O, $p_retorno=null) {
+function AbreForm($p_Name,$p_Action,$p_Method,$p_onSubmit,$p_Target) {
   $l_html = '';
   if (!isset($p_Target)) {
      $l_html .= '<FORM action="'.$p_Action.'" method="'.$p_Method.'" NAME="'.$p_Name.'" onSubmit="'.$p_onSubmit.'">';
   } else {
      $l_html .= '<FORM action="'.$p_Action.'" method="'.$p_Method.'" NAME="'.$p_Name.'" onSubmit="'.$p_onSubmit.'" target="'.$p_Target.'">';
   }
-  if (nvl($p_P1,'')!='') $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="P1" VALUE="'.$p_P1.'">';
-  if (nvl($p_P2,'')!='') $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="P2" VALUE="'.$p_P2.'">';
-  if (nvl($p_P3,'')!='') $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="P3" VALUE="'.$p_P3.'">';
-  if (nvl($p_P4,'')!='') $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="P4" VALUE="'.$p_P4.'">';
-  if (nvl($p_TP,'')!='') $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="TP" VALUE="'.$p_TP.'">';
-  if (nvl($p_SG,'')!='') $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="SG" VALUE="'.$p_SG.'">';
-  if (nvl($p_R,'')!='')  $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="R"  VALUE="'.$p_R.'">';
-  if (nvl($p_O,'')!='')  $l_html .= chr(13).'<INPUT TYPE="hidden" NAME="O"  VALUE="'.$p_O.'">';
   
-  if (nvl($p_retorno,'')=='') ShowHtml($l_html); else return $l_html;
+  ShowHtml($l_html);
 }
 
 // =========================================================================
@@ -2030,8 +2027,12 @@ function RetornaUsuario() {
 function RetornaAno() {
   extract($GLOBALS);
   if ($_REQUEST['w_ano']>'')     return $_REQUEST['w_ano'];
-  elseif ($_SESSION['ANO'] > '') return $_SESSION['ANO'];
-  else                           return Date('Y');
+  elseif (nvl($AL,'')!='') {
+    $q   = "SELECT coalesce(max(ano_letivo),to_number(to_char(sysdate,'yyyy'))) ano_letivo from sbpi.Aluno_Turma WHERE sq_aluno = ".$AL;
+    $l_rs = db_exec::getInstanceOf($dbms, $q, &$numRows);
+    if (count($l_rs)>0) foreach ($l_rs as $row) return f($row,'ano_letivo'); 
+    else return Date('Y');
+  } else return Date('Y');
 }
 
 // =========================================================================
@@ -3033,8 +3034,9 @@ function FormataDataEdicao($w_dt_grade, $w_formato=1) {
         case 6: return date('d/m/y, H:i:s',$w_dt_grade);                  break;
         case 7: return date('Y-m-d',$w_dt_grade);                         break;
         case 8: return date('Y-m-d H:i:s',$w_dt_grade);                   break;
-        case 9: return diaSemana(date('l, ')).date('d \d\e ').mesAno(date('F')).date(' \d\e Y',$w_dt_grade);   break;
-      }
+        case 9: return diaSemana(date('l, ')).date('d \d\e ').mesAno(date('F')).date(' \d\e Y',$w_dt_grade);
+        break;
+        }
     } else {
       return $w_dt_grade;
     }
@@ -3191,12 +3193,10 @@ function mesAno($l_data, $l_formato=null) {
   }
 }
 
-// =========================================================================
-// Monta string html para montagem de calendário do mês informado
-// -------------------------------------------------------------------------
-function montaCalendario($p_base, $p_mes, $p_datas, $p_cores, $p_detalhe=FALSE) {
+function montaCalendario($p_mes, $p_datas, $p_cores, $p_imagem) {
   extract($GLOBALS,EXTR_PREFIX_SAME,'ex_');
   $p_detalhe = false;
+  
   // Atribui nomes dos meses
   $l_meses[1] = 'Janeiro';  $l_meses[2] = 'Fevereiro'; $l_meses[3] = 'Março';      $l_meses[4] = 'Abril';
   $l_meses[5] = 'Maio';     $l_meses[6] = 'Junho';     $l_meses[7] = 'Julho';      $l_meses[8] = 'Agosto';
@@ -3215,104 +3215,88 @@ function montaCalendario($p_base, $p_mes, $p_datas, $p_cores, $p_detalhe=FALSE) 
   $l_ano = substr($p_mes,2,4);
    
   // Define cor de fundo padrão para as células de sábado e domingo
-  $l_cor_padrao = '#DAEABD';
-
-  // Recupera as datas especiais do ano informado e carrega no array de calendário base
-  foreach ($p_base as $row_ano) {
-    $l_data   = FormataDataEdicao(f($row_ano,'data_formatada'));
-    $x_datas[$l_data] = f($row_ano,'nome').' '.f($row_ano,'nm_expediente');
-    $x_cores[$l_data] = $l_cor_padrao;
-  } 
-
-  // Define em que dia da semana o mês inicia
-  $l_inicio = date('w',toDate('01/'.$l_mes.'/'.$l_ano));
-
+  $l_cor_padrao = ' bgcolor=#DAEABD';
+  
   // Trata o mês de fevereiro anos bissextos
   if (fMod($l_ano,4)==0) $l_qtd[2] = 29;
-   
+  
   $l_html  = '<table border=0 cellspacing=1 cellpadding=1>'.$crlf;
-  $l_html .= '  <tr><td colspan=7 align="center" bgcolor="'.$l_cor_padrao.'"><b>'.$l_meses[intVal($l_mes)].'/'.$l_ano.'</td></tr>'.$crlf;
-  $l_html .= '  <tr align="center">'.$crlf;
-
+  $l_html .= '  <tr><td colspan=7 align="center" '.$l_cor_padrao.'><b>'.$l_meses[intVal($l_mes)].'/'.$l_ano.'</td></tr>'.$crlf;
+  $l_html .= '  <tr align="center">'.$crlf;  
+  
   // Monta a linha com a sigla para os dias das semanas
-  for ($i = 1; $i <= 7; $i++) $l_html .= '    <td bgcolor="'.$l_cor_padrao.'"><b>'.$l_dias[$i].'</td>'.$crlf;
-  $l_html .= '  </tr>'.$crlf;
-   
-  // Carrega os dias do mês num array que será usado para montagem do calendário, colocando
-  // o dia ou um espaço em branco, dependendo do início e do fim do mês
-  for ($i = 1; $i <= ($l_inicio); $i++) $l_celulas[$i] = '&nbsp;';
-  for ($i = ($l_qtd[intVal($l_mes)]+1); $i <= 42; $i++) $l_celulas[$i] = '&nbsp;';
-  for ($i = 1; $i <= ($l_qtd[intVal($l_mes)]); $i++) $l_celulas[($i + $l_inicio)] = $i;
-  // Monta o calendário, usando o array $l_celulas
-  $l_html .= '  <tr align="center">'.$crlf ;
-  for ($i=1; $i<=42; $i++) {
-    $l_data = 'x';
-    // Se a célula contiver um dia do mês, formata data para busca nos arrays
-    if ($l_celulas[$i]!='&nbsp;') $l_data = substr(100+$l_celulas[$i],1,2).'/'.$l_mes.'/'.$l_ano;
-    
-    // Trata a borda da célula para datas especiais
-    $l_borda      = '';
-    $l_ocorrencia = '';
-    if (isset($x_datas[$l_data])) {
-      $p_detalhe = true;
-      $l_borda      = ' style="border: 1px solid rgb(0,0,0);"';
-      $l_ocorrencia .= $x_datas[$l_data].'\r\n';
-    }
-    if (isset($p_datas[$l_data])) {
-      if ((fMod($i,7)==0) || (fMod($i-1,7)==0) || isset($x_datas[$l_data])) {
-        if ($p_datas[$l_data]['dia_util']=='N') $l_ocorrencia .= substr(str_replace($crlf,' ',$p_datas[$l_data]['valor']),0,80).'\r\n';
-      } else {
-        $l_ocorrencia .= substr(str_replace($crlf,' ',$p_datas[$l_data]['valor']),0,80).'\r\n';
-      }
-    }
-          
-    // Trata a cor de fundo da célula
-    $l_cor = '';
-    if ($i==1 ||($l_celulas[$i]!='&nbsp;' && ((fMod($i,7)==0) || (fMod($i-1,7)==0)))) { 
-      // Verifica se a ocorrência deve prevalecer sobre sábados e domingos
-      if ($p_cores[$l_data]['dia_util']=='N') {
-        $l_cor = ' bgcolor="'.$p_cores[$l_data]['valor'].'"';
-      } else {
-        $l_cor = ' bgcolor="'.$l_cor_padrao.'"';
-      }
-    } elseif ($l_celulas[$i]!='&nbsp;') { 
-      if (isset($p_cores[$l_data]['valor'])) {
-        if (isset($x_datas[$l_data])) {
-         if ($p_cores[$l_data]['dia_util']=='N') $l_cor = ' bgcolor="'.$p_cores[$l_data]['valor'].'"';
-        } else {
-          $l_cor = ' bgcolor="'.$p_cores[$l_data]['valor'].'"';
+      for ($i = 1; $i <= 7; $i++) $l_html .= '    <td '.$l_cor_padrao.'><b>'.$l_dias[$i].'</td>'.$crlf;
+      $l_html .= '  </tr>'.$crlf;  
+      
+      // Define em que dia da semana o mês inicia
+      $l_inicio = date('w',toDate('01/'.$l_mes.'/'.$l_ano));  
+      
+      // Carrega os dias do mês num array que será usado para montagem do calendário, colocando
+      // o dia ou um espaço em branco, dependendo do início e do fim do mês
+      for ($i = 1; $i <= ($l_inicio); $i++) $l_celulas[$i] = '&nbsp;';
+      for ($i = ($l_qtd[intVal($l_mes)]+1); $i <= 42; $i++) $l_celulas[$i] = '&nbsp;';
+      for ($i = 1; $i <= ($l_qtd[intVal($l_mes)]); $i++) $l_celulas[($i + $l_inicio)] = $i;
+       
+      // Monta o calendário, usando o array $l_celulas
+      $l_html .= '  <tr align="center">'.$crlf ;
+    for ($i=1; $i<=42; $i++) {
+        // Trata a borda da célula para datas especiais
+        $l_borda      = '';
+        $l_ocorrencia = '';
+        if($l_celulas[$i] != "&nbsp;"){
+            If (isset($p_datas[$l_celulas[$i]][$l_mes] [SubStr($l_ano,2,2)])) {
+              $l_borda      = ' style="border: 1px solid rgb(0,0,0);"';
+              $l_ocorrencia = 'title="'.$p_datas[$l_celulas[$i]][$l_mes][SubStr($l_ano,2,2)].'"';
+            }
         }
-      }
-    }
-   
-    // Trata a data de hoje
-    if ($l_data==formataDataEdicao(time())) {
-      if ($l_data==formataDataEdicao(time())) $l_ocorrencia = 'HOJE\r\n'.$l_ocorrencia;
-      $l_borda = ' style="border: 2px solid rgb(0,0,0);"';
-    }
-          
-    if ($l_ocorrencia!='') $l_ocorrencia = ' onClick="javascript:alert(\''.$l_ocorrencia.'\')"';
+            
+        // Trata a cor de fundo da célula
+        $l_cor = '';
+        $l_img = '';
+        if ($i==1 or($l_celulas[$i]!= '&nbsp;' and ((fMod($i,7) == 0) or (fMod($i-1,7) == 0)))) {
+            $l_img = ' style="background-color:#DAEABD;"';
+            if(isset($p_imagem[$l_celulas[$i]][$l_mes][Substr($l_ano,2,2)])){
+                $l_img = ' style="background: url(img/' . $p_imagem[$l_celulas[$i]][$l_mes][Substr($l_ano,2,2)] . ') no-repeat center; background-color: #DAEABD;"';
+            }
+        }else if($l_celulas[$i] != '&nbsp;'){
+            if(isset($p_cores[$l_celulas[$i]][$l_mes][SubStr($l_ano,2,2)])){
+                $l_cor = ' background-color: ' . $p_cores[$l_celulas[$i]] [$l_mes] [SubStr($l_ano,2,2)];
+            }
+            if(isset($p_imagem[$l_celulas[$i]][$l_mes][SubStr($l_ano,2,2)])){
+//                $l_img = ' style="background: url(/img/' . $p_imagem[$l_celulas[$i]] [$l_mes][SubStr($l_ano,2,2)] . ') no-repeat center;' . $l_cor. ' "';
+            $l_img = ' style="background: url(img/' . $p_imagem[$l_celulas[$i]][$l_mes][Substr($l_ano,2,2)] . ') no-repeat center; '.$l_cor.'"';
 
-    // Coloca uma célula do calendário
-    $l_html .= '    <td'.$l_cor.$l_borda.$l_ocorrencia.'>'.$l_celulas[$i].'</td>'.$crlf;
-         
-    // Trata a quebra de linha ao final de cada semana
-    if (fMod($i,7)==0) {
-      $l_html .= '  </tr>'.$crlf;
-      // Interrompe a montagem do calendário na última linha que contém datas
-      if ($i>$l_qtd[intVal($l_mes)] && $l_celulas[$i+1]=='&nbsp;') {
-        break;
-      } else { 
-        $l_html .= '  <tr align="center">'.$crlf;
-      }
+            }
+        }
+        
+        //Coloca uma célula do calendário
+        $l_html .= '    <td ' . $l_img . $l_ocorrencia . '>' . $l_celulas[$i]. '</td>' . $crlf;
+       
+        // Trata a data de hoje
+        if ($l_data==formataDataEdicao(time())) {
+          if ($l_data==formataDataEdicao(time())) $l_ocorrencia = 'HOJE\r\n'.$l_ocorrencia;
+          $l_borda = ' style="border: 2px solid rgb(0,0,0);"';
+        }
+              
+        if ($l_ocorrencia!='') $l_ocorrencia = ' onClick="javascript:alert(\''.$l_ocorrencia.'\')"';
+            
+        // Trata a quebra de linha ao final de cada semana
+        if (fMod($i,7)==0) {
+          $l_html .= '  </tr>'.$crlf;
+          // Interrompe a montagem do calendário na última linha que contém datas
+          if ($i>$l_qtd[intVal($l_mes)] && $l_celulas[$i+1]=='&nbsp;') {
+            break;
+          } else { 
+            $l_html .= '  <tr align="center">'.$crlf;
+          }
+        }
     }
-     
-  }
-  $l_html .= '</table>'.$crlf;
-   
-  // Devolve o calendário montado
-  return $l_html;
+      $l_html .= '</table>'.$crlf;
+       
+      // Devolve o calendário montado
+      return $l_html;
 }
+
 
 // =========================================================================
 // Função para retornar um array com todos os dias de um período
@@ -3523,6 +3507,124 @@ function curPageURL() {
     $pageURL .= "localhost".$_SERVER["REQUEST_URI"];
   }
   return $pageURL;
-} 
+}
+
+
+function exibeTurno($l_chave) {
+  extract($GLOBALS);
+  switch ($l_chave) {
+    case 1: return 'Matutino';   break;
+    case 2: return 'Vespertino'; break;
+    case 3: return 'Noturno';    break;
+	
+  }
+}
+
+function day($data){
+    extract($GLOBALS);
+    if (nvl($data,'')!=''){
+        $day = Date('d', $data);   
+    }
+    return $day;
+    
+}
+function month($data){
+    extract($GLOBALS);
+    if (nvl($data,'')!=''){
+        $month = Date('m',$data);
+    }
+    return $month;
+}
+function year($data){
+    extract($GLOBALS);
+    if (nvl($data,'')!=''){
+        $year = Date('Y',$data);
+    }
+    return $year;
+}
+
+Function nomeMes($p_mes){   
+  switch($p_mes){
+    Case 1  : return  'JAN' ; break;
+    Case 2  : return  'FEV' ; break;
+    Case 3  : return  'MAR' ; break;
+    Case 4  : return  'ABR' ; break;
+    Case 5  : return  'MAI' ; break;
+    Case 6  : return  'JUN' ; break;
+    Case 7  : return  'JUL' ; break;
+    Case 8  : return  'AGO' ; break;
+    Case 9  : return  'SET' ; break;
+    Case 10 : return  'OUT' ; break;
+    Case 11 : return  'NOV' ; break;
+    Case 12 : return  'DEZ' ; break;
+  }
+}
+
+// =========================================================================
+// Montagem da seleção de escolas
+// -------------------------------------------------------------------------
+function SelecaoEscolaParticular ($label, $accesskey, $hint=null, $chave, $chaveaux, $campo, $restricao=null, $atributo=null){
+  extract($GLOBALS);
+  $SQL = "SELECT distinct a.sq_cliente cliente, a.sq_tipo_cliente, case b.tipo when '1' then upper(a.ds_username) else a.ds_cliente end ds_cliente, b.tipo " . $crlf . 
+         "  FROM sbpi.CLIENTE            a" . $crlf . 
+         "      inner join sbpi.Tipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " . $crlf . 
+         "      inner join sbpi.Particular_Calendario c on (a.sq_cliente = c.sq_cliente) " . $crlf . 
+         " WHERE PUBLICA = 'N' and upper(a.ds_username) <> 'SBPI' ";
+  if( $chaveaux > "" ){
+   $SQL .= '   and IsNull(sq_cliente_pai,0) = ' . $chaveaux . $crlf;
+  }
+  $SQL .= 'ORDER BY b.tipo, ds_cliente' . $crlf;
+  $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+  if(is_null($hint)){
+    ShowHTML ('         <td valign="top"><font size="1"><b>' . $label . '</b><br><SELECT ACCESSKEY="' . $accesskey . '" CLASS="STS" NAME="' . $campo . $w_disabled . " " . $atributo . '>');
+  } else {
+    ShowHTML ('          <td valign="top"><font size="1"><b>' . $label . '</b><br><SELECT ACCESSKEY="' . $accesskey . '" CLASS="STS" NAME="' . $campo . $w_disabled . " " . $atributo . '>');
+  }
+  ShowHTML ('          <option value="">---');
+  foreach ($RS as $row) {
+    if( doubleval(nvl(f($row, "cliente"),-1)) == doubleval(nvl(chave,-1)) ){
+        ShowHTML ('          <option value="' . f($row, "cliente") . '" SELECTED>' . f($row, "ds_cliente"));
+    } else {
+        ShowHTML ('          <option value="' . f($row, "cliente") . '">' . f($row, "ds_cliente"));
+    }
+  }
+  ShowHTML ('          </select>');
+}
+
+// =========================================================================
+// Montagem da seleção de calendários das escolas particulares
+// -------------------------------------------------------------------------
+
+// =========================================================================
+// Montagem da seleção de regiões administrativas
+// -------------------------------------------------------------------------
+function SelecaoRegiaoAdm($label, $accesskey, $hint=null, $chave, $chaveaux, $campo, $restricao=null, $atributo=null){
+    if (is_null($hint)) {
+       ShowHTML ('          <td valign="top"><font size="1"><b>' . $label . '</b><br><SELECT ACCESSKEY="' . $accesskey . '" CLASS="STS" NAME="' . $campo . '" "' . $w_disabled . '" "' . $atributo . '">');
+    } else {
+       ShowHTML ('          <td valign="top"><font size="1"><b>' . $label . '</b><br><SELECT ACCESSKEY="' . $accesskey . '" CLASS="STS" NAME="' . $campo . '" "' . $w_disabled . '" "' . $atributo . '">');
+    }
+    ShowHTML ('          <option value="""">---');
+
+    If (nvl($chaveAux,"nulo") != 'nulo'){
+       $SQL = "SELECT a.sq_regiao_adm, a.no_regiao " . $crlf . 
+              "  FROM escRegiao_Administrativa a " . $crlf . 
+              " WHERE a.ativo = 'S' " . $crlf . 
+              "ORDER BY a.no_regiao" . $crlf;
+       ConectaBD SQL
+       
+      foreach($RS as $row){
+          if (intval(nvl($chave,0)) == intval(RS("sq_regiao_adm"))){
+             ShowHTML ('          <option value="' . RS("sq_regiao_adm") . '" SELECTED>"' . RS("no_regiao"));
+          } else {
+             ShowHTML ('          <option value="' . RS("sq_regiao_adm") . '">"' . RS("no_regiao"));
+          }
+      }
+    }
+    ShowHTML ('          </select>');
+}
+// =========================================================================
+// Final da rotina
+// -------------------------------------------------------------------------
 
 ?>

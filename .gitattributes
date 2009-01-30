@@ -283,6 +283,7 @@ FONTES_PHP/funcoes/selecaoEtapaModalidade.php -text
 FONTES_PHP/funcoes/selecaoRegiaoAdm.php -text
 FONTES_PHP/funcoes/selecaoRegionalEnsino.php -text
 FONTES_PHP/funcoes/selecaoTipoInstituicao.php -text
+FONTES_PHP/geradiretorio.php -text
 FONTES_PHP/images/ATUALIZADO.GIF -text
 FONTES_PHP/images/BallBlue.gif -text
 FONTES_PHP/images/BallGreen.gif -text
@@ -861,7 +862,19 @@ FONTES_PHP/js/modal/js/modal-message.js -text
 FONTES_PHP/js/scripts.js -text
 FONTES_PHP/js/tooltip.js -text
 FONTES_PHP/jscript.php -text
+FONTES_PHP/manut.php -text
 FONTES_PHP/menu.php -text
+FONTES_PHP/modelos/mod13/default.php -text
+FONTES_PHP/modelos/mod13/default_cliente.php -text
+FONTES_PHP/modelos/mod14/default.php -text
+FONTES_PHP/modelos/mod14/default_cliente.php -text
+FONTES_PHP/modelos/mod15/default.php -text
+FONTES_PHP/modelos/mod15/default_cliente.php -text
+FONTES_PHP/modelos/mod16/aluno.php -text
+FONTES_PHP/modelos/mod16/default.asp -text
+FONTES_PHP/modelos/mod16/default.php -text
+FONTES_PHP/modelos/mod16/default_cliente.php -text
+FONTES_PHP/newsletter.php -text
 SP_ORACLE10/DiasLetivos.fnc -text
 SP_ORACLE10/ValidaCalendario.fnc -text
 SP_ORACLE10/YEAR.fnc -text

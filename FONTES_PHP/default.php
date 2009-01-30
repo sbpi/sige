@@ -43,6 +43,7 @@ $p_regiao     = $_REQUEST['p_rede'];
 $p_regional   = $_REQUEST['p_regional'];
 $p_local      = $_REQUEST['p_local'];
 $p_modalidade = explodeArray($_REQUEST['p_modalidade']);
+$p_tipo_inst  = intVal($_REQUEST['p_tipo_inst']);
 
 Main();
 
@@ -100,7 +101,7 @@ function Inicial() {
   ShowHTML('<div id="menuBottom">');
   ShowHTML('  <ul>');
   ShowHTML('    <li><a href="#"><span>Inicial</span></a></li>');
-  ShowHTML('    <li><a href="newsletter.php?ew=i"><span>Assine nosso boletim</span></a></li>');
+  ShowHTML('    <li><a href="newsletter.php?par=inicial"><span>Assine nosso boletim</span></a></li>');
   ShowHTML('  </ul>');
   ShowHTML('  <div class="clear"></div>');
   ShowHTML('</div>');
