@@ -70,22 +70,22 @@ begin
   -- Verifica se o calendário tem início/fim de ano/semestre letivo. Qtd deve ser igual a 1
   -- Verifica se o calendário tem início/fim de ano/semestre letivo. Qtd deve ser igual a 1
   for crec in c_ano_letivo loop
-      texto := texto + '<li>' + crec.nome + ' deve ser informado';
+      texto := texto || '<li>' || crec.nome || ' deve ser informado';
   End Loop;
 
   -- Impede duplicação nas datas de início/fim de ano/semestre letivo
   for crec in c_ano_letivo_dup loop
-      texto := texto + '<li>' + crec.nome + ' só pode ter uma data indicada';
+      texto := texto || '<li>' || crec.nome || ' só pode ter uma data indicada';
   End Loop;
 
   -- Verifica se foi inserida alguma data que coincida com o calendário oficial
   for crec in c_base loop
-      texto := texto + '<li>' + to_char(crec.dt_ocorrencia,'dd/mm/yyyy') + ' consta do Calendário Oficial e deve ser removida deste calendário';
+      texto := texto || '<li>' || to_char(crec.dt_ocorrencia,'dd/mm/yyyy') || ' consta do Calendário Oficial e deve ser removida deste calendário';
   End Loop;
 
   -- Verifica se alguma data tem mais de uma ocorrência com o mesmo tipo
   for crec in c_duplicata loop
-      texto := texto + '<li>' + to_char(crec.dt_ocorrencia,'dd/mm/yyyy') + ' só pode ser informada uma vez';
+      texto := texto || '<li>' || to_char(crec.dt_ocorrencia,'dd/mm/yyyy') || ' só pode ser informada uma vez';
   End Loop;
 
   If texto = '' Then texto := null; End If;
