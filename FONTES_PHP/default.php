@@ -42,7 +42,7 @@ $p_rede       = nvl($_REQUEST['p_rede'],'S');
 $p_regiao     = $_REQUEST['p_rede'];
 $p_regional   = $_REQUEST['p_regional'];
 $p_local      = $_REQUEST['p_local'];
-$p_modalidade = explodeArray($_REQUEST['p_modalidade']);
+$p_modalidade = explodeArray($_POST['p_modalidade']);
 $p_tipo_inst  = intVal($_REQUEST['p_tipo_inst']);
 
 Main();
@@ -169,6 +169,8 @@ function Inicial() {
   ShowHTML(' </form>');
   ShowHTML(' </div> ');
   ShowHTML(' <div id="resultado">');
+  //var_dump($p_modalidade);
+  //var_dump("'". str_replace(',',"','", $p_modalidade) ."'");
   if ($p_regiao>''||$p_regional>''||$p_local>''||$p_modalidade>'') {
     $sql= "SELECT DISTINCT 0 Tipo, sbpi.acentos(d.ds_cliente) as ordena, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf, " . $crlf .
           "       e.ds_logradouro,e.no_bairro,e.nr_cep, e.nr_fone_contato, d.localizacao, 'S' publica, null ds_username, " . $crlf .
