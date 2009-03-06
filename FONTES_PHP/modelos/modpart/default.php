@@ -3,7 +3,7 @@
 $_SESSION['DBMS']=1;
 
 $w_dir_volta = '../../';
-$w_dir = 'modelos/mod16/';
+$w_dir = 'modelos/modpart/';
 $w_pagina = 'default.php?par=';
 
 
@@ -81,16 +81,16 @@ $P4           = intVal(nvl($_REQUEST['P4'],$conPageSize));
   ShowHTML('<div id="menuBottom">');
   ShowHTML('  <ul>');
   ShowHTML('      <li><a '.(($par=='INICIAL') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'inicial&CL='.$CL.'" >Inicial</a> </li>');
-  ShowHTML('      <li><a '.(($par=='QUEM') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'quem&CL='.$CL.'" id="link1">Quem somos</a> </li>');
-  ShowHTML('      <li><a '.(($par=='FALE') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'fale&CL='.$CL.'" >Fale conosco </a></li>');
-  ShowHTML('      <li><a '.(($par=='PROJETO') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'projeto&CL='.$CL.'&O=1" >Projeto</a></li>');
-  ShowHTML('      <li><a '.(($par=='NOTICIA') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'noticia&CL='.$CL.'" id="link2">Notícias</a> </li>');
+  // ShowHTML('      <li><a '.(($par=='QUEM') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'quem&CL='.$CL.'" id="link1">Quem somos</a> </li>');
+  // ShowHTML('      <li><a '.(($par=='FALE') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'fale&CL='.$CL.'" >Fale conosco </a></li>');
+  // ShowHTML('      <li><a '.(($par=='PROJETO') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'projeto&CL='.$CL.'&O=1" >Projeto</a></li>');
+  // ShowHTML('      <li><a '.(($par=='NOTICIA') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'noticia&CL='.$CL.'" id="link2">Notícias</a> </li>');
   ShowHTML('      <li><a '.(($par=='CALENDARIO') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'calendario&CL='.$CL.'" id="link5">Calendário</a>');
   ShowHTML('      <li><a '.(($par=='ARQUIVO') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'arquivo&CL='.$CL.'" >Arquivos (<i>download</i>)</a></li>');
-  ShowHTML('      <li><a '.(($par=='ALUNO') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'aluno&O=0&CL='.$CL.'" >Alunos</a></li>');
+  // ShowHTML('      <li><a '.(($par=='ALUNO') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'aluno&O=0&CL='.$CL.'" >Alunos</a></li>');
   ShowHTML('      <li><a '.(($par=='OFERTA') ? 'class="selected"' : '').' href="'.$w_dir.$w_pagina.'oferta&CL='.$CL.'&O=1" >Oferta</a></li>');
   //ShowHTML '      <li><a target="_blank" href="http://siade.cesgranrio.org.br" >Questionário SIADE</a></li>');
-  ShowHTML ('      <li><a target="_blank" href="http://www.prodatadf.com.br/diarioeletronico/" >Diário de Classe</a></li>');
+  // ShowHTML ('      <li><a target="_blank" href="http://www.prodatadf.com.br/diarioeletronico/" >Diário de Classe</a></li>');
   ShowHTML('  </ul>');
   ShowHTML('  <div class="clear"></div>');
   ShowHTML('</div>');
@@ -100,7 +100,6 @@ $P4           = intVal(nvl($_REQUEST['P4'],$conPageSize));
   ShowHTML('  <div id="conteudo"><h2>'.f($RS,'ds_cliente').'</h2>');
 
   Main();
-
   ShowHTML('  </div>');
   ShowHTML('  <div class="clear"/></div>');
   ShowHTML('</div>');
@@ -140,37 +139,99 @@ exit;
 // -------------------------------------------------------------------------
 function Inicial() {
   extract($GLOBALS);
-  $SQL = "SELECT b.im_logo, b.im_foto_abertura1, b.im_foto_abertura2, b.ds_diretorio, b.ds_texto_abertura, e.sq_cliente_foto, e.ln_foto, e.ds_foto ".$crlf.
-         "  from sbpi.Cliente                    a ".$crlf.
-         "       INNER   join sbpi.CLIENTE_SITE  b on (a.sq_cliente = b.sq_cliente) ".$crlf.
-         "         INNER join sbpi.Modelo        c on (b.sq_modelo  = c.sq_modelo) ".$crlf.
-         "       INNER   join sbpi.Cliente_Dados d on (a.sq_cliente = d.sq_cliente) ".$crlf.
-         "       LEFT    join sbpi.Cliente_Foto  e on (a.sq_cliente = e.sq_cliente and e.tp_foto = 'P') ".$crlf.
-         " WHERE a.sq_cliente = ".$CL." ".$crlf.
-         "ORDER BY e.nr_ordem";
+         
+ $SQL = "SELECT b.ds_cliente, a.cnpj_escola, a.mantenedora, a.cnpj_executora, a.codinep, a.diretor, a.secretario, " . $crlf . 
+        "       coalesce(to_char(a.vencimento,'dd/mm/yyyy'),'Sem informação') vencimento, coalesce(to_char(a.primeiro_credenc,'dd/mm/yyyy'),'Sem informação') primeiro_credenc, " . $crlf . 
+        "       a.endereco, b.no_municipio, b.sg_uf, " . $crlf . 
+        "       telefone_1, " . $crlf . 
+        "       telefone_2, " . $crlf . 
+        "       a.email_1, a.email_2, a.cep, " . $crlf . 
+        "       fax, " . $crlf .  
+        "       c.no_regiao " . $crlf .  
+        "from sbpi.cliente_particular                 a " . $crlf . 
+        "     INNER   join sbpi.Cliente               b on (a.sq_cliente   = b.sq_cliente) " . $crlf . 
+        "       INNER join sbpi.Regiao_Administrativa c on (b.sq_regiao_adm = c.sq_regiao_adm) " . $crlf . 
+        " where a.sq_cliente = " . $CL;
   $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-  
-  $i = 0;
+
+  ShowHTML ('IDENTIFICAÇÃO:<hr height="1">');
+
   if (count($RS)>0) {
-    foreach($RS as $row) {
-      if ($i==0) {
-        if (nvl(f($row,'ds_texto_abertura'),'')!='') {
-          ShowHTML('        <p class="chamada">'.crlf2br(f($row,'ds_texto_abertura')).'</p>');
-        } else {
-          ShowHTML('        <p class="chamada">');
-        }
-      
-        if (nvl(f($row,'sq_cliente_foto'),'')!='') {
-          ShowHTML('        <ul class="fotos">');
-        }
-        $i++;
-      }
-      if (nvl(f($row,'sq_cliente_foto'),'')!='') {
-        ShowHTML('<li><a href="'.f($row,'ds_diretorio').'/'.f($row,'ln_foto').'" target="_blank" title="Clique sobre a imagem para ampliar"><img align="top" class="foto" src="'.f($row,'ds_diretorio').'/'.f($row,'ln_foto').'" width="302" height="206"><br>'.f($row,'ds_foto').'</a></li>');
-      }
-    }
-	ShowHTML('              </ul>');
+  foreach($RS as $row){
+
+  ShowHTML ('<table width="100%" border="0" cellspacing="1" cellpadding="1">');
+  ShowHTML ('  <tr valign="top">');
+  ShowHTML ('    <td align="right" width="30%" nowrap="nowrap"><b>Nome da Instiuição:');
+  ShowHTML ('    <td align="left" width="70%" >' . f($row, "ds_cliente")); 
+  ShowHTML ('  </tr>');
+  ShowHTML ('  <tr valign="top">');
+  ShowHTML ('    <td align="right" width="30%" nowrap="nowrap"><b>Mantenedora:');
+  ShowHTML ('    <td align="left" width="70%" >' . Nvl(f($row, "mantenedora"),"Sem informação")); 
+  ShowHTML ('  </tr>');
+  ShowHTML ('  <tr valign="top">');
+  ShowHTML ('    <td align="right" width="30%"><b>Diretor(a):');
+  ShowHTML ('    <td align="left" width="70%">' . Nvl(f($row, "diretor"),"Sem informação")); 
+  ShowHTML ('  </tr>');
+  ShowHTML ('  <tr valign="top">');
+  ShowHTML ('    <td align="right" width="30%"><b>Secretário(a):');
+  ShowHTML ('    <td align="left" width="70%">' . Nvl(f($row, "secretario"),"Sem informação"));
+  ShowHTML ('  </tr>');
+  ShowHTML ('  <tr>');
+  ShowHTML ('    <td align="right" nowrap="nowrap" width="30%" ><b>Data do primeiro credenciamento:</b>');
+  ShowHTML ('    <td><table width="1%" border=0 cellpadding=0 cellspacing=0 bgcolor="#DFDFDF"><tr><td width="1%" nowrap style="border: solid 1px;"><font size="2"><b>' . f($row, "primeiro_credenc") . '</b></td></tr></table>');
+  ShowHTML ('  </tr>');
+  ShowHTML ('  <tr>');
+  ShowHTML ('    <td align="right" nowrap="nowrap" width="30%" ><b>Validade credenciamento:</b>');
+  ShowHTML ('    <td><table width="1%" border=0 cellpadding=0 cellspacing=0 bgcolor="#DFDFDF"><tr><td width="1%" nowrap style="border: solid 1px;"><font size="2"><b>' . f($row, "vencimento") . '</b></td></tr></table>');
+  ShowHTML ('  </tr>');
+  ShowHTML ('  </TABLE>');
+
+  ShowHTML ('<br>LOCALIZAÇÃO E CONTATOS:<hr height="1">');
+  ShowHTML ('<table width="100%" border="0" cellspacing="1" cellpadding="1">');
+    ShowHTML ('  <tr valign="top">');
+    ShowHTML ('    <td width="30%" align="right"><b>Endereço:');
+    ShowHTML ('    <td width="70%" align="left">' . f($row, "endereco"));
+    ShowHTML ('  </tr>');
+    ShowHTML ('  <tr valign="top">');
+    ShowHTML ('    <td width="30%" align="right"><b>Região Administrativa:');
+    ShowHTML ('    <td width="70%" align="left">' . f($row, "no_regiao"));
+    ShowHTML ('  </tr>');
+    ShowHTML ('  <tr>');
+    ShowHTML ('    <td width="30%" align="right" valign="top"><b>Telefones:');
+    If(Nvl(f($row, "telefone_1"),'') != '' && Nvl(f($row, "telefone_2"),'') != '') {
+      ShowHTML ('    <td width="70%" align="left"> ' . f($row, "telefone_1") . " / " . f($row, "telefone_2"));
+    } elseif( Nvl(f($row, "telefone_1"),'') != '' && Nvl(f($row, "telefone_2"),'')  == '' ){
+      ShowHTML ('    <td width="70%" align="left"> ' . f($row, "telefone_1"));
+    } elseif(Nvl(f($row, "telefone_2"),'') != '' and Nvl(f($row, "telefone_1"),'')  == '') {
+      ShowHTML ('    <td width="70%" align="left"> ' . f($row, "telefone_2"));
+    } else {
+      ShowHTML ('    <td width="70%" align="left">Sem informação');
+    } 
+    ShowHTML ('  </tr>');
+    ShowHTML ('  <tr valign="top">');
+    ShowHTML ('    <td width="30%" align="right"><b>Fax:');
+    ShowHTML ('    <td width="70%" align="left">' . nvl(f($row, "fax"),"Sem informação"));
+    ShowHTML ('  </tr>');
+    ShowHTML ('  <tr valign="top">');
+    ShowHTML ('    <td width="30%" align="right"><b>E-mails:');
+    if( Nvl(f($row, "email_1"),'')  != '' and Nvl(f($row, "email_2"),'') != '' ){
+      ShowHTML ('    <td width="70%" align="left"> ' . f($row, "email_1") . " / " . f($row, "email_2"));
+    } elseif(Nvl(f($row, "email_1"),'')  != '' and Nvl(f($row, "email_2"),'')  == '') {
+      ShowHTML ('    <td width="70%" align="left"> ' . f($row, "email_1"));
+    } elseif(Nvl(f($row, "email_2"),'')  != '' and Nvl(f($row, "email_1"),'')  == '') {
+      ShowHTML ('    <td width="70%" align="left"> ' . f($row, "email_2"));
+    } else {
+      ShowHTML ('    <td width="70%" align="left">Sem informação');
+    } 
+    ShowHTML ('  </tr>');
+
+  ShowHTML ('  </TABLE>');
+  
   }
+
+  }
+
+
 }
 
 // =========================================================================
@@ -442,49 +503,73 @@ function noticia() {
 // Tela de Calendário
 // -------------------------------------------------------------------------
 function calendario() {
-    extract($GLOBALS);
+  extract($GLOBALS);
 	
-	$wAno      = intVal($_REQUEST['wAno']);  
-    $w_noticia = intVal($_REQUEST['w_noticia']);
+  $wAno         = intVal($_REQUEST['wAno']);  
+  $w_noticia    = intVal($_REQUEST['w_noticia']);
+  $w_calendario = intVal($_REQUEST['w_calendario']);  
   
-    If ($wAno == ""){
-        $wAno = Date("Y");
-    }
+  If ($wAno == ""){
+      $wAno = Date("Y");
+  }
 	
-    $SQL = "SELECT '' cor, b.imagem, a.dt_ocorrencia data, a.ds_ocorrencia ocorrencia, 'B' origem from sbpi.Calendario_base a left join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE sbpi.year(dt_ocorrencia)=" . $wAno . " " . $crlf . 
-        "UNION " . $crlf . 
-        "SELECT '#99CCFF' cor, b.imagem, a.dt_ocorrencia data, a.ds_ocorrencia ocorrencia, 'E' origem from sbpi.Calendario_Cliente a left join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE sq_cliente = " . $CL . "  AND sbpi.year(dt_ocorrencia)= " . $wAno . " " . $crlf . 
-        "UNION " . $crlf . 
-        "SELECT '#FFFF99' cor, e.imagem, a.dt_ocorrencia data, a.ds_ocorrencia ocorrencia, 'R' origem " . $crlf . 
-        "from sbpi.Calendario_Cliente   a" . $crlf . 
-        "     INNER join sbpi.Cliente   b ON (a.sq_cliente = b.sq_cliente) " . $crlf . 
-        "     INNER join sbpi.Cliente   c ON (b.sq_cliente      = c.sq_cliente_pai) " . $crlf . 
-        "     INNER join sbpi.Cliente   d ON (c.sq_cliente      = d.sq_cliente_pai) " . $crlf . 
-        "     LEFT  join sbpi.Tipo_Data e ON (a.sq_tipo_data    = e.sq_tipo_data) " . $crlf . 
-        "WHERE d.sq_cliente = " . $CL . $crlf . 
-        "  AND sbpi.year(dt_ocorrencia)= " . $wAno . " " . $crlf . 
-        "ORDER BY data, origem desc, ocorrencia" . $crlf;
-        $RS1 = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-        
-    if (count($RS1)>0) {
-        foreach($RS1 as $row) {
-            if(f($row, 'origem') == 'E'){
-                $data = f($row, 'data');
-                $wDatas  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "ocorrencia") . " (Origem: Escola)";
-                $wImagem [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "imagem");
-                $wCores  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "cor");
-            }else if(f($row, 'origem') == 'ER'){
-                $wDatas  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "ocorrencia") . " (Origem: SEDF)";
-                $wImagem [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "imagem");
-                $wCores  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "cor");            
-            }else{
-                $wDatas  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "ocorrencia") . " (Origem: Oficial)";
-                $wImagem [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "imagem");            
-            }
-        }
+  $SQL = "select distinct b.nome, a.sq_particular_calendario, b.ordem " . $crlf . 
+         "  from sbpi.Calendario_Cliente a "  . $crlf .
+         "       left join sbpi.Particular_Calendario b on (a.sq_particular_calendario = b.sq_particular_calendario) " . $crlf .
+         " where a.sq_cliente = " . $CL . " " . $crlf . 
+         "   and sbpi.year(dt_ocorrencia) = " . $wAno . " " . $crlf . 
+         "   and ativo = 'S' "  . $crlf . 
+         "   and homologado = 'S' "  . $crlf . 
+         " order by ordem"  . $crlf;
+  
+  $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+  if (count($RS) > 0){
+    ShowHTML ('  <ul>');
+    foreach($RS as $row) {
+      ShowHTML ('<li title="' . f($row, "nome") . '"><a href="' . $w_dir . $w_pagina . 'calendario' . $strAction . '&w_calendario=' .f($row, 'sq_particular_calendario') .'&CL='. $CL .'#calendario'.'">' . f($row, "nome"));
     }
+    ShowHTML ('  </ul>');
+    ShowHTML ('  <br/>');
+    ShowHTML ('  <br/>');       
+  } else {
+    ShowHTML ('<p>A instituição não possui calendário(s) homologado(s).</p>');
+  }
+  if (!nvl(trim($_REQUEST["w_calendario"]),0) == 0){
+    ShowHTML ('<a name="calendario">');
+          
+    $SQL = " SELECT '' cor, b.imagem, a.dt_ocorrencia data, " . $crlf . 
+           " a.ds_ocorrencia ocorrencia, 'B' origem from sbpi.Calendario_base a " . $crlf . 
+           " left join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) " . $crlf . 
+           " WHERE sbpi.year(dt_ocorrencia)=" . $wAno . " " . $crlf . 
+           " UNION " . $crlf . 
+           " SELECT '#99CCFF' cor, b.imagem, a.dt_ocorrencia data, a.ds_ocorrencia ocorrencia, 'E' origem"  . $crlf . 
+           " from sbpi.Calendario_Cliente a left join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data)"  . $crlf . 
+           " WHERE a.sq_cliente = " . $CL . $crlf . 
+           "   AND sbpi.year(dt_ocorrencia)= " . $wAno . "  ". $crlf . 
+           "   AND sq_particular_calendario = " . $w_calendario . $crlf . 
+           "ORDER BY data, origem desc, ocorrencia" . $crlf; 
+    $RS1 = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
     
+    if (count($RS1)>0) {
+      foreach($RS1 as $row) {
+        if(f($row, 'origem') == 'E'){
+          $data = f($row, 'data');
+          $wDatas  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "ocorrencia") . " (Origem: Escola)";
+          $wImagem [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "imagem");
+          $wCores  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "cor");
+        }else if(f($row, 'origem') == 'ER'){
+          $wDatas  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "ocorrencia") . " (Origem: SEDF)";
+          $wImagem [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "imagem");
+          $wCores  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "cor");            
+        }else{
+          $wDatas  [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "ocorrencia") . " (Origem: Oficial)";
+          $wImagem [IntVal(Day(f($row, "data")))] [Month(f($row, "data"))] [ Substr(year(f($row, "data")),2,2)] = f($row, "imagem");            
+        }
+      }
+    }
+      
     ShowHTML(' <tr><td><TABLE align="center" width="100%" border=0 cellSpacing=0> ');
+    ShowHTML ('<tr align=""center""><td><strong>'. $w_nome .'</strong><br/></td></tr>');
     ShowHTML(' <tr valign="top"> ');
     ShowHTML('   <td>' . MontaCalendario("01" . $wAno, $wDatas, $wCores, $wImagem));
     ShowHTML('   <td>' . MontaCalendario("02" . $wAno, $wDatas, $wCores, $wImagem));
@@ -501,7 +586,7 @@ function calendario() {
     ShowHTML('   <td>' . MontaCalendario("11" . $wAno, $wDatas, $wCores, $wImagem));
     ShowHTML('   <td>' . MontaCalendario("12" . $wAno, $wDatas, $wCores, $wImagem));
     ShowHTML(' </table> ');
-    
+      
     ShowHTML(' <tr><td colspan="2"><TABLE width="100%" align="center" border=0 cellSpacing=1>');
     ShowHTML(' <tr valign="middle" align="center">');
     ShowHTML('   <td><font size=1><b>LEGENDA</b></font>');
@@ -515,7 +600,7 @@ function calendario() {
     ShowHTML('   </TR>');
      
     ShowHTML('<tr valign="top">');
-    
+
     //Legenda
     $SQL = "SELECT * from sbpi.Tipo_Data where abrangencia <> 'U' order by nome " . $crlf;
     $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
@@ -533,31 +618,27 @@ function calendario() {
     }else{
        ShowHTML('  <td>Sem informação');
     }    
-    
+      
     //Feriados
     $SQL = "SELECT '' cor, b.imagem, a.dt_ocorrencia data, a.ds_ocorrencia ocorrencia, 'B' origem from sbpi.Calendario_base a left join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE sbpi.year(dt_ocorrencia)=" . $wAno . " AND b.sigla <> 'CN' " . $crlf . 
            "ORDER BY data, origem desc, ocorrencia" . $crlf;
     $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-    
+      
     if (count($RS)>0) {
-        ShowHTML (' <td><TABLE width="90%" align="center" border=0 cellSpacing=1>');
-        foreach($RS as $row) {
-            ShowHTML('   <TR VALIGN="TOP">');
-            ShowHTML('     <TD>&nbsp;');
-            ShowHTML('     <TD>' . Substr(100+Day(f($row, "data")),1,2) . '/' . Substr(100+Month(f($row, "data")),1,2));
-            ShowHTML('     <TD>' . f($row, "ocorrencia"));
-            ShowHTML('   </TR>');
-        }
-        ShowHTML('</TABLE>');
-    }Else{
-        ShowHTML('<td>Sem informação');
+      ShowHTML (' <td><TABLE width="90%" align="center" border=0 cellSpacing=1>');
+      foreach($RS as $row) {
+        ShowHTML('   <TR VALIGN="TOP">');
+        ShowHTML('     <TD>&nbsp;');
+        ShowHTML('     <TD>' . Substr(100+Day(f($row, "data")),1,2) . '/' . Substr(100+Month(f($row, "data")),1,2));
+        ShowHTML('     <TD>' . f($row, "ocorrencia"));
+        ShowHTML('   </TR>');
+      }
+      ShowHTML('</TABLE>');
+    }else{
+      ShowHTML('<td>Sem informação');
     }
-    
-    
-    
-    
-    
-    // Exibe recessos
+        
+    //Exibe recessos
     $SQL  = "SELECT '#99CCFF' cor, b.imagem, a.dt_ocorrencia data, a.ds_ocorrencia ocorrencia, 'E' origem from sbpi.Calendario_Cliente a inner join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla in ('RE','RA')) WHERE sq_cliente = " . $CL . "  AND sbpi.year(dt_ocorrencia)= " . year(Time()) . " " . $crlf . 
             "UNION " . $crlf . 
             "SELECT '#FFFF99' cor, e.imagem, a.dt_ocorrencia data, a.ds_ocorrencia ocorrencia, 'R' origem " . $crlf . 
@@ -567,122 +648,135 @@ function calendario() {
             "     INNER join sbpi.Cliente   d ON (c.sq_cliente      = d.sq_cliente_pai) " . $crlf . 
             "     INNER  join sbpi.Tipo_Data e ON (a.sq_tipo_data    = e.sq_tipo_data and e.sigla in ('RE','RA')) " . $crlf . 
             "WHERE d.sq_cliente = " . $CL . $crlf . 
-            "  AND sbpi.year(dt_ocorrencia)= " . $wAno . " " . $crlf . 
-            "ORDER BY data, origem desc, ocorrencia" . $crlf;
-    $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-            
-    if (count($RS)>0) {
-        ShowHTML('  <td><TABLE width="90%" align="center" border=0 cellSpacing=1>');
-        foreach($RS as $row) {
-           ShowHTML('  <TR VALIGN="TOP">');
-           ShowHTML('    <TD>&nbsp;');
-           ShowHTML('    <TD>' . Substr(100+Day(f($row, "data")),1,2) . '/' . Substr(100+Month(f($row, "data")),1,2));
-           ShowHTML('    <TD><font color="#0000FF">' . f($row, "ocorrencia"));
-           ShowHTML('  </TR>');
-        }
-        ShowHTML('    </TABLE></td>');
-     }Else{
-        ShowHTML('  <td>Sem informação');
-     }
-     
-    $SQL = "SELECT '#99CCFF' cor, b.imagem, a.dt_ocorrencia data, 'IE: ' || a.ds_ocorrencia ocorrencia, 'E' origem from sbpi.Calendario_Cliente a inner join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla not in ('RE','RA')) WHERE sq_cliente = " . $CL . "  AND sbpi.year(dt_ocorrencia)= " . year(Time()) . " " . $crlf . 
+            "  AND sbpi.year(dt_ocorrencia) = " . $wAno . " " . $crlf .  
+           " AND a.sq_particular_calendario = " . $w_calendario . $crlf .  
            "ORDER BY data, origem desc, ocorrencia" . $crlf;
-    $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-  
+
+      $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+              
     if (count($RS)>0) {
-        ShowHTML('  <td><TABLE width="90%" align="center" border=0 cellSpacing=1>');
-        foreach($RS as $row) {
-           ShowHTML('  <TR VALIGN="TOP">');
-           ShowHTML('    <TD>&nbsp;');
-           ShowHTML('    <TD>' . SubStr(100+Day(f($row, "data")),1,2) . '/' . SubStr(100+Month(f($row, "data")),1,2));
-           ShowHTML('    <TD><font color="#0000FF">' . f($row, "ocorrencia"));
-           ShowHTML('  </TR>');
-        }
-        ShowHTML('    </TABLE></td>');
-    }Else{
-        ShowHTML('  <td>Sem informação');
+      ShowHTML('  <td><TABLE width="90%" align="center" border=0 cellSpacing=1>');
+      foreach($RS as $row) {
+        ShowHTML('  <TR VALIGN="TOP">');
+        ShowHTML('    <TD>&nbsp;');
+        ShowHTML('    <TD>' . Substr(100+Day(f($row, "data")),1,2) . '/' . Substr(100+Month(f($row, "data")),1,2));
+        ShowHTML('    <TD><font color="#0000FF">' . f($row, "ocorrencia"));
+      ShowHTML('  </TR>');
+      }
+      ShowHTML('    </TABLE></td>');
+    }else{
+      ShowHTML('  <td>Sem informação');
     }
-ShowHTML ('  <td valign="top"><TABLE align="center" border=0 cellSpacing=1>');
-     
-    //' Recupera o ano letivo e o período de recesso
+       
+    $SQL = " SELECT '#99CCFF' cor, b.imagem, a.dt_ocorrencia data, 'IE: ' " . $crlf .
+           " || a.ds_ocorrencia ocorrencia, 'E' origem from sbpi.Calendario_Cliente a " . $crlf .
+           " inner join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and b.sigla not in ('RE','RA'))" . $crlf .
+           " WHERE sq_cliente = " . $CL . "  AND sbpi.year(dt_ocorrencia)= " . year(Time()) . " " . $crlf .
+           " AND a.sq_particular_calendario = " . $w_calendario . $crlf . 
+           "ORDER BY data, origem desc, ocorrencia" . $crlf;
+             
+    $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+    
+    if (count($RS)>0) {
+      ShowHTML('  <td><TABLE width="90%" align="center" border=0 cellSpacing=1>');
+      foreach($RS as $row) {
+        ShowHTML('  <TR VALIGN="TOP">');
+        ShowHTML('    <TD>&nbsp;');
+        ShowHTML('    <TD>' . SubStr(100+Day(f($row, "data")),1,2) . '/' . SubStr(100+Month(f($row, "data")),1,2));
+        ShowHTML('    <TD><font color="#0000FF">' . f($row, "ocorrencia"));
+        ShowHTML('  </TR>');
+      }
+      ShowHTML('    </TABLE></td>');
+    }else{
+      ShowHTML('  <td>Sem informação');
+    }
+    ShowHTML ('  <td valign="top"><TABLE align="center" border=0 cellSpacing=1>');
+       
+    //Recupera o ano letivo e o período de recesso
     $SQL =  "  select * from " . $crlf . 
             "        (select dt_ocorrencia w_let_ini " . $crlf . 
             "           from sbpi.Calendario_Cliente a inner join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and sbpi.year(a.dt_ocorrencia) = " .  $wAno .  "and b.sigla = 'IA') " . $crlf . 
-            "          where sq_cliente = " . 0 . $crlf . 
+            "          where sq_cliente = " . $CL . $crlf . 
+            "            and a.sq_particular_calendario = " . $_REQUEST["w_calendario"] . $crlf . 
             "        ) a, " . $crlf . 
             "        (select dt_ocorrencia w_let_fim " . $crlf . 
             "           from sbpi.Calendario_Cliente a inner join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and sbpi.year(a.dt_ocorrencia) = " .  $wAno .  " and b.sigla = 'TA') " . $crlf . 
-            "          where sq_cliente = " . 0 . $crlf . 
+            "          where sq_cliente = " . $CL . $crlf . 
+            "            and a.sq_particular_calendario = " . $_REQUEST["w_calendario"] . $crlf . 
             "        ) b, " . $crlf . 
             "        (select dt_ocorrencia w_let2_ini " . $crlf . 
             "           from sbpi.Calendario_Cliente a inner join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and sbpi.year(a.dt_ocorrencia) = " .  $wAno .  " and b.sigla = 'I2') " . $crlf . 
-            "          where sq_cliente = " . 0 . $crlf . 
+            "          where sq_cliente = " . $CL . $crlf . 
+            "            and a.sq_particular_calendario = " . $_REQUEST["w_calendario"] . $crlf . 
             "        ) c, " . $crlf . 
             "        (select dt_ocorrencia w_let1_fim " . $crlf . 
             "           from sbpi.Calendario_Cliente a inner join sbpi.Tipo_Data b on (a.sq_tipo_data = b.sq_tipo_data and sbpi.year(a.dt_ocorrencia) = " .  $wAno .  " and b.sigla = 'T1') " . $crlf . 
-            "          where sq_cliente = " . 0 . $crlf . 
+            "          where sq_cliente = " . $CL . $crlf . 
+            "            and a.sq_particular_calendario = " . $_REQUEST["w_calendario"] . $crlf . 
             "        ) d " . $crlf;
     $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-
+    
+    
     foreach($RS as $row) {
-        $w_fim1 = f($row,"w_let1_fim");
-        $w_ini2 = f($row,"w_let2_ini");
+      $w_fim1 = f($row,"w_let1_fim");
+      $w_ini2 = f($row,"w_let2_ini");
     }
-        
+          
     for ($w_cont=1; $w_cont<=2; $w_cont++){
-        If ($w_cont == 1){
-            $w_ini = 1;
-            $w_fim = 7;
-        }Else{
-            $w_ini = 7;
-            $w_fim = 12;
-            ShowHTML('   <TR valign="top" ALIGN="CENTER"><TD COLSPAN="4"><br/><br/></td></tr>');
+      If ($w_cont == 1){
+        $w_ini = 1;
+        $w_fim = 7;
+      }else{
+        $w_ini = 7;
+        $w_fim = 12;
+        ShowHTML('   <TR valign="top" ALIGN="CENTER"><TD COLSPAN="4"><br/><br/></td></tr>');
+      }
+      $w_dias = 0;
+
+      ShowHTML('   <TR valign="top" ALIGN="CENTER"><TD COLSPAN="4"><b>' . $w_cont . 'º Semestre</b></td></tr>');
+      ShowHTML('   <TR valign="top">');
+      ShowHTML('     <TD><b>MÊS');
+      ShowHTML('     <TD><b>D.L.');
+      ShowHTML('   </TR>');
+      ShowHTML('   <TR>');
+      ShowHTML('     <TD COLSPAN="2" HEIGHT="1" BGCOLOR="#DAEABD">');
+      ShowHTML('   </TR>');
+      for ($wCont = $w_ini; $wCont <= $w_fim; $wCont++){
+        if(intVal(month($w_ini2)) == intVal($wCont) and intVal($w_cont) == 2){
+          $w_inicial = formataDataEdicao($w_ini2);
+        }else{
+          $w_inicial = "01/" . SubStr(100+$wCont,1,2) . '/' . year(time());
         }
-        $w_dias = 0;
-      
-        ShowHTML('   <TR valign="top" ALIGN="CENTER"><TD COLSPAN="4"><b>' . $w_cont . 'º Semestre</b></td></tr>');
-        ShowHTML('   <TR valign="top">');
-        ShowHTML('     <TD><b>MÊS');
-        ShowHTML('     <TD><b>D.L.');
-        ShowHTML('   </TR>');
-        ShowHTML('   <TR>');
-        ShowHTML('     <TD COLSPAN="2" HEIGHT="1" BGCOLOR="#DAEABD">');
-        ShowHTML('   </TR>');
-        for ($wCont = $w_ini; $wCont <= $w_fim; $wCont++){
-            If (intVal(month($w_ini2)) == intVal($wCont) and intVal($w_cont) == 2){
-                $w_inicial = formataDataEdicao($w_ini2);
-            }else{
-                $w_inicial = "01/" . SubStr(100+$wCont,1,2) . '/' . year(time());
-            }
-            
-            If (intVal(month($w_fim1)) == intVal($wCont) and intVal($w_cont) == 1){
-                $w_final = formataDataEdicao($w_fim1);
-            }else{
-                $SQL = "SELECT last_Day(to_date('01/" . SubStr(100+$wCont,1,2) . "/'||sbpi.year(sysdate),'dd/mm/yyyy')) fim from dual" . $crlf; 
-                $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-                foreach($RS as $row) { $RS = $row; break; }
-                $w_final = formataDataEdicao(f($RS, "fim"));
-            }         
-            $SQL = "SELECT coalesce(sbpi.diasLetivos('" . $w_inicial . "', '" . $w_final . "'," . $CL . ",null),0) qtd from dual" . $crlf;
-            $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
-                foreach($RS as $row) { $RS = $row; break; }
-            If(IntVal(f($RS, "qtd")) > 0) {
-                ShowHTML('   <TR>');
-                ShowHTML('     <TD>' . nomeMes($wCont));
-                ShowHTML('     <TD ALIGN="CENTER">' . intVal(f($row, "qtd")));
-                $w_mes = IntVal(f($RS,"qtd"));
-                ShowHTML('   </TR>');
-                $w_dias = $w_dias + $w_mes;
-            }
+
+        if(intVal(month($w_fim1)) == intVal($wCont) and intVal($w_cont) == 1){
+          $w_final = formataDataEdicao($w_fim1);
+        }else{
+          $SQL = "SELECT last_Day(to_date('01/" . SubStr(100+$wCont,1,2) . "/'||sbpi.year(sysdate),'dd/mm/yyyy')) fim from dual" . $crlf; 
+          $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+          foreach($RS as $row) { $RS = $row; break; }
+          $w_final = formataDataEdicao(f($RS, "fim"));
+        }         
+        $SQL = "SELECT sbpi.diasLetivos('" . $w_inicial . "', '" . $w_final . "'," . $CL . ",". $_REQUEST["w_calendario"] .") qtd from dual" . $crlf; 
+        $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+        foreach($RS as $row) { $RS = $row; break; }      
+        If(IntVal(f($RS, "qtd")) > 0) {
+          ShowHTML('   <TR>');
+          ShowHTML('     <TD>' . nomeMes($wCont));
+          ShowHTML('     <TD ALIGN="CENTER">' . intVal(f($row, "qtd")));
+          $w_mes = IntVal(f($RS,"qtd"));
+          ShowHTML('   </TR>');
+          $w_dias = $w_dias + $w_mes;
         }
-        ShowHTML('   <TR>');
-        ShowHTML('     <TD nowrap>Dias Letivos');
-        ShowHTML('     <TD ALIGN="CENTER">' . $w_dias);
-        ShowHTML('   </TR>');        
+      }
+      ShowHTML('   <TR>');
+      ShowHTML('     <TD nowrap>Dias Letivos');
+      ShowHTML('     <TD ALIGN="CENTER">' . $w_dias);
+      ShowHTML('   </TR>');        
     }
     ShowHTML('     </TABLE></td>');
-    ShowHTML('     </TABLE>');     
+    ShowHTML('     </TABLE>'); 
   
+  }
 }
 
 // =========================================================================
@@ -729,29 +823,26 @@ function arquivo() {
          "ORDER BY dt_arquivo desc, origem, nr_ordem, in_destinatario " . $crlf; 
   $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);	 
 
-   
+  $SQL = "SELECT idescola from sbpi.Cliente_Particular where sq_cliente = " . $CL;
+  $RS1 = db_exec::getInstanceOf($dbms, $SQL, &$numRows);	 
+  $idEscola = $RS1[0]["idescola"]  ;
+
+  $url = "http://www.prodatadf.com.br/recadastramento/uploads/esc_id".$idEscola;
 
   ShowHTML ('<tr><td><TABLE border=0 cellSpacing=5 width="95%"> ');
+ 
   ShowHTML ('  <TR> ');
-  ShowHTML ('    <TD><b>Origem ');
-  ShowHTML ('    <TD><b>Alvo ');
-  ShowHTML ('    <TD><b>Data ');
-  ShowHTML ('    <TD><b>Componente curricular ');
-  ShowHTML ('  </TR> ');
-  ShowHTML ('  <TR> ');
-  ShowHTML ('    <TD COLSPAN="4" HEIGHT="1" BGCOLOR="#DAEABD"> ');
+  ShowHTML ('    <TD HEIGHT="1" BGCOLOR="#DAEABD"> ');
   ShowHTML ('  </TR>');
 
+
   if (count($RS)>0) {
+	    ShowHTML('<ul>');
     foreach($RS as $row) {
-           ShowHTML ('  <TR valign="top"> ');
-           ShowHTML ('    <TD align="center">' . f($row, 'origem'));
-           ShowHTML ('    <TD align="center">' . f($row, 'in_destinatario'));		   
-		   ShowHTML ('    <TD align="center">' . formatadataedicao(f($row, 'dt_arquivo')));
-           ShowHTML ('    <TD><a href="' . f($row, "diretorio") . '/' . f($row, "ln_arquivo") . '" target="_blank">' . f($row, "ds_titulo") . '</a><br><div align="justify"><font size=1>.:. ' . f($row, "ds_arquivo") . '</div>');
-           ShowHTML ('  </TR> ');
+           ShowHTML ('    <li><a href="' . $url. '/' . f($row, "ln_arquivo") . '" target="_blank">' . f($row, "ds_titulo") . '</a><br><div align="justify"><font size=1>.:. ' . f($row, "ds_arquivo") . '</font></div></li>');
            $i++;
     } 
+	  ShowHTML('</ul>');
   }else{
     ShowHTML ('  <TR valign="top"> ');
     ShowHTML ('    <TD colspan="5"><BR>Não há arquivos disponíveis no momento para o ano de ' . $wAno . '</TD> ');
@@ -947,97 +1038,132 @@ function valida() {
 function oferta() {
   extract($GLOBALS);
 
-   $SQL2 = "SELECT f.ds_especialidade " . $crlf .  
-           "  from sbpi.Especialidade_cliente e " . $crlf . 
-           "       INNER join sbpi.Especialidade f ON (e.sq_especialidade = f.sq_especialidade and " . $crlf . 
-           "                                            'J'               = f.tp_especialidade " . $crlf . 
-           "                                           ) " . $crlf . 
-           " WHERE e.sq_cliente = " . $CL . " " . $crlf . 
-           "ORDER BY ds_especialidade ";
+  $wAno =  $_REQUEST["wAno"];
+  
+  If ($wAno == ''){
+     $wAno = Year(Time());
+  }
 
-   $RS1 = db_exec::getInstanceOf($dbms, $SQL2, &$numRows);	
-    
-   //Recupera a oferta a partir das turmas da escola
-   $SQL  = "select distinct a.sq_cliente, b.nome ds_serie, b.curso ds_modalidade, case rtrim(ltrim(a.ds_turno)) when 'M' then 1 when 'V' then 2 else 3 end ds_turno " . $crlf .  
-           "  from sbpi.Turma a inner join sbpi.Turma_Modalidade b on (upper(rtrim(ltrim(a.ds_serie)))=upper(rtrim(ltrim(b.serie))))" . $crlf . 
-           " where sq_cliente = " . $CL . " " . $crlf . 
-           "order by 3,2 ";
-   $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);	
-
-    if (count($RS)>0 or count($RS1)>0) {
-        ShowHTML('<p><b>Etapas / Modalidades de ensino oferecidas:</b>');
-        ShowHTML('<dl>');
-    }
-	if (count($RS1)>0){
-	    foreach($RS1 as $row) {
-            ShowHTML ('  <dt>' . f($row, 'ds_especialidade') . '</dt> ');
-        } 
-	}
-
-	if (count($RS)>0){
-	    $i = 1;
-	    foreach($RS as $row) {
-            $oferta[$i] = f($row,"ds_modalidade") . "}" . f($row,"ds_serie") . "|" . exibeTurno(f($row,"ds_turno"));
-			$i++;
+     $SQL = "SELECT INFANTIL, FUNDAMENTAL, EJA, MEDIO, DISTANCIA, PROFISSIONAL " . $crlf .
+           "FROM sbpi.cliente_particular a " . $crlf .
+           "WHERE a.sq_cliente = " . $CL;
+     
+     $RS1 = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+     foreach($RS1 as $row) { $RS = $row; break; }
+     $wCont = 0;
+     
+     
+     If(Count($RS) > 0){
+     
+    // case 'INICIAL':   ShowHTML('      <h3>Inicial</h3>');       Inicial();    break;
+        switch ( intval(f($RS,"INFANTIL") ) ) {
+            
+            Case 0 : $modalidadeinf = "Não oferece";         break;
+            Case 1 : $modalidadeinf = "Creche";              break;
+            Case 2 : $modalidadeinf = "Pré-Escola";          break;
+            Case 4 : $modalidadeinf = "Creche e Pré-Escola"; break;
         }
-        sort($oferta);		
-	}	
+        switch  (intval(f($RS,"FUNDAMENTAL"))){
+            Case 0:  $modalidadefund = "Não oferece";                          break;
+            Case 1:  $modalidadefund = "1º ao 9º ano";                         break;
+            Case 2:  $modalidadefund = "1º ao 9º ano e 1ª a 4ª	";             break;
+            Case 3:  $modalidadefund = "1º ao 9º ano e 1ª a 8ª"   ;            break;
+            Case 4:  $modalidadefund = "1º ao 5º ano e 1ª a 4ª"    ;           break;
+            Case 5:  $modalidadefund = "1º ao 5º ano e 1ª a 8ª"     ;          break;
+            Case 6:  $modalidadefund = "1º ao 5º ano"            ;             break;
+            Case 7:  $modalidadefund = "3ª e 4ª c/ext. prog. e 1º ao 9º ano";  break;          
+            Case 8:  $modalidadefund = "3ª e 4ª c/ext. prog. e 1º ao 5º ano" ; break;          
+            Case 9:  $modalidadefund = "1ª a 4ª Séries"            ;           break;
+            Case 10: $modalidadefund = "1ª a 8ª Séries"            ;           break;
+            Case 11: $modalidadefund = "5ª a 8ª Séries"            ;           break;
+        }
+        
+        switch (intval(f($RS,"MEDIO"))) {
+            Case 0: $modalidademed = "Não oferece"; break;            
+            Case 1:  $modalidademed = "Oferece";    break;
+        }
+        
+        switch (intval(f($RS,"EJA"))){
+            Case 0: $modalidadeeja = "Não oferece"       ;  break;     
+            Case 1: $modalidadeeja = "1º e 2º Segmento" ;   break;        
+            Case 2: $modalidadeeja = "1º e 3º Segmento";    break;
+            Case 3: $modalidadeeja = "2º e 3º Segmento"   ; break;             
+            Case 4: $modalidadeeja = "1º,2º e 3º Segmento"; break;
+            Case 5: $modalidadeeja = "2º Segmento";         break;
+            Case 6: $modalidadeeja = "3º Segmento";         break;
+            Case 7: $modalidadeeja = "1º Segmento";         break;
+        }
+        
+        switch (intval(f($RS, "DISTANCIA"))){
+            Case 0: $modalidadedist = "Não oferece"; break;            
+            Case 1: $modalidadedist = "Oferece";     break;
+       }
+        switch (intval(f($RS,"PROFISSIONAL"))){
+            Case 0: $modalidadeprof = "Não oferece" ; break;          
+            Case 1: $modalidadeprof = "Oferece";      break;
+        }
+     
+        
+        $wCont = 1;
+        foreach($RS1 as $row){
 
-	$w_mod_atual = "";
-	$w_ser_atual = "";
-	$w_tur_atual = "";	
-	
-    if (count($RS)>0){
-    	foreach ($oferta as $i){
-            if($i > ""){
-                $w_modalidade = substr($i,0,strpos($i,"}"));
-                $w_serie      = substr($i,strpos($i,"}")+1,(strpos($i,"|")-strpos($i,"}")-1));
-                $w_turno      = substr($i,strpos($i,"|")+1,10);
-    			if($w_modalidade <> $w_mod_atual){
-     			    ShowHTML('<dt><li>' . $w_modalidade); //exibeModal(w_modalidade));
-    				$w_mod_atual = $w_modalidade;
-    			    $w_ser_atual = '';
-    			    $w_tur_atual = '';
-    			}
-    			if ($w_serie <> $w_ser_atual){
-                        if ($w_serie == "0"){
-                          ShowHTML('<dd>');
-                        }else{
-                          ShowHTML('<dd>' . $w_serie . ': '); //exibeSerie(w_modalidade,w_serie))
-                        }
-                       $w_ser_atual = $w_serie;
-                       $w_tur_atual = "";
-                       $w_cont      = 0;
-                }
-    			if ($w_turno <> $w_tur_atual){
-                    if ($w_cont > 0) {
-                        print ', ' . $w_turno; //exibeTurno(w_turno)
-                    }else{
-                        print ' ' . $w_turno; //exibeTurno(w_turno)
-                    }
-                    $w_cont++;
-                }
-            }
-        ShowHTML('</dl>');
-    	}
-    }
-	$SQL2 = "SELECT f.ds_especialidade " . $crlf .  
-            "  from sbpi.Especialidade_cliente e " . $crlf . 
-            "       INNER join sbpi.Especialidade f ON (e.sq_especialidade  = f.sq_especialidade and " . $crlf . 
-            "                                            f.tp_especialidade not in ('M','J') " . $crlf . 
-            "                                           ) " . $crlf . 
-            " WHERE e.sq_cliente = " . $CL . " " . $crlf . 
-            "ORDER BY ds_especialidade ";
-    $RS1 = db_exec::getInstanceOf($dbms, $SQL2, &$numRows);	
-    
-	if (count($RS1)>0) {
-		ShowHTML('<p><b>Em Regime de Intercomplementaridade: </b></p><ul>');
-		ShowHTML ('  <ul>');  
-		foreach($RS1 as $row) {
-			ShowHTML("<li>" . f($row, 'ds_especialidade') . "</li>");
-		}
-		ShowHTML ('  </ul>');
-	}
+        ShowHTML ('<p align="justify">Informações relativas às ofertas da instituição de ensino:</p>');
+        ShowHTML ('<table width="100%" border="0" cellspacing="5" cellpadding="2">');
+        ShowHTML ('  <TR valign="top">');
+        ShowHTML ('    <TD align="right" width="30%"><b>Ensino Infantil: </b></TD>');
+        ShowHTML ('    <TD align "left" width="70%">' . $modalidadeinf . '</TD>');
+        ShowHTML ('  </TR>');
+        ShowHTML ('  <TR valign="top">');
+        ShowHTML ('    <TD align="right"><b>Ensino Fundamental: </b></TD>');
+        ShowHTML ('    <TD align "left">' . $modalidadefund . '</TD>');
+        ShowHTML ('  </TR>');
+        ShowHTML ('  <TR valign="top">');
+        ShowHTML ('    <TD align="right"><b>Ensino Médio: </b></TD>');
+        ShowHTML ('    <TD align "left">' . $modalidademed . '</TD>');
+        ShowHTML ('  </TR>');
+        ShowHTML ('  <TR valign="top">');
+        ShowHTML ('    <TD align="right"><b>Ensino de Jovens e Adultos: </b></TD>');
+        ShowHTML ('    <TD align "left">' . $modalidadeeja . '</TD>');
+        ShowHTML ('  </TR>');
+        ShowHTML ('  <TR valign="top">');
+        ShowHTML ('    <TD align="right"><b>Ensino à Distância: </b></TD>');
+        ShowHTML ('    <TD align "left">' . $modalidadedist . '</TD>');
+        ShowHTML ('  </TR>');
+        ShowHTML ('  <TR valign="top">');
+        ShowHTML ('    <TD align="right"><b>Educação Profissional: </b></TD>');
+        ShowHTML ('    <TD align "left">'); 
+        
+         If (trim($modalidadeprof) == 'Oferece'){
+          $SQL = "select sq_cliente, ds_curso ". 
+                "       from sbpi.Particular_Curso a " .
+                " inner join sbpi.Curso            b on (a.sq_curso = b.sq_curso)" .
+                " where sq_cliente = " . $CL;
+         
+          $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+          
+		  if(count($RS)>0){
+			  ShowHTML ('  <ul id=""cursos_ul"">');
+			  foreach($RS as $row){
+				ShowHTML ('    <li id="cursos">' . $row["ds_curso"] . "</li>");  
+			  }
+			  ShowHTML ("  </ul>");
+			  }else{
+				  showHTML("Oferece");
+			  }
+         }Else{
+         	 showHTML($modalidadeprof);
+         }       
+        
+        ShowHTML('</TD>');
+        ShowHTML ('  </TR>');
+        ShowHTML ('</TABLE>');
+        $wCont++;
+        
+        }
+        
+     }Else{
+        ShowHTML ('    <p><BR>Até o presente momento, a Instituição não oferece cursos profissionalizantes. </p>');
+     }     
 }
 
 // =========================================================================
@@ -1048,13 +1174,8 @@ function Main() {
   
   switch ($par) {
   case 'INICIAL':   ShowHTML('      <h3>Inicial</h3>');       Inicial();    break;
-  case 'QUEM':      ShowHTML('      <h3>Quem somos</h3>');    Quem();       break;
-  case 'FALE':      ShowHTML('      <h3>Fale conosco</h3>');  Fale();       break;
-  case 'PROJETO':   ShowHTML('      <h3>Projeto</h3>');       Projeto();    break;
-  case 'NOTICIA':   ShowHTML('      <h3>Notícias</h3>');      Noticia();    break;
   case 'CALENDARIO':ShowHTML('      <h3>Calendário</h3>');    Calendario(); break;
   case 'ARQUIVO':   ShowHTML('      <h3>Arquivos</h3>');      Arquivo();    break;
-  case 'ALUNO':     ShowHTML('      <h3>Alunos</h3>');        Aluno();      break;
   case 'OFERTA':    ShowHTML('      <h3>Oferta</h3>');        Oferta();     break;
   case 'VALIDA':    Valida(); break;
   default:

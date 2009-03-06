@@ -44,6 +44,20 @@ A:hover
     FLOAT: left;
     TEXT-ALIGN: right
 }
+li
+{
+    /*list-style-image:url(http://www.worksafesask.ca/images/green_arrow2.gif);    */
+    list-style-image:url(../img/seta.jpg);
+}
+#cursos
+{
+    margin-left: -25px;
+    
+}
+#cursos_ul
+{
+    margin-top: -2px;
+}
 #formBusca
 {
     DISPLAY: block;
@@ -328,6 +342,29 @@ A:hover
 {
     BACKGROUND: url(../img/regionalbase.jpg) no-repeat 50% top;
     HEIGHT: 18px
+}
+#tpinstituicao
+{
+    MARGIN-LEFT: 20px;
+    BACKGROUND-COLOR: #E7F0D2;
+}
+
+#tpinstituicao input
+{
+    MARGIN-LEFT: 20px;
+    BACKGROUND-COLOR: #E7F0D2;
+}
+
+#tpinstituicao .topo
+{
+    MARGIN-TOP: 20px;
+    BACKGROUND: url(../img/tpinstituicaotopo.jpg) no-repeat 50% top;
+    HEIGHT: 18px;
+}
+#tpinstituicao .base
+{
+    BACKGROUND: url(../img/tpinstituicaobase.jpg) no-repeat 50% top;
+    HEIGHT: 18px;
 }
 #instituicao
 {

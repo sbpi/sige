@@ -17,11 +17,24 @@ class db_exec {
      if($l_rs->executeQuery()) { 
        $numRows  = $l_rs->getNumRows();
        if ($l_rs = $l_rs->getResultData()) {
-         return $l_rs; 
+         return array_stripslashes($l_rs); 
        } else {
          return array();
        }
      }
-   }
+   }   
 }
+
+function array_stripslashes($array){
+	$saida = array();
+	foreach($array as $k=>$v){
+		if(is_array($v)){
+			$v = array_stripslashes($v);
+		}else{
+			$v = str_replace('""','"',stripslashes($v));			
+		}
+		$saida[$k] = $v;
+	}
+	return $saida;
+  }
 ?>

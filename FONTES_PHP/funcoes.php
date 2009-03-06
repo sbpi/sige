@@ -3628,6 +3628,63 @@ function curPageURL() {
 }
 
 
+function csv($arq){
+	$var   = file($arq);	
+	$saida = array();
+	$qtd   = count($var);
+	$table = array();
+	$ind   = null;
+	
+	for($i=0;$i<$qtd;$i++){
+			
+		if( substr(trim($var[$i]),0,1)=='[' && substr(trim($var[$i]),-1,1) == ']' ){
+			if(!is_null($ind)){									
+				$saida[$ind] = $table;																	
+			}
+			
+			$table = array();
+			$ind = trim($var[$i]);								
+			++$i;		
+			continue;				
+		}
+					
+		$linha = "";	
+		$linha = $var[$i];	
+		
+		while(isset($var[$i+1]) &&  substr(trim($var[$i+1]),0,1) != '"' && substr(trim($var[$i+1]),0,1) != '[' && substr(trim($var[$i]),-1,1) != ']'  ){		
+			$linha .= $var[++$i];			
+		}
+		
+		$linha = corrigeCar($linha);	
+		$linha = explode('","',$linha);
+		$linha[0] = substr($linha[0],1);
+		$linha[count($linha)-1] = substr($linha[count($linha)-1],0,-1);		
+		$linha = array_map('colocaPlique',$linha);
+		array_push($table, $linha);			
+	}
+	//add a ultima tabela
+	$saida[$ind] = $table;	
+	
+	return $saida;
+}
+
+function colocaPlique($str){
+	if(trim(strtoupper($str)) != 'NULL'){
+		$str  = "'" . $str . "'";
+	}
+	return $str;
+}
+
+function corrigeCar($str){	
+	$str = trim($str);
+	$str = str_replace('NULL','"NULL"',$str);
+	$str = str_replace(',,',',"",',$str);
+	$str = str_replace(',,',',"",',$str);
+	$str = str_replace("'","´",$str);
+	return $str;	
+}
+
+
 function exibeTurno($l_chave) {
   extract($GLOBALS);
   switch ($l_chave) {
@@ -3733,9 +3790,9 @@ function SelecaoRegionalEscola($label, $accesskey, $hint=null, $chave, $chaveaux
 
 
   if( $chaveaux > "" ){
-   $SQL .= '   and nvl(sq_cliente_pai,0) = ' . $chaveaux . $crlf;
+   $SQL .= '   and nvl(a.sq_cliente_pai,0) = ' . $chaveaux . $crlf;
   }
-  $SQL .= 'ORDER BY b.tipo, ds_cliente' . $crlf;
+  $SQL .= 'ORDER BY b.tipo, a.ds_cliente' . $crlf;
   $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
 
   if(is_null($hint)){

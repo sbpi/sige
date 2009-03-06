@@ -11,7 +11,7 @@ function selecaoRegiaoAdm($label,$accesskey,$hint,$chave,$chaveAux,$campo,$restr
   $rs = db_exec::getInstanceOf($dbms, $sql, &$numRows);
 
   if (isset($label)) {
-    ShowHTML('          <td colspan="'.$colspan.'" '.((!isset($hint)) ? '' : 'title="'.$hint.'"').'>'.((!isset($hint)) ? '' : 'title="'.$hint.'"').'<b>'.$label.'</b><br><SELECT ACCESSKEY="'.$accesskey.'" CLASS="texto" NAME="'.$campo.'" '.$w_Disabled.' '.$atributo.'>');
+    ShowHTML('          <td colspan="'.$colspan.'" '.((!isset($hint)) ? '' : 'title="'.$hint.'"').'><b>'.$label.'</b><br><SELECT ACCESSKEY="'.$accesskey.'" CLASS="texto" NAME="'.$campo.'" '.$w_Disabled.' '.$atributo.'>');
   } else {
     echo '<SELECT ACCESSKEY="'.$accesskey.'" CLASS="texto" NAME="'.$campo.'" '.$w_Disabled.' '.$atributo.'>';
   }

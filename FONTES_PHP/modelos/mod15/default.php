@@ -1078,8 +1078,7 @@ function escola() {
   ShowHTML(' <div class="base"> </div>');
   ShowHTML(' </div>');
   ShowHTML(' <div id="urbana">');
-  ShowHTML(' <div class="topo"> </div>');
-  
+  ShowHTML(' <div class="topo"> </div>');  
   ShowHTML('         <h4>Localização:</h4><div class="radio_option">');
   if ($p_local=='2') ShowHTML('<input type="radio" name="p_local" value="2" checked="checked"> Rural');        else ShowHTML('<input type="radio" name="p_local" value="2"> Rural');
   if ($p_local=='1') ShowHTML('&nbsp;<input type="radio" name="p_local" value="1" checked="checked"> Urbana'); else ShowHTML('&nbsp;<input type="radio" name="p_local" value="1"> Urbana');
@@ -1089,7 +1088,11 @@ function escola() {
 
   ShowHTML(' <div id="opcoes">');
   ShowHTML(' <div class="topo"> </div>');
-  selecaoEtapaModalidade(null,null,null,$p_modalidade,$p_rede,'p_modalidade[]',null,null);
+
+  $p_modalidade = str_replace('\\',"",$p_modalidade);
+  $p_modalidade = str_replace("''","'",$p_modalidade);
+
+  selecaoEtapaModalidade(null,null,null,$p_modalidade,$p_rede,'p_modalidade[]',null,null,1,$_REQUES['p_curso']);
   ShowHTML(' </dd>');
   ShowHTML(' <div class="base"> </div>');
   ShowHTML(' </div>');
@@ -1099,6 +1102,7 @@ function escola() {
   ShowHTML(' </div> ');
   ShowHTML(' <div id="resultado">');
   if ($p_regiao>''||$p_regional>''||$p_local>''||$p_modalidade>'') {
+	 
     $SQL= "SELECT DISTINCT 0 Tipo, sbpi.acentos(d.ds_cliente) as ordena, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf, " . $crlf .
           "       e.ds_logradouro,e.no_bairro,e.nr_cep, e.nr_fone_contato, d.localizacao, 'S' publica, null ds_username, " . $crlf .
           "       r.no_regiao " . $crlf .
@@ -1172,9 +1176,10 @@ function escola() {
     }
     $SQL .=" ORDER BY 1, 2 ".$crlf;
     $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
+
     ShowHTML(' <h3>Resultado da Pesquisa</h3>');
     if (count($RS)>0) {
-      ShowHTML('          <UL> ');
+      ShowHTML('<UL>');
 
       $RS1 = array_slice($RS, (($P3-1)*$P4), $P4);
       foreach ($RS1 as $row) {

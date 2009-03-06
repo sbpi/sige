@@ -358,7 +358,7 @@ function boletim() {
         "     INNER join sbpi.Disciplina b on (a.sq_disciplina = b.sq_disciplina) ".$crlf.
         "     INNER join sbpi.Aluno c on (a.sq_aluno = c.sq_aluno) ".$crlf.
         "WHERE a.sq_aluno = ".$AL.$crlf.
-        "  AND a.ano_letivo = ".$w_ano." ".$crlf.
+        //"  AND a.ano_letivo = ".$w_ano." ".$crlf.
         "ORDER BY b.sg_disciplina".$crlf;
   $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
 
@@ -503,12 +503,12 @@ function boletimImp() {
   ShowHTML('  </TR>');
 
   $SQL = "SELECT a.*, b.sg_disciplina, b.ds_disciplina, c.ds_mensagem_boletim ".$crlf.
-        "from sbpi.Boletim a ".$crlf.
-        "     INNER join sbpi.Disciplina b on (a.sq_disciplina = b.sq_disciplina) ".$crlf.
-        "     INNER join sbpi.Aluno c on (a.sq_aluno = c.sq_aluno) ".$crlf.
-        "WHERE a.sq_aluno = ".$AL.$crlf.
-        "  AND a.ano_letivo = ".$w_ano." ".$crlf.
-        "ORDER BY b.sg_disciplina".$crlf;
+        "  from sbpi.Boletim a ".$crlf.
+        "       INNER join sbpi.Disciplina b on (a.sq_disciplina = b.sq_disciplina) ".$crlf.
+        "       INNER join sbpi.Aluno c on (a.sq_aluno = c.sq_aluno) ".$crlf.
+        " WHERE a.sq_aluno = ".$AL.$crlf.
+        //"  AND a.ano_letivo = ".$w_ano." ".$crlf.
+        " ORDER BY b.sg_disciplina".$crlf;
   $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
 
   if (count($RS)>0) {
@@ -818,11 +818,11 @@ function gradeHoraria() {
         "  from sbpi.Aluno_Turma              a " . $CrLf .
         "       INNER join sbpi.Grade_horaria b ON (a.sq_turma        = b.sq_turma and  " . $CrLf .
         "                                         a.sq_cliente = b.sq_cliente and " . $CrLf .
-        "                                         a.ano_letivo      = b.ano_letivo and " . $CrLf .
+        //"                                         a.ano_letivo      = b.ano_letivo and " . $CrLf .
         "                                         a.ano_letivo      = " . $w_ano . $CrLf . 
         "                                        ) " . $CrLf . 
         "       INNER join sbpi.Disciplina    c ON (b.sq_disciplina = c.sq_disciplina) " . $CrLf .
-        "WHERE a.sq_aluno = " . $AL . " " . $CrLf . 
+        " WHERE a.sq_aluno = " . $AL . " " . $CrLf . 
         "ORDER BY b.ds_horario,b.ds_dia_semana " . $CrLf  ;
 	  
 
@@ -864,10 +864,10 @@ function gradeHoraria() {
           "       INNER join sbpi.Grade_horaria b ON (a.sq_turma        = b.sq_turma and  " . $CrLf .
           "                                         a.sq_cliente = b.sq_cliente and " . $CrLf .
           "                                         a.ano_letivo      = b.ano_letivo and " . $CrLf .
-          "                                         a.ano_letivo      = " . $w_ano . $CrLf .
+          //"                                         a.ano_letivo      = " . $w_ano . $CrLf .
           "                                        ) " . $CrLf .
           "       INNER join sbpi.Disciplina    c ON (b.sq_disciplina = c.sq_disciplina) " . $CrLf .
-          "WHERE a.sq_aluno =" . $AL . " " . $CrLf .
+          " WHERE a.sq_aluno =" . $AL . " " . $CrLf .
           "ORDER BY c.sg_disciplina" . $CrLf ;
 
 

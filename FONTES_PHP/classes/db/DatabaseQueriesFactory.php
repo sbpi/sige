@@ -6,7 +6,7 @@ include_once('DBTypes.php');
 /**
 * class DatabaseQueriesFactory
 *
-* { Description :- 
+* { Description :-
 *  This class is a factory returning an object of specified Database to execute queries/procs.
 * }
 */
@@ -23,10 +23,10 @@ class DatabaseQueriesFactory {
       // Verifica a necessidade de criação dos diretórios de log
       if (!file_exists($l_caminho)) mkdir($l_caminho);
       if (!file_exists($l_caminho.$_SESSION['P_CLIENTE'])) mkdir($l_caminho.$_SESSION['P_CLIENTE']);
-      
+
       // Abre o arquivo de log
       $l_log = @fopen($l_arquivo, 'a');
-      
+
       fwrite($l_log, '['.date(ymd.'_'.Gis.'_'.time()).']'.$crlf);
       fwrite($l_log, 'Usuário: '.$_SESSION['NOME_RESUMIDO'].' ('.$_SESSION['SQ_PESSOA'].')'.$crlf);
       fwrite($l_log, 'IP     : '.$_SERVER['REMOTE_ADDR'].$crlf);
@@ -38,34 +38,42 @@ class DatabaseQueriesFactory {
       }
       // Fecha o arquivo e o diretório de log
       @fclose($l_log);
-      @closedir($l_caminho); 
+      @closedir($l_caminho);
     }
 
     if (function_exists(oci_server_version)) $oci8 = true; else $oci8 = false;
     if (function_exists(pg_version)) $pg = true; else $pg = false;
     if (function_exists(mssql_connect)) $mssql = true; else $mssql = false;
 
+
+    if ($oci8) {
+      if (empty($params)) return new OraDatabaseQueries($query, $conHandle);
+      else  return new OraDatabaseQueryProc($query, $conHandle, $params);
+    } else {
+      die('Módulo OCI8 não disponível na instalação do PHP.');
+    }
+    /*
     switch($_SESSION['DBMS']) {
     case ORA8  :
       if ($oci8) {
-        if (empty($params)) return new OraDatabaseQueries($query, $conHandle); 
-        else  return new OraDatabaseQueryProc($query, $conHandle, $params); 
+        if (empty($params)) return new OraDatabaseQueries($query, $conHandle);
+        else  return new OraDatabaseQueryProc($query, $conHandle, $params);
       } else {
         die('Módulo OCI8 não disponível na instalação do PHP.');
       }
       break;
     case ORA9  :
       if ($oci8) {
-        if (empty($params)) return new OraDatabaseQueries($query, $conHandle); 
-        else  return new OraDatabaseQueryProc($query, $conHandle, $params); 
+        if (empty($params)) return new OraDatabaseQueries($query, $conHandle);
+        else  return new OraDatabaseQueryProc($query, $conHandle, $params);
       } else {
         die('Módulo OCI8 não disponível na instalação do PHP.');
       }
       break;
     case ORA10  :
       if ($oci8) {
-        if (empty($params)) return new OraDatabaseQueries($query, $conHandle); 
-        else  return new OraDatabaseQueryProc($query, $conHandle, $params); 
+        if (empty($params)) return new OraDatabaseQueries($query, $conHandle);
+        else  return new OraDatabaseQueryProc($query, $conHandle, $params);
       } else {
         die('Módulo OCI8 não disponível na instalação do PHP.');
       }
@@ -73,20 +81,21 @@ class DatabaseQueriesFactory {
     case PGSQL  :
       if ($pg) {
         if (empty($params)) return new PgSqlDatabaseQueries($query, $conHandle);
-        else return new PgSqlDatabaseQueryProc($query, $conHandle, $params); 
+        else return new PgSqlDatabaseQueryProc($query, $conHandle, $params);
       } else {
         die('Módulo PGSQL não disponível na instalação do PHP.');
       }
       break;
     case MSSQL  :
       if ($mssql) {
-        if (empty($params)) return new MSSqlDatabaseQueries($query, $conHandle); 
-        else  return new MSSqlDatabaseQueryProc($query, $conHandle, $params); 
+        if (empty($params)) return new MSSqlDatabaseQueries($query, $conHandle);
+        else  return new MSSqlDatabaseQueryProc($query, $conHandle, $params);
       } else {
         die('Módulo MSSQL não disponível na instalação do PHP.');
       }
       break;
     }
+    */
   }
 }
 ?>

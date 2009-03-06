@@ -12,6 +12,8 @@ include_once("DBTypes.php");
 
 class ConnectionManagerFactory {
    function getInstanceOf($DBType="") {
+     return new Ora9ConnectionManager();
+     /*
      switch($DBType) {
          case MSSQL : return new MSSqlConnectionManager();    break;
          case ORA8  : return new Ora8ConnectionManager();     break;
@@ -19,6 +21,7 @@ class ConnectionManagerFactory {
          case ORA10 : return new Ora10ConnectionManager();    break;
          case PGSQL : return new PgSqlConnectionManager();    break;
       }
+      */
    }
 }
 ?>
