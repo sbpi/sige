@@ -1,0 +1,6 @@
+#body{
+background: #fff;
+}
+#topo, #busca, #menu, #menuBottom, #rodape, .impressao{
+display: none;
+}

@@ -259,6 +259,7 @@ Function MontaCalendario(p_mes, p_datas, p_cores, p_imagem)
    ' Monta o calendário, usando o array l_celulas
    l_cont = 1
    l_html = l_html & "  <tr align=""center"">" & VbCrLf 
+   
    For Each l_item IN l_celulas
        ' Desconsidera itens do array sem conteúdo
        If l_item > "" Then

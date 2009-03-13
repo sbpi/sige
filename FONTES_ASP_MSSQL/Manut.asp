@@ -414,7 +414,7 @@ Sub Valida
            "         getdate(), " & VbCrLf & _
            "         '" & Request.ServerVariables("REMOTE_HOST") & "', " & VbCrLf & _
            "         0, " & VbCrLf & _
-             "         'Acesso à tela de atualização da escola.', " & VbCrLf & _
+           "         'Acesso à tela de atualização da escola.', " & VbCrLf & _
            "         null " & VbCrLf & _
            "       ) " & VbCrLf
      ExecutaSQL(SQL)
@@ -481,7 +481,7 @@ Sub GetDocumento
         If w_ea = "I" Then
            Validate "w_ln_arquivo", "link", "", "1", "2", "100", "1", "1"
         End If
-        Validate "w_nr_ordem", "Nr. de ordem", "", "1", "1", "2", "1", "0123546789"
+        Validate "w_nr_ordem", "Nr. de ordem", "", "1", "1", "3", "1", "0123546789"
         ShowHTML " if (theForm.w_ln_arquivo.value > """"){"
         ShowHTML "    if((theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.DLL')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.SH')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.BAT')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.EXE')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.ASP')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.PHP')!=-1)) {"
         ShowHTML "       alert('Tipo de arquivo não permitido!');"
@@ -577,7 +577,7 @@ Sub GetDocumento
     End If
     ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
     ShowHTML "        <tr valign=""top"">"
-    ShowHTML "          <td><font size=""1""><b><u>N</u>r. de ordem:</b><br><input " & w_Disabled & " accesskey=""N"" type=""text"" name=""w_nr_ordem"" class=""STI"" SIZE=""2"" MAXLENGTH=""2"" VALUE=""" & w_nr_ordem & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a posição em que este arquivo deve aparecer na lista de arquivos disponíveis. Ex: 1, 2, 3 etc.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "          <td><font size=""1""><b><u>N</u>r. de ordem:</b><br><input " & w_Disabled & " accesskey=""N"" type=""text"" name=""w_nr_ordem"" class=""STI"" SIZE=""3"" MAXLENGTH=""3"" VALUE=""" & w_nr_ordem & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a posição em que este arquivo deve aparecer na lista de arquivos disponíveis. Ex: 1, 2, 3 etc.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td><font size=""1""><b><u>D</u>estinatários:</b><br><select " & w_Disabled & " accesskey=""D"" name=""w_in_destinatario"" class=""STS"" SIZE=""1"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o público ao qual o arquivo destina-se.','white')""; ONMOUSEOUT=""kill()"">"
     If w_in_destinatario = "A" Then
        ShowHTML "            <OPTION VALUE=""A"" SELECTED>Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"">Professores e alunos"

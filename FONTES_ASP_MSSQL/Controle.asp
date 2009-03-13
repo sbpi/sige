@@ -1201,7 +1201,7 @@ Sub GetSistema
     ShowHTML "          <td valign=""top""><font size=""1""><b><u>S</u>igla:</b><br><input accesskey=""S"" type=""text"" name=""w_sg_sistema"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & w_sg_sistema & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a sigla do sistema.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td valign=""top""><font size=""1""><b><u>N</u>ome:</b><br><input " & w_Disabled & " accesskey=""N"" type=""text"" name=""w_no_sistema"" class=""STI"" SIZE=""30"" MAXLENGTH=""30"" VALUE=""" & w_no_sistema & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o nome do sistema.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "        </table>"
-    ShowHTML "      <tr><td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><textarea " & w_Disabled & " accesskey=""E"" name=""w_ds_sistema"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva sucintamente o objetivo do sistema e seu ambiente de execução.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_sistema & "</TEXTAREA></td>"
+    ShowHTML "      <tr><td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><textarea " & w_Disabled & " accesskey=""E"" name=""w_ds_sistema"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva sucDblamente o objetivo do sistema e seu ambiente de execução.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_sistema & "</TEXTAREA></td>"
     ShowHTML "      <tr>"
     ShowHTML "      </tr>"
     ShowHTML "      <tr>"
@@ -1403,7 +1403,7 @@ Sub GetComponente
     ShowHTML "          </select>"
     ShowHTML "          <td valign=""top""><font size=""1""><b><u>N</u>ome do arquivo físico:</b><br><input " & w_Disabled & " accesskey=""N"" type=""text"" name=""w_no_fisico"" class=""STI"" SIZE=""30"" MAXLENGTH=""30"" VALUE=""" & w_no_fisico & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o nome do arquivo físico do componente.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "        </table>"
-    ShowHTML "      <tr><td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><textarea " & w_Disabled & " accesskey=""E"" name=""w_ds_componente"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva sucintamente o componente.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_componente & "</TEXTAREA></td>"
+    ShowHTML "      <tr><td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><textarea " & w_Disabled & " accesskey=""E"" name=""w_ds_componente"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva sucDblamente o componente.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_componente & "</TEXTAREA></td>"
     ShowHTML "      <tr>"
     ShowHTML "      </tr>"
     ShowHTML "      <tr>"
@@ -1683,7 +1683,7 @@ Sub GetVersao
     If w_no_arquivo > "" Then
        ShowHTML "              <b><a class=""SS"" href=""" & w_ds_caminho & w_chave & Mid(w_no_arquivo, Instr(w_no_arquivo,"."), 50) & """ target=""_blank"" title=""Clique para recuperar o arquivo atual."">Exibir</a></b>"
     End If
-    ShowHTML "      <tr><td><font size=""1""><b>D<u>e</u>scrição:</b><br><textarea " & w_Disabled & " accesskey=""E"" name=""w_ds_versao"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva sucintamente o componente.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_versao & "</TEXTAREA></td>"
+    ShowHTML "      <tr><td><font size=""1""><b>D<u>e</u>scrição:</b><br><textarea " & w_Disabled & " accesskey=""E"" name=""w_ds_versao"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva sucDblamente o componente.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_versao & "</TEXTAREA></td>"
     ShowHTML "      <tr>"
     ShowHTML "      </tr>"
     ShowHTML "      <tr><td align=""center"" colspan=4><hr>"
@@ -4696,6 +4696,19 @@ Public Sub Grava
 
           'Abre transação para garantir que os dados da escola estarão integros
           dbms.BeginTrans()
+          
+        'Remove os registros vinculados à escola
+        SQL = "DELETE FROM escParticular_Portaria"
+        ExecutaSQL(SQL)
+
+        SQL = "DELETE FROM escParticular_OS"
+        ExecutaSQL(SQL)
+
+        SQL = "DELETE FROM escParticular_Curso"
+        ExecutaSQL(SQL)
+
+        SQL = "DELETE FROM escCurso"
+        ExecutaSQL(SQL)
 
           Do While Not F2.AtEndOfStream
              w_linha = replace(trim(F2.ReadLine),"\""","`")
@@ -4723,12 +4736,12 @@ Public Sub Grava
                     Next
                        
                     ' Carrega os dados em array
-                    For i = 1 to 32
+                    For i = 1 to 33
                         w_campo(i) = "'" & replace(trim(Piece(w_linha,delimitador,",",i)),"'","''") & "'"
                     Next
                     
                     ' Trata valores nulos
-                    For i = 1 to 32
+                    For i = 1 to 33
                         If w_campo(i) = "'NULL'" Then
                            w_campo(i) = "NULL"
                         End If
@@ -4764,8 +4777,10 @@ Public Sub Grava
                     idEndMantenedora    = w_campo(28)
                     SiteEscola          = w_campo(29)
                     Situacao            = w_campo(30)
-                    Login               = w_campo(31)
-                    Senha               = w_campo(32)
+                    Credenc             = w_campo(31)
+                    Login               = w_campo(32)
+                    Senha               = w_campo(33)
+                    
                     If idMantenedora = "NULL"       Then : idMantenedora = "'Sem informação'" : End If
                     If idPasta = "NULL"             Then : idPasta = 0 : End If
                     If idParecereResolucao = "NULL" Then : idParecereResolucao = "'Sem informação'" : End If
@@ -4776,22 +4791,22 @@ Public Sub Grava
                     If idCodinep = "NULL"           Then : idCodinep = "0" : End If
                     If idRegiao = "'0'"             Then : idRegiao = "1" : End If
                     If idVencimento = "'0000-00-00'" Then : idVencimento = "NULL" : End If
-                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": " & replace(idInstituicao,"'","")
+                    'ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": " & replace(idInstituicao,"'","")
                     Response.Flush
                     
                     
                     SQL = "SELECT count(idescola) as Registros FROM escCliente_Particular WHERE idEscola = " & idEscola 
                     ConectaBD SQL
 
-                    If cInt(RS("Registros")) = 0 Then
+                    If cDbl(RS("Registros")) = 0 Then
                        SQL = "SELECT (MAX(sq_cliente) + 1) as MaxValue from escCliente WHERE sq_cliente < 99000"
                        ConectaBD SQL
-                       sq_cliente = cInt(RS("MaxValue"))
+                       sq_cliente = cDbl(RS("MaxValue"))
           
                        SQL = "INSERT INTO escCliente (sq_cliente,ativo,sq_tipo_cliente, ds_cliente, no_municipio, sg_uf, ds_username, ds_senha_acesso, localizacao, publica, sq_regiao_adm) " & VbCrLf & _
                              "(SELECT " & sq_cliente & ", 'Sim', a.sq_tipo_cliente, " & idInstituicao & ", " & VbCrLf & _
                              "        substring(b.no_regiao, charIndex(' ',b.no_regiao)+1,500), 'DF', " & VbCrLf & _
-                             "        " & login & ", " & senha & ", " & idLocalizacao & ", 'N', " & idRegiao & VbCrLf & _
+                             "        " & Login & ", " & Senha & ", " & idLocalizacao & ", 'N', " & idRegiao & VbCrLf & _
                              "   FROM escTipo_Cliente a, " & VbCrLf & _
                              "        escRegiao_Administrativa b " & VbCrLf & _
                              "  WHERE a.tipo = 4 " & VbCrLf & _
@@ -4800,8 +4815,8 @@ Public Sub Grava
                        ExecutaSQL(SQL)
                        
 
-                       SQL = "INSERT INTO escCliente_Particular (sq_cliente, Pasta, Diretor, Mantenedora, Endereco, Telefone_1, Fax, Vencimento, Observacao, idEscola, Codinep, Telefone_2, Email_1, Email_2, Cnpj_Executora, Cnpj_Escola, Secretario, Cep, Aut_Hab_Secretario, Infantil, Fundamental, EJA, Medio, Distancia, Profissional, Regiao, mantenedora_endereco, url, situacao) " & VbCrLf & _
-                             "VALUES(" & sq_cliente & ", " & idPasta & ", " & idDiretor & ", " & idMantenedora & ", " & idEndereco & ", " & idTelefone_1 & ", " & idFax & ", " & idVencimento & ", " & idObservacao & ", " & idEscola & ", " & idCodinep & ", " & idTelefone_2 & ", " & idEmail_1 & ", " & idEmail_2 & ", " & idCnpjExecutora & ", " & idCnpjEscola & ", " & idSecretario & ", " & idCep & ", " & idAutHabSecretario & ", " & idEinf & ", " & idEf & ", " & idEja & ", " & idEm & ", " & idEDA & ", " & idEprof & ", " & idRegiao & ", " & idEndMantenedora & ", " & SiteEscola & ", " & situacao & ")"
+                       SQL = "INSERT INTO escCliente_Particular (sq_cliente, Pasta, Diretor, Mantenedora, Endereco, Telefone_1, Fax, Vencimento, Observacao, idEscola, Codinep, Telefone_2, Email_1, Email_2, Cnpj_Executora, Cnpj_Escola, Secretario, Cep, Aut_Hab_Secretario, Infantil, Fundamental, EJA, Medio, Distancia, Profissional, Regiao, mantenedora_endereco, url, situacao, primeiro_credenc) " & VbCrLf & _
+                             "VALUES(" & sq_cliente & ", " & idPasta & ", " & idDiretor & ", " & idMantenedora & ", " & idEndereco & ", " & idTelefone_1 & ", " & idFax & ", " & idVencimento & ", " & idObservacao & ", " & idEscola & ", " & idCodinep & ", " & idTelefone_2 & ", " & idEmail_1 & ", " & idEmail_2 & ", " & idCnpjExecutora & ", " & idCnpjEscola & ", " & idSecretario & ", " & idCep & ", " & idAutHabSecretario & ", " & idEinf & ", " & idEf & ", " & idEja & ", " & idEm & ", " & idEDA & ", " & idEprof & ", " & idRegiao & ", " & idEndMantenedora & ", " & SiteEscola & ", " & situacao & ", " & Credenc & ")"
                        ExecutaSQL(SQL)
                     Else
                        SQL = "SELECT sq_cliente FROM escCliente_Particular WHERE idescola = " & idEscola 
@@ -4810,8 +4825,8 @@ Public Sub Grava
 
                        SQL = "UPDATE escCliente SET " & VbCrLf & _
                              "       ds_cliente      = " & idInstituicao & ", " & VbCrLf & _
-                             "       ds_username     = " & login & ", " & VbCrLf & _
-                             "       ds_senha_acesso = " & senha & ", " & VbCrLf & _
+                             "       ds_username     = " & Login & ", " & VbCrLf & _
+                             "       ds_senha_acesso = " & Senha & ", " & VbCrLf & _
                              "       no_municipio    = (select substring(no_regiao, charIndex(' ',no_regiao)+1,500) from escRegiao_Administrativa where sq_regiao_adm = " & idRegiao & "), " & VbCrLf & _
                              "       localizacao     = " & idLocalizacao & ", " & VbCrLf & _
                              "       sq_regiao_adm   = " & idRegiao & VbCrLf & _
@@ -4845,25 +4860,13 @@ Public Sub Grava
                              "       Regiao               = " & idRegiao & ", " & VbCrLf & _ 
                              "       Mantenedora_Endereco = " & idEndMantenedora & ", " & VbCrLf & _ 
                              "       URL                  = " & SiteEscola & ", " & VbCrLf & _ 
-                             "       Situacao             = " & Situacao & " " & VbCrLf & _ 
+                             "       Situacao             = " & Situacao & ", " & VbCrLf & _ 
+                             "       primeiro_credenc     = " & Credenc  & "  " & VbCrLf & _ 
                              "  WHERE sq_cliente = " & sq_cliente
                        ExecutaSQL(SQL)
                        
                        'Remove os arquivos vinculados à escola
                        SQL = "DELETE FROM escCliente_Arquivo WHERE SQ_SITE_CLIENTE = " & sq_cliente
-                       ExecutaSQL(SQL)
-
-                       'Remove os registros vinculados à escola
-                       SQL = "DELETE FROM escParticular_Portaria"
-                       ExecutaSQL(SQL)
-
-                       SQL = "DELETE FROM escParticular_OS"
-                       ExecutaSQL(SQL)
-
-                       SQL = "DELETE FROM escParticular_Curso"
-                       ExecutaSQL(SQL)
-
-                       SQL = "DELETE FROM escCurso"
                        ExecutaSQL(SQL)
 
                     End If
@@ -4873,7 +4876,7 @@ Public Sub Grava
 
                     SQL = "SELECT MAX(sq_codigo_cli) as MaxValue from escEspecialidade_Cliente"
                     ConectaBD SQL
-                    chave = cInt(RS("MaxValue"))
+                    chave = cDbl(RS("MaxValue"))
                     
                     SQL = "select a.sq_cliente, c.sq_especialidade, c.ds_especialidade " & VbCrLf & _
                           "  from escCliente                       a " & VbCrLf & _
@@ -4948,7 +4951,7 @@ Public Sub Grava
                     
                     Curso    = w_campo(1)
                     idCursos = w_campo(2)
-                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": " & replace(Curso,"'","")
+                    'ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": " & replace(Curso,"'","")
                     Response.Flush
 
                     SQL = "INSERT INTO escCurso (sq_curso, ds_curso, idcurso) VALUES (" & idCursos & ", " &  Curso & ", " & idCursos &  ");"
@@ -4970,12 +4973,12 @@ Public Sub Grava
                     idNomeArquivo   = w_campo(2)
                     idarquivos      = w_campo(3)
                     descricao       = w_campo(4)
-                    ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": id " & replace(idArquivos,"'","")
+                    'ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": id " & replace(idArquivos,"'","")
                     Response.Flush
 
                     SQL = "SELECT MAX(sq_arquivo)+1 as MaxValue from escCliente_Arquivo"
                     ConectaBD SQL
-                    chave = cInt(RS("MaxValue"))
+                    chave = cDbl(RS("MaxValue"))
 
                     SQL =  "INSERT INTO escCLIENTE_ARQUIVO (SQ_ARQUIVO,SQ_SITE_CLIENTE,DT_ARQUIVO,DS_TITULO,DS_ARQUIVO,LN_ARQUIVO,IN_ATIVO,IN_DESTINATARIO,NR_ORDEM) " & VbCrLf & _
                            "(SELECT " & chave & "," & VbCrLf & _
@@ -4983,7 +4986,7 @@ Public Sub Grava
                            "        getDate()," & VbCrLf & _
                            "        " & mid(descricao,1,100) & "," & VbCrLf & _
                            "        " & mid(descricao,1,200) & "," & VbCrLf & _
-                           "        " & mid(idNomeArquivo,1,80) & "," & VbCrLf & _
+                           "        " & idNomeArquivo & "," & VbCrLf & _
                            "        'Sim'," & VbCrLf & _
                            "        'A'," & VbCrLf & _
                            "        1" & VbCrLf & _
@@ -4992,6 +4995,7 @@ Public Sub Grava
                            ")"
                     ExecutaSQL(SQL)
                 ElseIf w_tipo = "PROFISSIONAIS" Then
+                
                     ' Carrega os dados em array
                     For i = 1 to 7
                         w_campo(i) = "'" & trim(Piece(w_linha,delimitador,",",i)) & "'"
@@ -5003,14 +5007,14 @@ Public Sub Grava
                            w_campo(i) = "NULL"
                         End If
                     Next
-                    
+                    '"id","esc_id","curso_id","tipo","eixo","nic","minCarga"
                     idProfissionais = w_campo(1)
                     idEscola        = w_campo(2)
-                    Pasta           = w_campo(3)
-                    Parecer         = w_campo(4)
-                    Portaria        = w_campo(5)
-                    Observacao      = w_campo(6)
-                    idCursos        = w_campo(7)
+                    Pasta           = "0" 'w_campo(3)
+                    Parecer         = "'Não Inf'" 'w_campo(4)
+                    Portaria        = "'Não Inf'" 'w_campo(5)
+                    Observacao      = "'Não Inf'" 'w_campo(6)
+                    idCursos        = w_campo(3)
                     ShowHTML "<br>&nbsp;&nbsp;&nbsp;Linha " & w_cont & ": id " & replace(idProfissionais,"'","")
                     Response.Flush
 
@@ -5952,7 +5956,6 @@ REM =========================================================================
 REM Monta a tela de Pesquisa
 REM -------------------------------------------------------------------------
 Public Sub ShowEscolaParticular
-
   Dim RS1, p_regiao
 
   Dim sql, sql2, wCont, sql1, wAtual, wIN, w_especialidade

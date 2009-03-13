@@ -17,13 +17,13 @@ REM Local    : Brasília - DF
 REM Companhia: 2000 by SBPI - Sociedade Brasileira para a Pesquisa em Informática
 REM -------------------------------------------------------------------------
 
-Private RS
+Private RS, RS_Curso
 Private RS1
 Private sobjConn
 Private sstrSN
 Private sstrCL
 Private strTitulo
-Private marcado, i, p_regional, dbms
+Private marcado, i, p_regional, dbms, p_curso
 
 sstrSN = "default.asp"
 
@@ -39,6 +39,7 @@ sstrIN = Request("IN")
 
 Set RS = Server.CreateObject("ADODB.RecordSet")
 Set RS1 = Server.CreateObject("ADODB.RecordSet")
+Set RS_Curso = Server.CreateObject("ADODB.RecordSet")
 Set sobjConn  = Server.CreateObject("ADODB.Connection")
 
 sobjConn.ConnectionTimeout = 300
@@ -116,199 +117,261 @@ AbreSessao
 'FechaSessao
 ShowHTML " <h3>Busca avançada</h3>"
 
-    <!-- <form action="" id="formConteudo">-->
-    ShowHTML " <FORM ACTION=""default.asp?EW=121"" id=""form1"" name=""form1"" METHOD=""POST"">"
-    ShowHTML " <div id=""regional"">"
-    ShowHTML " <div class=""topo""> </div>"
-   
-    Dim sql, sql2, wCont, sql1, wAtual, wIN
-
-    ShowHTML "<SCRIPT LANGUAGE=""JAVASCRIPT""><!--  "
-    ShowHTML "function marcaTipo() {  "
-    ShowHTML "  document.form1.submit();"
-    ShowHTML "}  "
-    ShowHTML "--></SCRIPT>"
-  
-    ShowHTML "        <FORM ACTION=""default.asp?EW=121"" id=""form1"" name=""form1"" METHOD=""POST"">"
-    ShowHTML "        <input type=""Hidden"" name=""htBT"" value=""1"">"
-    ShowHTML "        <input type=""Hidden"" name=""str2"" value=""10"">"
-      'ShowHTML "          <TR><TD colspan=""2"" align=""left"" valign""middle""><p align=""justify"">Selecione as formas de busca desejadas para listar as escolas (pelo menos uma delas deve ser selecionada):</p></td></tr>"
-
-    ' Verifica se há alguma escola particular no cadastro. Se não, marca para tratar apenas escolas públicas
-    SQL = "select count(sq_cliente) as cadprivada from escCliente_Particular"
-    ConectaBD SQL
-    'If RS("cadprivada") > 0 Then
-    '    If Nvl(Request("T"),"S") = "S" Then ShowHtml("<input type=""radio"" name=""T"" value=""S"" checked=""checked"" onclick=""marcaTipo();""> Rede pública")  Else ShowHtml("<input type=""radio"" name=""T"" value=""S"" onclick=""marcaTipo();""> Rede pública") End If
-    '    If Request("T") = "P"          Then ShowHtml("<input type=""radio"" name=""T"" value=""P"" checked=""checked"" onclick=""marcaTipo();""> Rede privada")  Else ShowHtml("<input type=""radio"" name=""T"" value=""P"" onclick=""marcaTipo();""> Rede privada") End If        
-    '    ShowHTML "<br/><br/>"
-    'Else
-       ShowHTML "        <input type=""Hidden"" name=""T"" value=""S"">"
-    'End If
-    If Request("T") = "P" Then
-       ' Tratamento para escolas particulares
-       ShowHTML "          <h4>Região administrativa:</h4>"
-       SQL = "SELECT distinct b.sq_regiao_adm, b.no_regiao " & VbCrLf & _
-             "  FROM escCLIENTE a " & VbCrLf & _
-             "       inner join escRegiao_Administrativa b on (a.sq_regiao_adm = b.sq_regiao_adm) " & VbCrLf & _
-             "ORDER BY b.no_regiao" & VbCrLf
-       ConectaBD SQL
-       ShowHTML " <SELECT class=""texto"" NAME=""p_regional"">"
-       If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todas" End If
-       While Not RS.EOF
-          If cDbl(nvl(RS("sq_regiao_adm"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
-             ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """ SELECTED>" & RS("no_regiao")
-          Else
-             ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """>" & RS("no_regiao")
-          End If
-          RS.MoveNext
-       Wend
-       ShowHTML "          </select>"
-       RS.Close
-    Else
-       ' Seleção de regional
-       SQL = "SELECT a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
-             "  FROM escCLIENTE a " & VbCrLf & _
-             "       inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
-             " WHERE b.tipo = 2 " & VbCrLf & _
-             "ORDER BY a.ds_cliente"    
-       ShowHTML " <h4>Regional de ensino:</h4>"    
-       ConectaBD SQL
-       ShowHTML " <SELECT class=""texto"" NAME=""p_regional"">"    
-       If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todas" End If
-       While Not RS.EOF
-          If cDbl(nvl(RS("sq_cliente"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
-             ShowHTML "          <option value=""" & RS("sq_cliente") & """ SELECTED>" & RS("ds_cliente")
-          Else
-             ShowHTML "          <option value=""" & RS("sq_cliente") & """>" & RS("ds_cliente")
-          End If
-          RS.MoveNext
-       Wend
-       ShowHTML "          </select>"
-       DesconectaBD
-
-       ShowHTML " <div class=""base""></div>"
-       ShowHTML " </div>"
-       ShowHTML " <div id=""instituicao"">"
-       ShowHTML " <div class=""topo""> </div>"
+<!-- <form action="" id="formConteudo">-->
+ShowHTML " <FORM ACTION=""default.asp?EW=121"" id=""form1"" name=""form1"" METHOD=""POST"">"
+ShowHTML " <div id=""tpinstituicao"">"
+ShowHTML " <div class=""topo""> </div>"
+    'ShowHTML "          <TR><TD colspan=""2"" align=""left"" valign""middle""><p align=""justify"">Selecione as formas de busca desejadas para listar as escolas (pelo menos uma delas deve ser selecionada):</p></td></tr>"
+ShowHTML "          <h4 title=""Selecione o tipo de instituição!"">Tipo de Instituição:</h4>"
+' Verifica se há alguma escola particular no cadastro. Se não, marca para tratar apenas escolas públicas
+SQL = "select count(sq_cliente) as cadprivada from escCliente_Particular"
+ConectaBD SQL
+If RS("cadprivada") > 0 Then
+   If Nvl(Request("T"),"S") = "S" Then ShowHtml("<input type=""radio"" name=""T"" value=""S"" checked=""checked"" onclick=""marcaTipo();""> Rede pública")  Else ShowHtml("<input type=""radio"" name=""T"" value=""S"" onclick=""marcaTipo();""> Rede pública") End If
+   If Request("T") = "P"          Then ShowHtml("<input type=""radio"" name=""T"" value=""P"" checked=""checked"" onclick=""marcaTipo();""> Rede privada")  Else ShowHtml("<input type=""radio"" name=""T"" value=""P"" onclick=""marcaTipo();""> Rede privada") End If        
+Else
+   ShowHTML "        <input type=""Hidden"" name=""T"" value=""S"">"
+End If
     
-       ' Seleção de tipo de instituição
-       SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
-       ConectaBD SQL   
-       ShowHTML "         <h4>Tipo de instituição:</h4><SELECT class=""texto"" NAME=""Q"">"
-       If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
-       While Not RS.EOF
-          If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("Q"),0)) Then
-             ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """ SELECTED>" & RS("ds_tipo_cliente")
-          Else
-             ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """>" & RS("ds_tipo_cliente")
-          End If
-          RS.MoveNext
-       Wend
-       ShowHTML "          </select>"
-       DesconectaBD 
+ShowHTML " <div class=""base""></div>"
+ShowHTML " </div>"    
+ShowHTML " <div id=""regional"">"
+ShowHTML " <div class=""topo""> </div>"
+   
+Dim sql, sql2, wCont, sql1, wAtual, wIN
 
-       ShowHTML " <div class=""base""> </div>"
-       ShowHTML " </div>"
-
-       ShowHTML " <div id=""urbana"">"
-       ShowHTML " <div class=""topo""> </div>"
+ShowHTML "<SCRIPT LANGUAGE=""JAVASCRIPT""><!--  "
+ShowHTML "function marcaCurso() {  "
+ShowHTML "  if (document.getElementById('checkCurso').checked) {"
+ShowHTML "     document.form1.p_curso.disabled=false;"
+ShowHTML "  } else { "
+ShowHTML "     document.form1.p_curso.disabled=true;"
+ShowHTML "  }  "
+ShowHTML "}  "
+ShowHTML "function marcaTipo() {  "
+ShowHTML "  document.form1.submit();"
+ShowHTML "}  "
+ShowHTML "--></SCRIPT>"
   
-       ShowHTML "         <h4>Localização:</h4><div class=""radio_option"">"
-       If Request("Z") = "2" Then ShowHtml("<input type=""radio"" name=""Z"" value=""2"" checked=""checked""> Rural")  Else ShowHtml("<input type=""radio"" name=""Z"" value=""2""> Rural")  End If
-       If Request("Z") = "1" Then ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""1"" checked=""checked""> Urbana") Else ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""1""> Urbana") End If
-       If Request("Z") = ""  Then ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""""  checked=""checked""> Ambas")  Else ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value="""" > Ambas")  End If
+ShowHTML "        <FORM ACTION=""default.asp?EW=121"" id=""form1"" name=""form1"" METHOD=""POST"">"
+ShowHTML "        <input type=""Hidden"" name=""htBT"" value=""1"">"
+ShowHTML "        <input type=""Hidden"" name=""str2"" value=""10"">"
+'ShowHTML "          <TR><TD colspan=""2"" align=""left"" valign""middle""><p align=""justify"">Selecione as formas de busca desejadas para listar as escolas (pelo menos uma delas deve ser selecionada):</p></td></tr>"
 
-       ShowHTML " </div><div class=""base""> </div>"  
-       ShowHTML " </div>"  
+' Verifica se há alguma escola particular no cadastro. Se não, marca para tratar apenas escolas públicas
+'SQL = "select count(sq_cliente) as cadprivada from escCliente_Particular"
+'ConectaBD SQL
+'If RS("cadprivada") > 0 Then
+'    If Nvl(Request("T"),"S") = "S" Then ShowHtml("<input type=""radio"" name=""T"" value=""S"" checked=""checked"" onclick=""marcaTipo();""> Rede pública")  Else ShowHtml("<input type=""radio"" name=""T"" value=""S"" onclick=""marcaTipo();""> Rede pública") End If
+'    If Request("T") = "P"          Then ShowHtml("<input type=""radio"" name=""T"" value=""P"" checked=""checked"" onclick=""marcaTipo();""> Rede privada")  Else ShowHtml("<input type=""radio"" name=""T"" value=""P"" onclick=""marcaTipo();""> Rede privada") End If        
+'    ShowHTML "<br/><br/>"
+'Else
+ 'ShowHTML "        <input type=""Hidden"" name=""T"" value=""S"">"
+'End If
+If Request("T") = "P" Then
+   ' Tratamento para escolas particulares
+   ShowHTML "          <h4>Região administrativa:</h4>"
+    SQL = "SELECT distinct b.sq_regiao_adm, b.no_regiao " & VbCrLf & _
+         "  FROM escCLIENTE a " & VbCrLf & _
+         "       inner join escRegiao_Administrativa b on (a.sq_regiao_adm = b.sq_regiao_adm) " & VbCrLf & _
+         "ORDER BY b.no_regiao" & VbCrLf
+   ConectaBD SQL
+   ShowHTML " <SELECT class=""texto"" NAME=""p_regional"">"
+   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todas" End If
+   While Not RS.EOF
+      If cDbl(nvl(RS("sq_regiao_adm"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
+         ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """ SELECTED>" & RS("no_regiao")
+      Else
+         ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """>" & RS("no_regiao")
+      End If
+      RS.MoveNext
+   Wend
+   ShowHTML "          </select>"
+   RS.Close
+Else
+   ' Seleção de regional
+   SQL = "SELECT a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " & VbCrLf & _
+         "  FROM escCLIENTE a " & VbCrLf & _
+         "       inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
+         " WHERE b.tipo = 2 " & VbCrLf & _
+         "ORDER BY a.ds_cliente"    
+   ShowHTML " <h4>Regional de ensino:</h4>"    
+   ConectaBD SQL
+   ShowHTML " <SELECT class=""texto"" NAME=""p_regional"">"    
+   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todas" End If
+   While Not RS.EOF
+      If cDbl(nvl(RS("sq_cliente"),0)) = cDbl(nvl(Request("p_regional"),0)) Then
+         ShowHTML "          <option value=""" & RS("sq_cliente") & """ SELECTED>" & RS("ds_cliente")
+      Else
+         ShowHTML "          <option value=""" & RS("sq_cliente") & """>" & RS("ds_cliente")
+      End If
+      RS.MoveNext
+   Wend
+   ShowHTML "          </select>"
+   DesconectaBD
+End If    
+ShowHTML " <div class=""base""></div>"
+ShowHTML " </div>"
+If nvl(Request("T"),"S") <> "P" Then
+   ShowHTML " <div id=""instituicao"">"
+   ShowHTML " <div class=""topo""> </div>"
+    
+   ' Seleção de tipo de instituição
+   SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
+   ConectaBD SQL   
+   ShowHTML "         <h4>Tipo de instituição:</h4><SELECT class=""texto"" NAME=""Q"">"
+   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
+   While Not RS.EOF
+      If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(Request("Q"),0)) Then
+         ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """ SELECTED>" & RS("ds_tipo_cliente")
+      Else
+         ShowHTML "          <option value=""" & RS("sq_tipo_cliente") & """>" & RS("ds_tipo_cliente")
+      End If
+      RS.MoveNext
+   Wend
+   ShowHTML "          </select>"
+   DesconectaBD 
 
-       ShowHTML " <div id=""opcoes"">"
-       ShowHTML " <div class=""topo""> </div>"
+   ShowHTML " <div class=""base""> </div>"
+   ShowHTML " </div>"
+End If
+ShowHTML " <div id=""urbana"">"
+ShowHTML " <div class=""topo""> </div>"
   
-       wCont = 0
-       wIN = 0
-       sql1 = ""
+ShowHTML "         <h4>Localização:</h4><div class=""radio_option"">"
+If Request("Z") = "2" Then ShowHtml("<input type=""radio"" name=""Z"" value=""2"" checked=""checked""> Rural")  Else ShowHtml("<input type=""radio"" name=""Z"" value=""2""> Rural")  End If
+If Request("Z") = "1" Then ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""1"" checked=""checked""> Urbana") Else ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""1""> Urbana") End If
+If Request("Z") = ""  Then ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value=""""  checked=""checked""> Ambas")  Else ShowHtml("&nbsp;<input type=""radio"" name=""Z"" value="""" > Ambas")  End If
 
-       ' Seleção de etapas/modalidades
-       sql = "SELECT DISTINCT a.curso as sq_especialidade, a.curso as ds_especialidade, 1 as nr_ordem, 'M' as tp_especialidade " & VbCrLf & _ 
-             " from escTurma_Modalidade                 AS a " & VbCrLf & _ 
-             "      INNER JOIN escTurma                 AS c ON (a.serie           = c.ds_serie) " & VbCrLf & _
-             "      INNER JOIN escCliente               AS d ON (c.sq_site_cliente = d.sq_cliente) " & VbCrLf & _
-             "UNION " & VbCrLf & _ 
-             "SELECT DISTINCT cast(a.sq_especialidade as varchar) as sq_especialidade, a.ds_especialidade,  " & VbCrLf & _ 
-             "       case a.tp_especialidade when 'J' then '1' else a.nr_ordem end as nr_ordem, " & VbCrLf & _ 
-             "       case a.tp_especialidade when 'J' then 'M' else a.tp_especialidade end as tp_especialidade" & VbCrLf & _ 
-             " from escEspecialidade AS a " & VbCrLf & _ 
-             "      INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
-             "      INNER JOIN escCliente               AS d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
-             " where a.tp_especialidade <> 'M' " & VbCrLf & _
-             "ORDER BY a.nr_ordem, a.ds_especialidade " & VbCrLf
-       ConectaBD sql
-      
-       If Not RS.EOF Then
-          wCont = 0
-          wAtual = ""
+ShowHTML " </div><div class=""base""> </div>"  
+ShowHTML " </div>"  
 
-          Do While Not RS.EOF
-                 
-             If wAtual = "" or wAtual <> RS("tp_especialidade") Then
-                wAtual = RS("tp_especialidade")
-                If wAtual = "M" Then
-                   If Nvl(Request("T"),"S") = "P" Then
-                      ShowHTML "<dl>"
-                      ShowHTML "          <dt><b>Modalidades de ensino</b>: </dt>"
-                   Else
-                      ShowHTML "          <dt><b>Etapas / Modalidades de ensino</b>: </dt>"
-                   End If
-                ElseIf wAtual = "R" Then
-                   ShowHTML "          <dt><b>Em Regime de Intercomplementaridade</b>: </dt>"
-                Else
-                   ShowHTML "          <dt><b>Outras</b>: </dt>"
-                End If
-             End If
-             wCont = wCont + 1
-             marcado = "N"
-             For i = 1 to Request("H").Count
-                 If RS("sq_especialidade") = Request("H")(i) Then marcado = "S" End If
-             Next
-             
-             If marcado = "S" Then
-                ShowHTML chr(13) & "               <dd><input type=""checkbox"" name=""H"" value=""" & RS("sq_especialidade") & """ checked> " & RS("ds_especialidade")
-                sql1 = Request("H")
-                wIN = 1
-             Else
-                ShowHTML chr(13) & "               <dd><input type=""checkbox"" name=""H"" value=""" & RS("sq_especialidade") & """> " & RS("ds_especialidade")
-             End If
-           RS.MoveNext
+ShowHTML " <div id=""opcoes"">"
+ShowHTML " <div class=""topo""> </div>"
+  
+wCont = 0
+wIN = 0
+sql1 = ""
 
-             If (wCont Mod 2) = 0 Then 
-               wCont = 0
-           End If
-       Loop
-    End If    
-  End If    
-  ShowHTML " </dd>"  
-  ShowHTML " <div class=""base""> </div>"  
-  ShowHTML " </div>"  
-  ShowHTML " <div id=""botao"">"
-  ShowHTML " <input id=""pesquisar"" type=""button"" name=""Botao"" value=""Pesquisar"" class=""botao"" onClick=""javascript: document.form1.Botao.disabled=true; document.form1.submit();"">"
-  ShowHTML " </form>"
-  ShowHTML " </div> "
-  ShowHTML " <div id=""resultado"">"
-  FechaSessao
+ ' Seleção de etapas/modalidades
+If(nvl(Request("T"),"S") = "S") Then
+   sql = "SELECT DISTINCT a.curso as sq_especialidade, a.curso as ds_especialidade, 1 as nr_ordem, 'M' as tp_especialidade " & VbCrLf & _ 
+         " from escTurma_Modalidade                 AS a " & VbCrLf & _ 
+         "      INNER JOIN escTurma                 AS c ON (a.serie           = c.ds_serie) " & VbCrLf & _
+         "      INNER JOIN escCliente               AS d ON (c.sq_site_cliente = d.sq_cliente) " & VbCrLf & _
+         "UNION " & VbCrLf & _ 
+         "SELECT DISTINCT cast(a.sq_especialidade as varchar) as sq_especialidade, a.ds_especialidade,  " & VbCrLf & _ 
+         "       case a.tp_especialidade when 'J' then '1' else a.nr_ordem end as nr_ordem, " & VbCrLf & _ 
+         "       case a.tp_especialidade when 'J' then 'M' else a.tp_especialidade end as tp_especialidade" & VbCrLf & _ 
+         " from escEspecialidade AS a " & VbCrLf & _ 
+         "      INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
+         "      INNER JOIN escCliente               AS d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
+         " where a.tp_especialidade <> 'M' " & VbCrLf & _
+         "ORDER BY a.nr_ordem, a.ds_especialidade " & VbCrLf
+   sql_curso = "select distinct a.sq_curso, a.ds_curso from escCurso a inner join escParticular_Curso b on (a.sq_curso = b.sq_curso) where 1 = 0 order by ds_curso"
+Else
+   sql = "SELECT DISTINCT cast(a.sq_especialidade as varchar) as sq_especialidade, a.ds_especialidade,  " & VbCrLf & _ 
+         "       case a.tp_especialidade when 'J' then '1' else a.nr_ordem end as nr_ordem, " & VbCrLf & _ 
+         "       case a.tp_especialidade when 'J' then 'M' else a.tp_especialidade end as tp_especialidade" & VbCrLf & _ 
+         " from escEspecialidade AS a " & VbCrLf & _ 
+         "      INNER JOIN escEspecialidade_cliente AS c ON (a.sq_especialidade = c.sq_codigo_espec) " & VbCrLf & _
+         "      INNER JOIN escCliente               AS d ON (c.sq_cliente       = d.sq_cliente) " & VbCrLf & _
+         " where a.tp_especialidade = 'M' " & VbCrLf & _
+         "ORDER BY a.nr_ordem, a.ds_especialidade " & VbCrLf       
 
-  If Request("H") > "" Then
-     w_h = ""
-     For w_cont = 1 To Request.Form("H").Count
-         If Nvl(Request("H")(w_cont),"0") <> "0" Then
-            w_h = ",'" & Request("H")(w_cont) & "'" & w_h
+    sql_curso = "select distinct a.sq_curso, a.ds_curso from escCurso a inner join escParticular_Curso b on (a.sq_curso = b.sq_curso) order by ds_curso"
+End If
+RS_Curso.Open sql_curso, sobjConn, adOpenStatic
+ConectaBD sql
+If Not RS.EOF Then
+   wCont = 0
+   wAtual = ""
+
+   Do While Not RS.EOF
+      If wAtual = "" or wAtual <> RS("tp_especialidade") Then
+         wAtual = RS("tp_especialidade")
+         If wAtual = "M" Then
+            If Nvl(Request("T"),"S") = "P" Then
+               ShowHTML "<dl>"
+               ShowHTML "          <dt><b>Modalidades de ensino</b>: </dt>"
+            Else
+               ShowHTML "          <dt><b>Etapas / Modalidades de ensino</b>: </dt>"
+            End If
+         ElseIf wAtual = "R" Then
+            ShowHTML "          <dt><b>Em Regime de Intercomplementaridade</b>: </dt>"
+         Else
+            ShowHTML "          <dt><b>Outras</b>: </dt>"
          End If
-     Next
-     w_h = mid(w_h,2)
-  End If
-  if (Request("Z") > "") or (Request("Q") > "") or (Request("p_regional") > "") or (wIN > 0) then
+      End If
+      wCont = wCont + 1
+      marcado = "N"
+      For i = 1 to Request("H").Count
+          If RS("sq_especialidade") = Request("H")(i) Then marcado = "S" End If
+      Next
 
+      If marcado = "S" Then
+         If inStr(uCase(RS("ds_especialidade")),"PROFISSIONAL")>0 and (Not RS_Curso.EOF) Then
+            ShowHTML chr(13) & "               <dd><input id=""checkCurso"" type=""checkbox"" name=""H"" value=""" & RS("sq_especialidade") & """ checked onclick=""javascript:marcaCurso()""> " & RS("ds_especialidade")
+         Else
+            ShowHTML chr(13) & "               <dd><input type=""checkbox"" name=""H"" value=""" & RS("sq_especialidade") & """ checked> " & RS("ds_especialidade")
+         End If
 
-    ShowHTML " <h3>Resultado da Pesquisa</h3>"
+         sql1 = Request("H")
+         wIN = 1
+      Else
+         If inStr(uCase(RS("ds_especialidade")),"PROFISSIONAL")>0 and (Not RS_Curso.EOF) Then
+            ShowHTML chr(13) & "               <dd><input id=""checkCurso"" type=""checkbox"" name=""H"" value=""" & RS("sq_especialidade") & """ onclick=""javascript:marcaCurso()""> " & RS("ds_especialidade")
+         Else
+            ShowHTML chr(13) & "               <dd><input type=""checkbox"" name=""H"" value=""" & RS("sq_especialidade") & """> " & RS("ds_especialidade")
+         End If
+      End If
+      
+      If inStr(uCase(RS("ds_especialidade")),"PROFISSIONAL")>0 and (Not RS_Curso.EOF) Then
+         If marcado = "S" Then
+            ShowHTML "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<SELECT class=""sts"" NAME=""p_curso"">"
+         Else
+            ShowHTML "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<SELECT DISABLED class=""sts"" NAME=""p_curso"">"
+         End If
+         If RS.RecordCount > 1 Then ShowHTML "          <option value="""">Todos" End If
+         While Not RS_Curso.EOF
+            If cDbl(RS_Curso("sq_curso")) = cDbl(nvl(Request("p_curso"),0)) Then
+               ShowHTML "          <option value=""" & RS_Curso("sq_curso") & """ SELECTED>" & RS_Curso("ds_curso")
+            Else
+               ShowHTML "          <option value=""" & RS_Curso("sq_curso") & """>" & RS_Curso("ds_curso")
+            End If
+            RS_Curso.MoveNext
+         Wend
+         ShowHTML "          </select>"
+      End If
+      RS.MoveNext
+
+      If (wCont Mod 2) = 0 Then 
+        wCont = 0
+      End If
+   Loop
+   RS_Curso.Close
+End If    
+ShowHTML " </dd>"  
+ShowHTML " <div class=""base""> </div>"  
+ShowHTML " </div>"  
+ShowHTML " <div id=""botao"">"
+ShowHTML " <input id=""pesquisar"" type=""button"" name=""Botao"" value=""Pesquisar"" class=""botao"" onClick=""javascript: document.form1.Botao.disabled=true; document.form1.submit();"">"
+ShowHTML " </form>"
+ShowHTML " </div> "
+ShowHTML " <div id=""resultado"">"
+FechaSessao
+
+If Request("H") > "" Then
+   w_h = ""
+   For w_cont = 1 To Request.Form("H").Count
+       If Nvl(Request("H")(w_cont),"0") <> "0" Then
+          w_h = ",'" & Request("H")(w_cont) & "'" & w_h
+       End If
+   Next
+   w_h = mid(w_h,2)
+End If
+if (Request("Z") > "") or (Request("Q") > "") or (Request("p_regional") > "") or (wIN > 0) then
+   ShowHTML " <h3>Resultado da Pesquisa</h3>"
 
     sql = "SELECT DISTINCT 0 Tipo, d.sq_cliente, d.ds_cliente, d.ds_apelido,d.ln_internet,d.no_municipio,d.sg_uf, " & VbCrLf & _
           "       e.ds_logradouro,e.no_bairro,e.nr_cep, e.nr_fone_contato, d.localizacao, 'S' publica, null ds_username, " & VbCrLf & _
@@ -323,7 +386,7 @@ ShowHTML " <h3>Busca avançada</h3>"
     If Request("Z") > "" Then sql = sql + "    and 0 < (select count(*) from escCliente where sq_cliente_pai = d.sq_cliente and localizacao = " & Request("Z") & ") " & VbCrLf End If
     If Request("q") > "" Then sql = sql + "    and 0 < (select count(*) from escCliente where sq_cliente_pai = d.sq_cliente and d.sq_tipo_cliente= " & Request("q") & ") " & VbCrLf End If
     If sql1 > "" Then 
-       sql = sql & _
+      sql = sql & _
              "    and (0 < (select count(sq_cliente) from escEspecialidade_Cliente where sq_cliente_pai = d.sq_cliente and cast(sq_codigo_espec as varchar) in (" + w_h + ")) or " & VbCrLf & _
              "         0 < (select count(*) from escTurma_Modalidade  w INNER JOIN escTurma x ON (w.serie = x.ds_serie) INNER JOIN escCliente y ON (x.sq_site_cliente = y.sq_cliente) where y.sq_cliente_pai = d.sq_cliente and w.curso in (" + w_h + ")) " & VbCrLf & _
              "        ) " & VbCrLf 
@@ -363,13 +426,15 @@ ShowHTML " <h3>Busca avançada</h3>"
           "       LEFT  JOIN escEspecialidade_cliente g ON (d.sq_cliente       = g.sq_cliente) " & VbCrLf & _
           "       INNER JOIN escRegiao_Administrativa r ON (d.sq_regiao_adm    = r.sq_regiao_adm) " & VbCrLf & _
           " where d.ativo <> 'Nao' and f.situacao = 1 and d.publica = 'N' and 'S' <> '" & REQUEST("T") & "' " & VbCrLf
-          
-        
     If Request("Z") > ""          Then sql = sql + "    and d.localizacao    = " & Request("Z")          & VbCrLf End If
     If Request("p_regional") > "" Then sql = sql + "    and d.sq_regiao_adm  = " & Request("p_regional") & VbCrLf End If
     If Request("q") > ""          Then sql = sql + "    and d.sq_tipo_cliente= " & Request("q")          & VbCrLf End If
     if sql1 > "" then
        sql = sql + "  and (cast(g.sq_codigo_espec as varchar) in (" + w_h + ")) " & VbCrLf
+    end if
+    If Request("p_curso") > "" Then
+       sql = sql & _
+             "    and (0 < (select count(*) from escParticular_Curso w where w.sq_cliente = d.sq_cliente and w.sq_curso = (" & Request("p_curso") & "))) " & VbCrLf 
     end if
     sql = sql & _   
           "UNION " & VbCrLf & _ 
@@ -392,8 +457,10 @@ ShowHTML " <h3>Busca avançada</h3>"
              "        ) " & VbCrLf 
     End If
     sql = sql + "ORDER BY tipo, d.ds_cliente " & VbCrLf
+    
+    'Response.Write(sql)
+    
     RS.Open sql, sobjConn, adOpenStatic
-   
     If Not RS.EOF Then
 
       If Request("str2") > "" Then RS.PageSize = cDbl(Request("str2")) Else RS.PageSize = 10 End If
@@ -620,7 +687,7 @@ REM =========================================================================
 REM Monta a tela de Pesquisa
 REM -------------------------------------------------------------------------
 Public Sub ShowPesquisa
-
+  
   Dim sql, sql2, wCont, sql1, wAtual, wIN
 
   ShowHTML "<SCRIPT LANGUAGE=""JAVASCRIPT""><!--  "
@@ -642,12 +709,11 @@ Public Sub ShowPesquisa
   
   ' Permite ao usuário selecionar entre escolas públicas e particulares
   If RS("cadprivada") > 0 Then
-    If Nvl(Request("T"),"S") = "S" Then ShowHtml("<input type=""radio"" name=""T"" value=""S"" checked=""checked"" onclick=""marcaTipo();""> Rede pública")  Else ShowHtml("<input type=""radio"" name=""T"" value=""S"" onclick=""marcaTipo();""> Rede pública") End If
-    If Request("T") = "P"          Then ShowHtml("<input type=""radio"" name=""T"" value=""P"" checked=""checked"" onclick=""marcaTipo();""> Rede privada")  Else ShowHtml("<input type=""radio"" name=""T"" value=""P"" onclick=""marcaTipo();""> Rede privada") End If
+    If Nvl(Request("T"),"S") = "S" Then ShowHtml("<input type=""radio"" name=""T"" value=""S"" checked=""checked"" onclick=""marcaTipo();""> Rede pública")  Else ShowHtml("<input type=""radio"" name=""T"" value=""S"" onclick=""marcaTipo();"">&nbsp;&nbsp;&nbsp;Rede pública") End If
+    If Request("T") = "P"          Then ShowHtml("<input type=""radio"" name=""T"" value=""P"" checked=""checked"" onclick=""marcaTipo();""> Rede privada")  Else ShowHtml("<input type=""radio"" name=""T"" value=""P"" onclick=""marcaTipo();"">Rede privada") End If
   Else
      ShowHTML "        <input type=""Hidden"" name=""T"" value=""S"">"
   End If
-  
   If Request("T") = "P" Then
     ShowHTML "          <tr><td colspan=2><b>Região administrativa:</b><br><SELECT class=""texto"" NAME=""p_regional"">"
     SQL = "SELECT distinct b.sq_regiao_adm, b.no_regiao " & VbCrLf & _
@@ -685,7 +751,8 @@ Public Sub ShowPesquisa
     Wend
     ShowHTML "          </select>"
     DesconectaBD
-
+  End If
+  
     SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
     ConectaBD SQL
     ShowHTML "         <tr><td colspan=2><b>Tipo de instituição:</b><br><SELECT class=""texto"" NAME=""Q"">"
@@ -700,7 +767,7 @@ Public Sub ShowPesquisa
     Wend
     ShowHTML "          </select>"
     DesconectaBD
-  End If
+
 
   ShowHtml("<tr><td colspan=2><b>Localização</b>:<br>")
   If Request("Z") = "2" Then ShowHtml("<input type=""radio"" name=""Z"" value=""2"" checked=""checked""> Rural")  Else ShowHtml("<input type=""radio"" name=""Z"" value=""2""> Rural")  End If
@@ -854,7 +921,6 @@ Public Sub ShowPesquisa
     end if
     sql = sql + "ORDER BY tipo, d.ds_cliente " & VbCrLf
     
-   ' Response.Write(sql)
 
     RS.Close
     RS.Open sql, sobjConn, adOpenStatic
