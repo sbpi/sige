@@ -211,6 +211,7 @@ FONTES_ASP_ORACLE/jquery.js -text
 FONTES_ASP_ORACLE/results.asp -text
 FONTES_ASP_ORACLE/treinamento/default.asp -text
 FONTES_PHP/calendario.php -text
+FONTES_PHP/check.php -text
 FONTES_PHP/classes/FusionCharts/FCF_Area2D.swf -text
 FONTES_PHP/classes/FusionCharts/FCF_Column2D.swf -text
 FONTES_PHP/classes/FusionCharts/FCF_Column3D.swf -text

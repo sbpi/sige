@@ -280,7 +280,7 @@ function boletim() {
         "       a.ds_naturalidade, a.no_mae, a.nr_fone_mae, a.no_pai, a.nr_fone_pai, ".$crlf.
         "       a.no_resposavel, a.nr_fone_responsavel, a.ds_email_responsavel, nr_fone_1, nr_fone_2 ".$crlf.
         "from sbpi.Aluno a ".$crlf.
-        "WHERE a.sq_aluno = ".$AL; 
+        "WHERE a.sq_aluno = ".$AL;		
   $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);
   if (count($RS)>0) {
     foreach ($RS as $row) { $RS = $row; break; }
@@ -334,21 +334,21 @@ function boletim() {
   ShowHTML('    <TD colspan=2 nowrap>2º Bim');
   ShowHTML('    <TD colspan=2 nowrap>3º Bim');
   ShowHTML('    <TD colspan=2 nowrap>4º Bim');
-  ShowHTML('    <TD rowspan=2>Média Anual');
+  //ShowHTML('    <TD rowspan=2>Média Anual');
   ShowHTML('    <TD rowspan=2>Recup. Final');
-  ShowHTML('    <TD rowspan=2>Faltas');
+  ShowHTML('    <TD rowspan=2>Total Faltas');
   ShowHTML('    <TD rowspan=2>Média Final');
   ShowHTML('    <TD rowspan=2>Result.');
   ShowHTML('  </TR>');
   ShowHTML('  <TR>');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
   ShowHTML('  <TR>');
   ShowHTML('    <TD COLSPAN="14" HEIGHT="1" BGCOLOR="##DAEABD">');
   ShowHTML('  </TR>');
@@ -366,7 +366,7 @@ function boletim() {
     foreach($RS as $row) {
       $w_ds_mensagem_boletim = f($RS,'DS_MENSAGEM_BOLETIM');
       ShowHTML('    <TR align="center">');
-      ShowHTML('    <TD title="'.f($row,'ds_disciplina').'"><center><b>'.f($row,'sg_disciplina'));
+      ShowHTML('    <TD title="'.f($row,'ds_disciplina').'"><center><b>'.f($row,'ds_disciplina'));
       ShowHTML('    <TD>'.trocaNulo(f($row,'b1_nota')));
       ShowHTML('    <TD>'.trocaNulo(f($row,'b1_falta')));
       ShowHTML('    <TD>'.trocaNulo(f($row,'b2_nota')));
@@ -375,10 +375,16 @@ function boletim() {
       ShowHTML('    <TD>'.trocaNulo(f($row,'b3_falta')));
       ShowHTML('    <TD>'.trocaNulo(f($row,'b4_nota')));
       ShowHTML('    <TD>'.trocaNulo(f($row,'b4_falta')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_anual')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_falta_anual')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_final')));
+      //ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_anual')));
+	  if(intval(f($row,'ds_recup_final')) > intval(f($row,'ds_media_final'))){
+		ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_falta_anual')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
+	  }else{
+		ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_falta_anual')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_final')));	  
+	  }    
       ShowHTML('    <TD><b>' );
       if (strpos(strtolower(trocaNulo(f($row,'ds_resultado'))),'rep')!==false) {
         ShowHTML('<font color="#FF0000">'.trocaNulo(f($row,'ds_resultado')));
@@ -389,14 +395,31 @@ function boletim() {
     if (nvl($w_ds_mensagem_boletim,'')!='') {
        ShowHTML('    <TR><TD colspan=14 align="left"><b>Mensagem:<BR><font color="#FF0000"><b>'.$w_ds_mensagem_boletim);
     }
-    ShowHTML('<tr><td colspan="14"><TABLE border=0 cellpadding=1>');
-    ShowHTML('  <TR><TD colspan="2"><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>');
-    $RS.reset;
-    foreach($RS as $row) {
-      ShowHTML('  <TR><TD><FONT FACE=VERDANA SIZE=1>'.f($row,'sg_disciplina').':');
-      ShowHTML('      <TD><FONT FACE=VERDANA SIZE=1>'.f($row,'ds_disciplina'));
-    }
-    ShowHTML('    </TABLE>');
+    // ShowHTML('<tr><td colspan="14"><TABLE border=0 cellpadding=1>');
+    // ShowHTML('  <TR><TD colspan="2"><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>');
+    // $RS.reset;
+    // foreach($RS as $row) {
+      // ShowHTML('  <TR><TD><FONT FACE=VERDANA SIZE=1>'.f($row,'sg_disciplina').':');
+      // ShowHTML('      <TD><FONT FACE=VERDANA SIZE=1>'.f($row,'ds_disciplina'));
+    // }
+    // ShowHTML('    </TABLE>');
+    ShowHTML('  <TR><TD colspan="2"><FONT FACE=VERDANA SIZE=1><B>Legenda dos Resultados:</B>');
+	ShowHTML('<br/>');
+	ShowHTML('<dl>');
+	ShowHTML('<dl>AP: Aprovado</dl>');
+    ShowHTML('<dl>AP*: Aprovado por dependência</dl>');
+	ShowHTML('<dl>AP**: Aprovado por conselho de classe</dl>');
+    ShowHTML('<dl>AP***: Dispensa menção classificatória</dl>');	
+	ShowHTML('<dl>RP: Reprovado</dl>');
+    ShowHTML('<dl>RP*: Reprovado por falta</dl>');
+	ShowHTML('<dl>RF: Recuperação Final</dl>');
+    ShowHTML('<dl>CS: Cursando</dl>');	
+	ShowHTML('<dl>RP**: Reprovado por ter ultrapassado o número máximo de Comp. Curriculares para RF falta</dl>');
+	ShowHTML('<dl>RP***: Reprovado por abandono</dl>');
+	ShowHTML('<dl>D: Avaliação Diferenciada</dl>');
+	ShowHTML('</dl>');
+	ShowHTML('    </TABLE>');
+	ShowHTML('    </TABLE>');	
   } else {
      ShowHTML('    <TR><TD colspan=14><b>Não há notas informadas.</b>');
   }
@@ -483,21 +506,21 @@ function boletimImp() {
   ShowHTML('    <TD colspan=2 nowrap>2º Bim');
   ShowHTML('    <TD colspan=2 nowrap>3º Bim');
   ShowHTML('    <TD colspan=2 nowrap>4º Bim');
-  ShowHTML('    <TD rowspan=2>Média Anual');
+  //ShowHTML('    <TD rowspan=2>Média Anual');
   ShowHTML('    <TD rowspan=2>Recup. Final');
-  ShowHTML('    <TD rowspan=2>Faltas');
+  ShowHTML('    <TD rowspan=2>Total Faltas');
   ShowHTML('    <TD rowspan=2>Média Final');
   ShowHTML('    <TD rowspan=2>Result.');
   ShowHTML('  </TR>');
   ShowHTML('  <TR>');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
-  ShowHTML('    <TD>Nt');
-  ShowHTML('    <TD>Flt');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
+  ShowHTML('    <TD>Nota');
+  ShowHTML('    <TD>Falta');
   ShowHTML('  <TR>');
   ShowHTML('    <TD COLSPAN="14" HEIGHT="1" BGCOLOR="##DAEABD">');
   ShowHTML('  </TR>');
@@ -524,10 +547,16 @@ function boletimImp() {
       ShowHTML('    <TD>'.trocaNulo(f($row,'b3_falta')));
       ShowHTML('    <TD>'.trocaNulo(f($row,'b4_nota')));
       ShowHTML('    <TD>'.trocaNulo(f($row,'b4_falta')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_anual')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_falta_anual')));
-      ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_final')));
+      //ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_anual')));
+	  if(intval(f($row,'ds_recup_final')) > intval(f($row,'ds_media_final'))){
+		ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_falta_anual')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
+	  }else{
+		ShowHTML('    <TD>'.trocaNulo(f($row,'ds_recup_final')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_falta_anual')));
+        ShowHTML('    <TD>'.trocaNulo(f($row,'ds_media_final')));	  
+	  }      
       ShowHTML('    <TD><b>' );
       if (strpos(strtolower(trocaNulo(f($row,'ds_resultado'))),'rep')!==false) {
         ShowHTML('<font color="#FF0000">'.trocaNulo(f($row,'ds_resultado')));
@@ -539,13 +568,28 @@ function boletimImp() {
        ShowHTML('    <TR><TD colspan=14 align="left"><b>Mensagem:<BR><font color="#FF0000"><b>'.$w_ds_mensagem_boletim);
     }
     ShowHTML('<tr><td colspan="14"><TABLE border=0 cellpadding=1>');
-    ShowHTML('  <TR><TD colspan="2"><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>');
-    $RS.reset;
-    foreach($RS as $row) {
-      ShowHTML('  <TR><TD><FONT FACE=VERDANA SIZE=1>'.f($row,'sg_disciplina').':');
-      ShowHTML('      <TD><FONT FACE=VERDANA SIZE=1>'.f($row,'ds_disciplina'));
-    }
-    ShowHTML('    </TABLE>');
+    // ShowHTML('  <TR><TD colspan="2"><FONT FACE=VERDANA SIZE=1><B>Legenda das disciplinas:</B>');
+    // $RS.reset;
+    // foreach($RS as $row) {
+      // ShowHTML('  <TR><TD><FONT FACE=VERDANA SIZE=1>'.f($row,'sg_disciplina').':');
+      // ShowHTML('      <TD><FONT FACE=VERDANA SIZE=1>'.f($row,'ds_disciplina'));
+    // }
+    // ShowHTML('    </TABLE>');
+    ShowHTML('  <TR><TD colspan="2"><FONT FACE=VERDANA SIZE=1><B>Legenda dos Resultados:</B>');
+    ShowHTML('<dl>');
+    ShowHTML('<dl>AP: Aprovado</dl>');
+    ShowHTML('<dl>AP*: Aprovado por dependência</dl>');
+    ShowHTML('<dl>AP**: Aprovado por conselho de classe</dl>');
+    ShowHTML('<dl>AP***: Dispensa menção classificatória</dl>');	
+    ShowHTML('<dl>RP: Reprovado</dl>');
+    ShowHTML('<dl>RP*: Reprovado por falta</dl>');
+    ShowHTML('<dl>RF: Recuperação Final</dl>');
+    ShowHTML('<dl>CS: Cursando</dl>');	
+    ShowHTML('<dl>RP**: Reprovado por ter ultrapassado o número máximo de Comp. Curriculares para RF falta</dl>');
+    ShowHTML('<dl>RP***: Reprovado por abandono</dl>');
+    ShowHTML('<dl>D: Avaliação Diferenciada</dl>');
+    ShowHTML('</dl>');
+	ShowHTML('    </TABLE>');
   } else {
      ShowHTML('    <TR><TD colspan=14><b>Não há notas informadas.</b>');
   }
@@ -882,7 +926,7 @@ function gradeHoraria() {
      ShowHTML ("    </TABLE>");
 
 	}Else{
-		 ShowHTML("    <TR><TD colspan=14><b>A grade horária não foi informada.</b>");
+		 ShowHTML('    <TR><TD colspan=14><b>A grade horária não foi informada.</b>');
 	}
   ShowHTML ("    </TABLE>");
 }
