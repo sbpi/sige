@@ -983,7 +983,7 @@
         } else {
           Validate("w_ln_arquivo", "Link", "", "", "2", "200", "1", "1");
         }
-        Validate("w_nr_ordem", "Nr. de ordem", "", "1", "1", "3", "1", "0123546789");
+        Validate("w_nr_ordem", "Nr. de ordem", "", "1", "1", "3", "", "0123546789");
       }
       ShowHTML(' if (theForm.w_ln_arquivo.value > ""){');
       ShowHTML('    if((theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.DLL\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.SH\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.BAT\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.EXE\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.ASP\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.PHP\')!=-1)) {');

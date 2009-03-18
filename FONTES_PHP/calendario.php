@@ -1,4 +1,4 @@
-	<?php	
+<?php	
 	
 	// Garante que a sessão será reinicializada.
 	session_start();
@@ -787,6 +787,7 @@
 			if (strpos("IA", $O) !== false) {
 				Validate("w_dt_ocorrencia", "data", "DATA", "1", "10", "10", "1", "1");
 				Validate("w_ds_ocorrencia", "ocorrência", "", "1", "2", "60", "1", "1");
+				Validate("w_tipo", "tipo", "", "1", "", "", "", "");
 				ShowHTML('  var w_data, w_data1, w_data2;');
 				ShowHTML('  w_data = theForm.w_dt_ocorrencia.value;');
 				ShowHTML('  w_data = w_data.substring(3,2) + "/" + w_data.substring(0,2) + "/" + w_data.substring(6,4);');
@@ -2202,7 +2203,7 @@
 						//Insere o arquivo            
 						$SQL = " insert into sbpi.Calendario_Cliente " . $crlf .
 						"    (sq_ocorrencia, sq_cliente, dt_ocorrencia, ds_ocorrencia, sq_tipo_data, sq_particular_calendario, dia_letivo) " . $crlf .
-						" (select " . $w_chave . ", " . $crlf .
+						" (select " . $w_chave . ", " . $crlf . 
 						"     " . $CL . ", " . $crlf .
 						"     to_date('" . FormataDataEdicao(FormatDateTime($_REQUEST["w_dt_ocorrencia"], 2)) . "','dd/mm/yyyy'), " . $crlf .
 						"     '" . $_REQUEST["w_ds_ocorrencia"] . "', " . $_REQUEST["w_tipo"] . ", " . $_REQUEST["w_atribuicao"][$i] . ", dia_letivo" . $crlf .
