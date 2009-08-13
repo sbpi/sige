@@ -1,4 +1,4 @@
-  <?php
+<?php
 
   // Garante que a sessão será reinicializada.
   session_start();
@@ -1246,34 +1246,36 @@
 
     if ($w_troca > '') { // Se for recarga da página
       $w_dt_noticia = $_REQUEST["w_dt_noticia"];
-      $w_ds_titulo = $_REQUEST["w_ds_titulo"];
+      $w_ds_titulo  = str_replace('"','&quot;',$_REQUEST["w_ds_titulo"]);
       $w_ds_noticia = $_REQUEST["w_ds_noticia"];
       $w_ln_noticia = $_REQUEST["w_ln_noticia"];
-      $w_in_ativo = $_REQUEST["w_in_ativo"];
-      $w_in_exibe = $_REQUEST["w_in_exibe"];
+      $w_in_ativo   = $_REQUEST["w_in_ativo"];
+      $w_in_exibe   = $_REQUEST["w_in_exibe"];
+      $w_ln_externo = str_replace('"','&quot;',$_REQUEST["w_ln_externo"]);
     }
     elseif ($O == 'L') {
       //Recupera todos os registros para a listagem
       if ($_SESSION["USERNAME"] == "IMPRENSA" or $_SESSION["USERNAME"] == "SBPI") {
-        $SQL = "select sq_noticia as chave, ds_titulo, ds_noticia, dt_noticia, ativo, in_exibe from sbpi.Noticia_Cliente where sq_cliente = 0 order by dt_noticia desc";
+        $SQL = "select sq_noticia as chave, ds_titulo, ds_noticia, dt_noticia, ln_externo, ativo, in_exibe from sbpi.Noticia_Cliente where sq_cliente = 0 order by dt_noticia desc";
       } else {
-        $SQL = 'select sq_noticia as chave, ds_titulo, ds_noticia, dt_noticia, ativo, in_exibe from sbpi.Noticia_Cliente where sq_cliente= ' . $CL . ' order by dt_noticia desc';
+        $SQL = 'select sq_noticia as chave, ds_titulo, ds_noticia, dt_noticia, ln_externo, ativo, in_exibe from sbpi.Noticia_Cliente where sq_cliente= ' . $CL . ' order by dt_noticia desc';
       }
       $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
     }
     elseif (strpos("AEV", $O) !== false && $w_troca == '') {
       //Recupera os dados do endereço informado
-      $SQL = "select sq_noticia as chave, ds_titulo, ds_noticia, dt_noticia, ativo, in_exibe from sbpi.Noticia_Cliente where sq_noticia = " . $w_chave;
+      $SQL = "select sq_noticia as chave, ds_titulo, ds_noticia, dt_noticia, ln_externo, ativo, in_exibe from sbpi.Noticia_Cliente where sq_noticia = " . $w_chave;
       $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
       foreach ($RS as $row) {
         $RS = $row;
         break;
       }
       $w_dt_noticia = FormataDataEdicao(f($RS, "dt_noticia"));
-      $w_ds_titulo = f($RS, "ds_titulo");
+      $w_ds_titulo  = str_replace('"','&quot;',f($RS, "ds_titulo"));
       $w_ds_noticia = f($RS, "ds_noticia");
-      $w_in_ativo = f($RS, "in_ativo");
-      $w_in_exibe = f($RS, "in_exibe");
+      $w_in_ativo   = f($RS, "in_ativo");
+      $w_in_exibe   = f($RS, "in_exibe");
+      $w_ln_externo = str_replace('"','&quot;',f($RS, "ln_externo"));
     }
     Cabecalho();
     ShowHTML('<HEAD>');
@@ -1321,7 +1323,8 @@
       ShowHTML('    <TABLE WIDTH="100%" bgcolor="' . $conTableBgColor . '" BORDER="' . $conTableBorder . '" CELLSPACING="' . $conTableCellSpacing . '" CELLPADDING="' . $conTableCellPadding . '" BorderColorDark="' . $conTableBorderColorDark . '" BorderColorLight="' . $conTableBorderColorLight . '>');
       ShowHTML('        <tr bgcolor="' . $conTrBgColor . '" align="center">');
       ShowHTML('          <td><b>Data</font></td>');
-      ShowHTML('          <td><b>Título</font></td>');
+      ShowHTML('          <td align="center"><b>Título</font></td>');
+      ShowHTML('          <td align="center"><b>Descrição</font></td>');
       ShowHTML('          <td><b>Ativo</font></td>');
       ShowHTML('          <td><b>Operações</font></td>');
       ShowHTML('        </tr>');
@@ -1334,7 +1337,12 @@
           $w_cor = ($w_cor == $conTrBgColor || $w_cor == '') ? $w_cor = $conTrAlternateBgColor : $w_cor = $conTrBgColor;
           ShowHTML('      <tr bgcolor="' . $w_cor . '" valign="top">');
           ShowHTML('        <td align="center">' . FormataDataEdicao(FormatDateTime(f($row, "dt_noticia"), 2)) . '</td>');
-          ShowHTML('        <td>' . f($row, "ds_titulo") . '</td>');
+          if(f($row,"ln_externo") != ""){
+            ShowHTML('        <td><font size="1"><a href="'.f($row,"ln_externo").'" target="_blank">' . f($row, "ds_titulo") . '</a></td>');
+          }else{
+            ShowHTML('        <td><font size="1">' . f($row, "ds_titulo") . '</td>');
+          }
+          ShowHTML('        <td>' . f($row, "ds_noticia") . '</td>');
           ShowHTML('        <td align="center">' . f($row, "ativo") . '</td>');
           ShowHTML('        <td align="top" nowrap>');
           ShowHTML('          <A class="HL" HREF="' . $w_dir . $w_pagina . $par . '&R=' . $w_pagina . $par . '&O=A&w_chave=' . f($row, 'chave') . '">Alterar</A>&nbsp');
@@ -1363,7 +1371,11 @@
       ShowHTML('      <tr><td valign="top" colspan="2"><table border=0 width="100%" cellspacing=0>');
       ShowHTML('        <tr valign="top">');
       ShowHTML('          <td valign="top"><b><u>D</u>ata:</b><br><input ' . $w_Disabled . ' accesskey="D" type="text" name="w_dt_noticia" class="STI" SIZE="10" MAXLENGTH="10" VALUE="' . FormataDataEdicao(FormatDateTime(Nvl($w_dt_noticia, Time()), 2)) . '" onKeyDown="FormataData(this,event);" ></td>');
-      ShowHTML('          <td valign="top"><b><u>T</u>ítulo:</b><br><input ' . $w_Disabled . ' accesskey="T" type="text" name="w_ds_titulo" class="STI" SIZE="50" MAXLENGTH="50" VALUE="' . $w_ds_titulo . '"></td>');
+      ShowHTML('        <tr valign="top">');
+      ShowHTML('          <td valign="top"><b><u>T</u>ítulo:</b><br><input ' . $w_Disabled . ' accesskey="T" type="text" name="w_ds_titulo" class="STI" SIZE="90" MAXLENGTH="100" VALUE="' . $w_ds_titulo . '"></td>');
+      ShowHTML('      <tr valign="top">');
+      ShowHTML('          <td valign="top"><font size="1"><b><u>L</u>ink externo:</b><br><input " . w_Disabled . " accesskey="L" type="text" name="w_ln_externo" class="STI" SIZE="90" MAXLENGTH="255" VALUE="' . $w_ln_externo . '"></td>');
+      ShowHTML('      </tr>');
       ShowHTML('        </table>');
       ShowHTML('      <tr><td valign="top"><b>D<u>e</u>scrição:</b><br><textarea ' . $w_Disabled . ' accesskey="E" name="w_ds_noticia" class="STI" ROWS=5 cols=65>' . $w_ds_noticia . '</TEXTAREA></td>');
       ShowHTML('      <tr>');
@@ -3366,7 +3378,7 @@
 
           //Insere o arquivo
           $SQL = " insert into sbpi.Noticia_Cliente " . $crlf .
-          "    (sq_noticia, sq_cliente, dt_noticia, ds_titulo, ds_noticia, ativo) " . $crlf .
+          "    (sq_noticia, sq_cliente, dt_noticia, ds_titulo, ds_noticia, ln_externo, ativo) " . $crlf .
           " values (" . $w_chave . ", " . $crlf;
           if ($_SESSION["USERNAME"] == "IMPRENSA" or $_SESSION["USERNAME"] == "SBPI") {
             $SQL .= "0," . $crlf;
@@ -3377,8 +3389,11 @@
           FormataDataEdicao(FormatDateTime($_REQUEST["w_dt_noticia"], 2)) . "','dd/mm/yyyy'), " . $crlf .
           "     '" . $_REQUEST["w_ds_titulo"] . "', " . $crlf .
           "     '" . $_REQUEST["w_ds_noticia"] . "', " . $crlf .
-          "     '" . $_REQUEST["w_ativo"] . "' " . $crlf .
+          "     '" . $w_ln_externo . "', " . $crlf .
+          "     '" . $_REQUEST["w_in_ativo"] . "' " . $crlf .
           " )" . $crlf;
+                    echo $SQL;
+          exit();
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
           if ($_SESSION["USERNAME"] != "SBPI") {
@@ -3406,7 +3421,8 @@
           "     dt_noticia  = to_date('" . FormataDataEdicao(FormatDateTime($_REQUEST["w_dt_noticia"], 2)) . "','dd/mm/yyyy'), " . $crlf .
           "     ds_titulo   = '" . $_REQUEST["w_ds_titulo"] . "', " . $crlf .
           "     ds_noticia  = '" . $_REQUEST["w_ds_noticia"] . "', " . $crlf .
-          "     ativo    = '" . $_REQUEST["w_ativo"] . "' " . $crlf .
+          "     ln_externo  = '" . $_REQUEST["w_ln_externo"] . "', " . $crlf .          
+          "     ativo       = '" . $_REQUEST["w_in_ativo"] . "' " . $crlf .
           "where sq_noticia = " . $_REQUEST["w_chave"] . $crlf;
           ;
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
@@ -4950,6 +4966,7 @@
       $w_ln_arquivo = $_REQUEST["w_ln_arquivo"];
       $w_in_destinatario = $_REQUEST["w_in_destinatario"];
       $w_nr_ordem = $_REQUEST["w_nr_ordem"];
+      $w_pasta    = $_REQUEST["w_pasta"];
     }
     elseif ($O == "L") {
       //Recupera todos os registros para a listagem
@@ -4976,6 +4993,7 @@
       $w_in_destinatario = f($RS, "in_destinatario");
       $w_nr_ordem = f($RS, "nr_ordem");
       $w_ds_diretorio = f($RS, "ds_diretorio");
+      $w_pasta        = f($RS, "pasta");
 
     }
 
@@ -4994,12 +5012,13 @@
       if (strpos("IA", $O) !== false) {
         Validate("w_ds_titulo", "Título", "", "1", "2", "50", "1", "1");
         Validate("w_ds_arquivo", "Descrição", "", "1", "2", "200", "1", "1");
+        Validate ("w_pasta" , "Pasta"        , "SELECT" , "1" , "1" , "10"   , "1" , "1");
         if ($O == 'I') {
           Validate("w_ln_arquivo", "Link", "", "1", "2", "200", "1", "1");
         } else {
           Validate("w_ln_arquivo", "Link", "", "", "2", "200", "1", "1");
         }
-        Validate("w_nr_ordem", "Nr. de ordem", "", "1", "1", "2", "1", "0123546789");
+        Validate("w_nr_ordem", "Nr. de ordem", "", "1", "1", "4", "1", "0123546789");
       }
       ShowHTML(' if (theForm.w_ln_arquivo.value > ""){');
       ShowHTML('    if((theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.DLL\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.SH\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.BAT\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.EXE\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.ASP\')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf(\'.PHP\')!=-1)) {');
@@ -5086,13 +5105,25 @@
       ShowHTML('      <tr><td valign="top"><b><u>D</u>escrição:</b><br><textarea ' . $w_Disabled . ' accesskey="D" name="w_ds_arquivo" class="STI" ROWS=5 cols=65>' . $w_ds_arquivo . '</TEXTAREA></td>');
       ShowHTML('      <tr>');
       ShowHTML('      </tr>');
+      ShowHTML('        <tr valign="top">');
+      ShowHTML('          <td><font size="1"><b>Exibir na <u>p</u>asta:</b><br><select ' . $w_Disabled . ' accesskey="P" name="w_pasta" class="STS" SIZE="1">');
+      if($w_pasta == "1"){
+        ShowHTML('            <OPTION VALUE="" >Selecione uma opção...<OPTION SELECTED VALUE="1">Meses<OPTION VALUE="2">Formulários<OPTION VALUE="3">Diversos');
+      }elseif($w_pasta == "2"){
+        ShowHTML('            <OPTION VALUE="" >Selecione uma opção...<OPTION VALUE="1">Meses<OPTION SELECTED VALUE="2">Formulários<OPTION VALUE="3">Diversos');
+      }elseif($w_pasta == "3"){
+        ShowHTML('            <OPTION VALUE="" >Selecione uma opção...<OPTION VALUE="1">Meses<OPTION VALUE="2">Formulários<OPTION SELECTED VALUE="3">Diversos');
+      }else{
+        ShowHTML('            <OPTION SELECTED VALUE="" >Selecione uma opção...<OPTION VALUE="1">Meses<OPTION VALUE="2">Formulários<OPTION VALUE="3">Diversos');
+      }
+      ShowHTML('            </SELECTED></TD></TR>');
       ShowHTML('      <tr><td valign="top"><b><u>L</u>ink:</b><br><input ' . $w_Disabled . ' accesskey="L" type="file" name="w_ln_arquivo" class="STI" SIZE="80" MAXLENGTH="100" VALUE="" >');
       if ($w_ln_arquivo > '') {
         ShowHTML('              <b><a class="SS" href="' . $w_ds_diretorio . '/' . $w_ln_arquivo . '" target="_blank" title="Clique para exibir o arquivo atual.">Exibir</a></b>');
       }
       ShowHTML('      <tr><td valign="top" colspan="2"><table border=0 width="100%" cellspacing=0>');
       ShowHTML('        <tr valign="top">');
-      ShowHTML('          <td><b><u>N</u>r. de ordem:</b><br><input "' . $w_Disabled . '" accesskey="N" type="text" name="w_nr_ordem" class="STI" SIZE="2" MAXLENGTH="2" VALUE="' . $w_nr_ordem . '"></td>');
+      ShowHTML('          <td><b><u>N</u>r. de ordem:</b><br><input "' . $w_Disabled . '" accesskey="N" type="text" name="w_nr_ordem" class="STI" SIZE="4" MAXLENGTH="4" VALUE="' . $w_nr_ordem . '"></td>');
       ShowHTML('          <td><b><u>D</u>estinatários:</b><br><select "' . $w_Disabled . '" accesskey="D" name="w_in_destinatario" class="STS" SIZE="1">');
       if ($w_in_destinatario == 'A') {
         ShowHTML('            <OPTION VALUE="A" SELECTED>Apenas alunos <OPTION VALUE="P">Apenas professores <OPTION VALUE="T">Professores e alunos <OPTION VALUE="E">Escola');

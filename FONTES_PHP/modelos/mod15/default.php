@@ -61,7 +61,34 @@
   ShowHTML('   <link href="css/estilo.css" media="screen" rel="stylesheet" type="text/css" />');
   ShowHTML('   <link href="css/print.css"  media="print"  rel="stylesheet" type="text/css" />');
   ShowHTML('   <script language="javascript" src="js/scripts.js"> </script>');
-  ShowHTML('   <script src="js/jquery.js"></script>');
+  ShowHTML('   <script src="js/jquery-1.3.2.js"></script>');
+  ShowHTML('   <script src="js/jquery.hoverIntent.minified.js"></script>');
+  ShowHTML('   <script src="js/jquery.bgiframe.min.js"></script>');
+  ShowHTML('   <!--[if IE]><script src="js/excanvas.js"></script><![endif]-->');
+  ShowHTML('   <script src="js/jquery.bt.js"></script>');  
+  ShowHTML('   <script src="js/jquery.treeview.js"></script>');
+  ?>
+  
+  <script>
+  $(document).ready(function(){
+    $('a[title]').bt({
+    fill: '#F7F7F7', 
+    strokeStyle: '#B7B7B7', 
+    spikeLength: 10, 
+    spikeGirth: 10, 
+    padding: 8, 
+    cornerRadius: 0, 
+    cssStyles: {
+      fontFamily: '"lucida grande",tahoma,verdana,arial,sans-serif', 
+      fontSize: '13px',
+      width: 'auto'
+    }
+  });
+  $("#arvore").treeview();  
+  });
+  </script>
+  
+  <?php
   ShowHTML('</head>');
   ShowHTML('<body>');
   ShowHTML('<div id="pagina">');
@@ -710,17 +737,17 @@
       $wAno = Date("Y");
     }
 
-    $SQL = "SELECT case in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end in_destinatario, " . $crlf .
-    "       dt_arquivo, ds_titulo, nr_ordem, ds_arquivo, ln_arquivo, 'Escola' Origem, x.ln_internet diretorio " . $crlf .
-    "from sbpi.Cliente_Arquivo a, sbpi.cliente x " . $crlf .
+    $SQL = "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-to_char(a.dt_arquivo,'mm')*10000)+a.nr_ordem else (a.pasta*1000000)+(12-to_char(a.dt_arquivo,'mm')*10000)+a.nr_ordem end as ordena,  case in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end in_destinatario, " . $crlf . 
+    "       dt_arquivo, ds_titulo, nr_ordem, pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'Escola' Origem, x.ln_internet diretorio " . $crlf . 
+    "from sbpi.Cliente_Arquivo a, sbpi.cliente x " . $crlf . 
     "WHERE a.ativo = 'S'" . $crlf .
     "  AND x.sq_cliente = " . $CL . " " . $crlf .
     "  AND a.sq_cliente = " . $CL . " " . $crlf .
     "  and in_destinatario <> 'E'" . $crlf .
     "  and sbpi.year(a.dt_arquivo) = " . $wAno . $crlf .
     "UNION " . $crlf .
-    "SELECT case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end in_destinatario, " . $crlf .
-    "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, ds_arquivo, ln_arquivo, 'SEDF' Origem, d.ds_diretorio diretorio " . $crlf .
+    "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-to_char(a.dt_arquivo,'mm')*10000)+a.nr_ordem else (a.pasta*1000000)+(12-to_char(a.dt_arquivo,'mm')*10000)+a.nr_ordem end as ordena, case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end in_destinatario, " . $crlf . 
+    "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'SEDF' Origem, d.ds_diretorio diretorio " . $crlf . 
     "from sbpi.Cliente_Arquivo a INNER join sbpi.Cliente b ON (a.sq_cliente = b.sq_cliente) " . $crlf .
     "                             INNER join sbpi.Cliente c ON (c.sq_cliente_pai  = b.sq_cliente) " . $crlf .
     "                             INNER join sbpi.Cliente e ON (e.sq_cliente_pai  = c.sq_cliente) " . $crlf .
@@ -730,8 +757,8 @@
     "  and in_destinatario <> 'E'" . $crlf .
     "  and sbpi.year(a.dt_arquivo) = " . $wAno . $crlf .
     "UNION " . $crlf .
-    "SELECT case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end in_destinatario, " . $crlf .
-    "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, ds_arquivo, ln_arquivo, 'Regional' Origem, d.ds_diretorio diretorio " . $crlf .
+    "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-to_char(a.dt_arquivo,'mm')*10000)+a.nr_ordem else (a.pasta*1000000)+(12-to_char(a.dt_arquivo,'mm')*10000)+a.nr_ordem end as ordena, case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end in_destinatario, " . $crlf . 
+    "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'Regional' Origem, d.ds_diretorio diretorio " . $crlf . 
     "from sbpi.Cliente_Arquivo a INNER join sbpi.Cliente c ON (a.sq_cliente = c.sq_cliente) " . $crlf .
     "                             INNER join sbpi.Cliente e ON (e.sq_cliente_pai  = c.sq_cliente) " . $crlf .
     "                             INNER join sbpi.Cliente_Site d ON (c.sq_cliente = d.sq_cliente) " . $crlf .
@@ -739,36 +766,77 @@
     "  and e.sq_cliente = " . $CL . " " . $crlf .
     "  and in_destinatario <> 'E'" . $crlf .
     "  and sbpi.year(a.dt_arquivo) = " . $wAno . $crlf .
-    "ORDER BY dt_arquivo desc, origem, nr_ordem, in_destinatario " . $crlf;
-    $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
-
-    ShowHTML('<tr><td><TABLE border=0 cellSpacing=5 width="95%"> ');
-    ShowHTML('  <TR> ');
-    ShowHTML('    <TD><b>Origem ');
-    ShowHTML('    <TD><b>Alvo ');
-    ShowHTML('    <TD><b>Data ');
-    ShowHTML('    <TD><b>Componente curricular ');
-    ShowHTML('  </TR> ');
-    ShowHTML('  <TR> ');
-    ShowHTML('    <TD COLSPAN="4" HEIGHT="1" BGCOLOR="#DAEABD"> ');
-    ShowHTML('  </TR>');
-
-    if (count($RS) > 0) {
-      foreach ($RS as $row) {
-        ShowHTML('  <TR valign="top"> ');
-        ShowHTML('    <TD align="center">' . f($row, 'origem'));
-        ShowHTML('    <TD align="center">' . f($row, 'in_destinatario'));
-        ShowHTML('    <TD align="center">' . formatadataedicao(f($row, 'dt_arquivo')));
-        ShowHTML('    <TD><a href="' . f($row, "diretorio") . '/' . f($row, "ln_arquivo") . '" target="_blank">' . f($row, "ds_titulo") . '"</a><br><div align="justify"><font size=1>.:. "' . f($row, "ds_arquivo") . '"</div>');
-        ShowHTML('  </TR> ');
-        $i++;
+    "ORDER BY 1 asc " . $crlf; 
+    $RS = db_exec::getInstanceOf($dbms, $SQL, &$numRows);	         
+  
+  if (count($RS)>0) {
+    $pasta = 0;
+    $meses = 0;
+    $formularios = 0;
+    $diversos = 0;
+    ShowHTML('<ul id="arvore" class="filetree">');
+    foreach($RS as $row) {
+      for($i = 1; $i <= 3;$i++){
+        if(intVal(f($row,"pasta")) != intVal($pasta) && intVal(f($row,"pasta"))==1){
+          $meses++;
+        }elseif(intVal(f($row,"pasta")) != intVal($pasta) && intVal(f($row,"pasta"))==2){
+          $formularios++;
+        }elseif(intVal(f($row,"pasta")) != intVal($pasta) && intVal(f($row,"pasta"))==3){
+          $diversos++;
+        } 
+        if(intVal(f($row,"pasta")) != intVal($pasta) && intVal(f($row,"pasta"))==1){
+          ShowHTML('<li><span class="folder">'.f($row,"nmpasta").'</span><ul>');
+        }elseif(intVal(f($row,"pasta")) != intVal($pasta) && intVal(f($row,"pasta"))==2){
+          if($meses > 0 || $diversos > 0) {
+            ShowHTML('</ul></li></ul></li><li class="closed"><span class="folder">'.f($row,"nmpasta").'</span><ul>');
+          }else{
+            ShowHTML('<li><span class="folder">'.f($row,"nmpasta").'</span><ul>');
+          }          
+        }elseif(intVal(f($row,"pasta")) != intVal($pasta) && intVal(f($row,"pasta"))==3){
+          if($meses > 0 || $formularios > 0) {
+            ShowHTML('</ul></li></li><li class="closed"><span class="folder">'.f($row,"nmpasta").'</span><ul>');
+          }else{
+            ShowHTML('<li><span class="folder">'.f($row,"nmpasta").'</span><ul>');
+          }          
+        }
+        If(intVal(f($row,"pasta")) == 1 ){
+          If(intVal(month(f($row,"dt_arquivo")))<>$mes) {
+            If(intVal(f($row,"pasta")) == intVal($pasta)){
+              ShowHTML('</ul></li>');
+            }                
+            ShowHTML(' <li class="closed"><span class="folder">');
+            ShowHTML (nomeMes(month(f($row,"dt_arquivo")),'C')."/".year(f($row,"dt_arquivo")));
+            ShowHTML('</span><ul>');
+          }                
+        }
+        if(intVal(f($row,"pasta")) == $i){
+          if (strpos(f($row,"ln_arquivo"),".pdf",1) > 0){
+            $icone = "pdf.gif";
+          }elseif(strpos(f($row,"ln_arquivo"),".xls",1) > 0){
+            $icone = "xls.gif";
+          }elseif(strpos(f($row,"ln_arquivo"),".txt",1) > 0){
+            $icone = "txt.gif";
+          }elseif(strpos(f($row,"ln_arquivo"),".doc",1) > 0){
+            $icone = "doc.gif";
+          }elseif(strpos(f($row,"ln_arquivo"),".ppt",1) > 0){
+            $icone = "ppt.gif";
+          }elseif(strpos(f($row,"ln_arquivo"),".jpeg",1) > 0 || strpos(f($row,"ln_arquivo"),".jpg",1) > 0 || strpos(strtolower(f($row,"ln_arquivo")),".gif",1) > 0 || strpos(f($row,"ln_arquivo"),".png",1) > 0){
+            $icone = "picture.gif";
+          }else{
+            $icone = "undefined.gif";
+          }
+            ShowHTML ('<LI><span class="file" style="background: url(img/'.$icone.') 0 0 no-repeat;">&nbsp;<a href="'.f($row,"diretorio").'/'.f($row,"ln_arquivo").'" title="'.Nvl(f($row,"ds_arquivo"),"Descrição não informada.").'"  target="_blank">'.FormataDataEdicao(f($row,"dt_arquivo")).' — '.f($row,"ds_titulo").'&nbsp;('.f($row,"origem").')</a></span></LI>');
+        }
+        $pasta = f($row,"pasta");
+        $mes   = intval(Month(f($row,"dt_arquivo")));
       }
-    } else {
-      ShowHTML('  <TR valign="top"> ');
-      ShowHTML('    <TD colspan="5"><BR>Não há arquivos disponíveis no momento para o ano de ' . $wAno . '</TD> ');
-      ShowHTML('  </TR> ');
     }
-    ShowHTML('  </TABLE> ');
+    ShowHTML ('</UL>');
+    ShowHTML ('</UL>');
+  }else {
+      ShowHTML('    <p><BR>Não há arquivos disponíveis no momento para o ano de ' . $wAno . '</p> ');
+  }   
+
 
     $SQL = "SELECT sbpi.year(dt_arquivo) ano " . $crlf .
     "from sbpi.Cliente_Arquivo a, sbpi.cliente x " . $crlf .

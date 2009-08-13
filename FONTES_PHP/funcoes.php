@@ -1,4 +1,4 @@
-  <?
+<?php
   setlocale(LC_ALL, 'pt_BR');
   mb_language('en');
   date_default_timezone_set('America/Sao_Paulo');
@@ -3433,7 +3433,7 @@
         $val = str_replace('.asp', '.php', $rs[$fld]);
     } else
       return null;
-    return $val; //str_replace(chr(166),'ª',str_replace(chr(161),'í',str_replace(chr(144),'é',str_replace('§','º',str_replace('ƒ','â',str_replace('£','ú',str_replace('ˆ','ê',str_replace('‡','ç',str_replace('Æ','ã',str_replace('¢','ó',str_replace('€Ç','ÇÃ',str_replace('à','Ó',str_replace('Ò','Ê',str_replace('µ','Á',str_replace('Ö','Í',$val)))))))))))))));
+    return str_replace('"','&quot;',$val); //str_replace(chr(166),'ª',str_replace(chr(161),'í',str_replace(chr(144),'é',str_replace('§','º',str_replace('ƒ','â',str_replace('£','ú',str_replace('ˆ','ê',str_replace('‡','ç',str_replace('Æ','ã',str_replace('¢','ó',str_replace('€Ç','ÇÃ',str_replace('à','Ó',str_replace('Ò','Ê',str_replace('µ','Á',str_replace('Ö','Í',$val)))))))))))))));
   }
 
   // -------------------------------------------------------------------------
@@ -4188,44 +4188,36 @@
     return $year;
   }
 
-  Function nomeMes($p_mes) {
+  Function nomeMes($p_mes,$p_retorno=null) {
+  if($p_retorno != ''){
     switch ($p_mes) {
-      Case 1 :
-        return 'JAN';
-        break;
-      Case 2 :
-        return 'FEV';
-        break;
-      Case 3 :
-        return 'MAR';
-        break;
-      Case 4 :
-        return 'ABR';
-        break;
-      Case 5 :
-        return 'MAI';
-        break;
-      Case 6 :
-        return 'JUN';
-        break;
-      Case 7 :
-        return 'JUL';
-        break;
-      Case 8 :
-        return 'AGO';
-        break;
-      Case 9 :
-        return 'SET';
-        break;
-      Case 10 :
-        return 'OUT';
-        break;
-      Case 11 :
-        return 'NOV';
-        break;
-      Case 12 :
-        return 'DEZ';
-        break;
+      Case 1 : return 'JANEIRO'; break;
+      Case 2 : return 'FEVEREIRO'; break;
+      Case 3 : return 'MARÇO'; break;
+      Case 4 : return 'ABRIL'; break;
+      Case 5 : return 'MAIO'; break;
+      Case 6 : return 'JUNHO'; break;
+      Case 7 : return 'JULHO'; break;
+      Case 8 : return 'AGOSTO'; break;
+      Case 9 : return 'SETEMBRO'; break;
+      Case 10 : return 'OUTUBRO'; break;
+      Case 11 : return 'NOVEMBRO'; break;
+      Case 12 : return 'DEZEMBRO'; break;
+    }
+  }
+    switch ($p_mes) {
+      Case 1 : return 'JAN'; break;
+      Case 2 : return 'FEV'; break;
+      Case 3 : return 'MAR'; break;
+      Case 4 : return 'ABR'; break;
+      Case 5 : return 'MAI'; break;
+      Case 6 : return 'JUN'; break;
+      Case 7 : return 'JUL'; break;
+      Case 8 : return 'AGO'; break;
+      Case 9 : return 'SET'; break;
+      Case 10 : return 'OUT'; break;
+      Case 11 : return 'NOV'; break;
+      Case 12 : return 'DEZ'; break;
     }
   }
 
@@ -4537,4 +4529,4 @@
     }
 
   }
-  ?>
+?>
