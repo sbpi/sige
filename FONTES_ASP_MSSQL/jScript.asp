@@ -500,7 +500,7 @@ Sub Validate(VariableName, DisplayName, DataType, ValueRequired, MinimumLength, 
      checkOK = ""
      Response.Write "  var checkStr = theForm." & VariableName & ".value;" & VbCrLf
      Response.Write "  var allValid = true;" & VbCrLf
-     checkOK = checkOK & """"
+     checkOK = checkOK & "\'"
      checkER = checkOK
      If AllowLetters <> "1" Then 
         checkOK = checkOK & AllowLetters
@@ -511,7 +511,7 @@ Sub Validate(VariableName, DisplayName, DataType, ValueRequired, MinimumLength, 
      Response.Write "    ch = checkStr.charAt(i);" & VbCrLf
      Response.Write "    if ((checkStr.charCodeAt(i) != 13) && (checkStr.charCodeAt(i) != 10) && (checkStr.charAt(i) != '\\')) {" & VbCrLf
      Response.Write "       for (j = 0;  j < checkOK.length;  j++) {" & VbCrLf
-     Response.Write "         if (ch == checkOK.charAt(j) || ch == '\'')" & VbCrLf
+     Response.Write "         if (ch == checkOK.charAt(j))" & VbCrLf
      Response.Write "           allValid = false;" & VbCrLf
      Response.Write "           break;" & VbCrLf
      Response.Write "       } " & VbCrLf
@@ -547,8 +547,8 @@ Sub Validate(VariableName, DisplayName, DataType, ValueRequired, MinimumLength, 
      If (AllowLetters > "" and AllowDigits > "") or (AllowLetters > "" and AllowDigits = "") Then
         Response.Write "    var checkER = '" & checkER & "';" & VbCrLf
         Response.Write "    var strER = '(\') ';" & VbCrLf
-        Response.Write "    for (j = 0;  j < checkER.length;  j++) strER = strER + '(' + checkER.charAt(j) + ') ';" & VbCrLf
-        Response.Write "    alert('Você digitou caracteres inválidos no campo " & DisplayName & ".\nOs seguintes caracters não são permitidos: ' + strER);" & VbCrLf
+        Response.Write "    for (j = 0;  j < checkER.length;  j++) { strER = strER + '(' + checkER.charAt(j) + ') '; }" & VbCrLf
+        Response.Write "    alert('Você digitou caracteres inválidos no campo " & DisplayName & ".\nNão é permitido digitar aspas simples (\'). ');" & VbCrLf
      ElseIf AllowLetters = "" and AllowDigits > "" Then
         Response.Write "    alert('Favor digitar apenas números no campo " & DisplayName & ".');" & VbCrLf
      End If

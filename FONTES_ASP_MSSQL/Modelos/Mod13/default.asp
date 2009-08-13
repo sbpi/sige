@@ -63,6 +63,12 @@ ShowHTML "   <meta http-equiv=""Content-Type"" content=""text/html; charset=iso-
 ShowHTML "   <link href=""/css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
 ShowHTML "   <link href=""/css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
 ShowHTML "   <script language=""javascript"" src=""inc/scripts.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery-1.3.2.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.hoverIntent.minified.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.bgiframe.min.js""> </script>"
+ShowHTML "<!--[if IE]><script src=""/inc/excanvas.js"" type=""text/javascript"" charset=""utf-8""></script><![endif]-->"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.bt.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.treeview.js""> </script>"
 ShowHTML "</head>"
 
 ShowHTML "<BASE HREF=""" & conSite & "/"">"
@@ -70,6 +76,24 @@ ShowHTML "<body>"
 ShowHTML "    <div id=""pagina"">"
 ShowHTML "    <div id=""topo""></div>"
 %>
+<script>
+$(document).ready(function(){
+  $('a[title]').bt({
+  fill: '#F7F7F7', 
+  strokeStyle: '#B7B7B7', 
+  spikeLength: 10, 
+  spikeGirth: 10, 
+  padding: 8, 
+  cornerRadius: 0, 
+  cssStyles: {
+    fontFamily: '"lucida grande",tahoma,verdana,arial,sans-serif', 
+    fontSize: '13px',
+    width: 'auto'
+  }
+});
+$("#arvore").treeview();
+});
+</script>
 <div id="busca">
     <div class="data"> <% Response.Write(ExibeData(date())) %> </div>
     <div class="clear"></div>
@@ -133,7 +157,7 @@ end if
 
 ShowHTML "	    </ul>"
 ShowHTML "      </div>"
-ShowHTML "      <div id=""conteudo"">"
+ShowHTML "      <div id=""conteudo""><br/>"
 ShowHTML "      <h2>" & RS("ds_cliente") & "</h2>"
 Select Case sstrEW
   Case conWhatPrincipal   ShowHTML "      <h3>Inicial</h3>"
@@ -210,8 +234,8 @@ Public Sub ShowArquivo
      wAno = Year(Date())
   End If
 
-  sql = "SELECT case in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
-        "       dt_arquivo, ds_titulo, nr_ordem, ds_arquivo, ln_arquivo, 'Escola' AS Origem, x.ln_internet diretorio " & VbCrLf & _
+  sql = "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem else (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem end as ordena, case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
+        "       dt_arquivo, ds_titulo, nr_ordem, a.pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'Escola' AS Origem, x.ln_internet diretorio " & VbCrLf & _
         "From escCliente_Arquivo a, escCliente x " & VbCrLf & _
         "WHERE in_ativo = 'Sim'" & VbCrLf & _
         "  AND x." & sstrEF & " " & VbCrLf & _
@@ -219,8 +243,8 @@ Public Sub ShowArquivo
         "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
         "UNION " & VbCrLf & _
-        "SELECT case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
-        "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, ds_arquivo, ln_arquivo, 'SEDF' AS Origem, d.ds_diretorio diretorio " & VbCrLf & _
+        "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem else (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem end as ordena, case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
+        "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, a.pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'SEDF' AS Origem, d.ds_diretorio diretorio " & VbCrLf & _
         "From escCliente_Arquivo AS a INNER JOIN escCliente AS b ON (a.sq_site_cliente = b.sq_cliente) " & VbCrLf & _
         "                             INNER JOIN escCliente AS c ON (c.sq_cliente_pai  = b.sq_cliente) " & VbCrLf & _
         "                             INNER JOIN escCliente AS e ON (e.sq_cliente_pai  = c.sq_cliente) " & VbCrLf & _
@@ -230,8 +254,8 @@ Public Sub ShowArquivo
         "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
         "UNION " & VbCrLf & _
-        "SELECT case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
-        "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, ds_arquivo, ln_arquivo, 'Regional' AS Origem, d.ds_diretorio diretorio " & VbCrLf & _
+        "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem else (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem end as ordena, case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
+        "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, a.pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'Regional' AS Origem, d.ds_diretorio diretorio " & VbCrLf & _
         "From escCliente_Arquivo AS a INNER JOIN escCliente AS c ON (a.sq_site_cliente = c.sq_cliente) " & VbCrLf & _
         "                             INNER JOIN escCliente AS e ON (e.sq_cliente_pai  = c.sq_cliente) " & VbCrLf & _
         "                             INNER JOIN escCliente_Site AS d ON (c.sq_cliente = d.sq_cliente) " & VbCrLf & _
@@ -239,35 +263,85 @@ Public Sub ShowArquivo
         "  AND e." & sstrEF & " " & VbCrLf & _
         "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
-        "ORDER BY origem, nr_ordem, dt_arquivo desc, in_destinatario " & VbCrLf 
+        "ORDER BY 1 asc " & VbCrLf 
   RS.Open sql, sobjConn, adOpenForwardOnly
-  ShowHTML "<tr><td><TABLE border=0 cellSpacing=5 width=""95%"">"
-  ShowHTML "  <TR>"
-  ShowHTML "    <TD><b>Origem"
-  ShowHTML "    <TD><b>Alvo"
-  ShowHTML "    <TD><b>Data"
-  ShowHTML "    <TD><b>Componente curricular"
-  ShowHTML "  </TR>"
-  ShowHTML "  <TR>"
-  ShowHTML "    <TD COLSPAN=""4"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
-  ShowHTML "  </TR>"
+  
+  'response.write sql
   wCont = 0
-     
+  Dim meses
   If Not RS.EOF Then
-     wCont = 1
-     Do While Not RS.EOF
-        ShowHTML "  <TR valign=""top"">"
-        ShowHTML "    <TD>" & RS("origem")
-        ShowHTML "    <TD>" & RS("in_destinatario")
-        ShowHTML "    <TD>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
-        ShowHTML "    <TD><a href=""" & RS("diretorio") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
-        ShowHTML "  </TR>"
-
-        RS.MoveNext
-     Loop
+    wCont = 1
+    ShowHTML "<ul id=""arvore"" class=""filetree"">"
+    pasta = 0    
+    meses = 0
+    formularios = 0
+    diversos = 0
+    Do While Not RS.EOF
+      for i = 1 to 3 step 1
+        If(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=1)Then
+          meses = meses + 1
+        elseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=2)Then
+          formularios = formularios + 1
+        elseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=3)Then
+          diversos = diversos + 1
+        End If
+        'response.write "1: "&meses&"<br/>"
+        'response.write "2: "&formularios&"<br/>"
+        'response.write "3: "&diversos&"<br/>"
+        If(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=1)Then
+          ShowHTML "<li><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+        ElseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta")) = 2)Then
+          If(meses > 0 OR diversos > 0) Then
+            ShowHTML "</ul></li></ul></li><li class=""closed""><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          else
+            ShowHTML "<li><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          End If          
+        ElseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta")) = 3)Then
+          If(meses > 0 OR formularios > 0) Then
+            ShowHTML "</ul></li></li><li class=""closed""><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          else
+            ShowHTML "<li><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          End If          
+        End If
+            If(cInt(RS("pasta")) = 1 )Then
+              If(cInt(month(RS("dt_arquivo")))<>mes) Then
+                If(cInt(RS("pasta")) = cInt(pasta))Then
+                  ShowHTML "</ul></li>"
+                End If                
+                ShowHTML " <li class=""closed""><span class=""folder"">"
+                ShowHTML exibeMes(RS("dt_arquivo"))&"/"&year(RS("dt_arquivo"))
+                ShowHTML "</span><ul>"
+              End If                
+            End If
+          If(cInt(RS("pasta")) = i)Then
+            If (instr(1,RS("ln_arquivo"),".pdf",1) > 0)Then
+              icone = "pdf.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".xls",1) > 0)Then
+              icone = "xls.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".txt",1) > 0)Then
+              icone = "txt.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".doc",1) > 0)Then
+              icone = "doc.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".ppt",1) > 0)Then
+              icone = "ppt.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".jpeg",1) > 0 OR instr(1,RS("ln_arquivo"),".jpg",1) > 0 OR instr(1,RS("ln_arquivo"),".gif",1) > 0 OR instr(1,RS("ln_arquivo"),".png",1) > 0)Then
+              icone = "picture.gif"
+            Else
+              icone = "undefined.gif"
+            End If
+              ShowHTML "<LI><span class=""file"" style=""background: url(../img/"&icone&") 0 0 no-repeat;"">&nbsp;<a href=""" & RS("diretorio") & "/" & RS("ln_arquivo") & """ title="""&Nvl(RS("ds_arquivo"),"Descrição não informada.")&""" target=""_blank"">"&RS("dt_arquivo")&" — "&RS("ds_titulo")&"&nbsp;("&RS("origem")&")</a></span></LI>"
+          End If
+        pasta = RS("pasta")
+        mes   = cInt(Month(RS("dt_arquivo")))
+      Next
+    RS.MoveNext
+    Loop
+    ShowHTML "  </UL>"
+    ShowHTML "  </UL>"
   Else
-     ShowHTML "  <TR><TD COLSPAN=4 ALIGN=CENTER>Não há arquivos disponíveis no momento para o ano de " & wAno & " </TR>"
+   ShowHTML "  <TR><TD COLSPAN=4 ALIGN=CENTER>Não há arquivos disponíveis no momento para o ano de " & wAno & " </TR>"
   End If
+  
   RS.Close
 
   sql = "SELECT year(dt_arquivo) ano " & VbCrLf & _
@@ -299,15 +373,16 @@ Public Sub ShowArquivo
         "ORDER BY year(dt_arquivo) desc " & VbCrLf 
     RS.Open sql, sobjConn, adOpenForwardOnly
     If Not RS.EOF Then
-       ShowHTML "  <TR><TD COLSPAN=4 ><b>Arquivos de outros anos</b><br>"
+       ShowHTML "  </UL>"
+       ShowHTML "  <TR><TD COLSPAN=4 ></br><b>Arquivos de outros anos</b><br>"
        While Not RS.EOF
-          ShowHTML "     <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a></TR>"
+          ShowHTML "     <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a></li>"
           RS.MoveNext
        Wend
        ShowHTML "  </TD></TR>"
     End If
     RS.Close
-  ShowHTML "</table></center>"
+  ShowHTML "</TABLE></center>"
 End Sub
 REM -------------------------------------------------------------------------
 REM Final da Página de Arquivos
@@ -500,14 +575,14 @@ Public Sub ShowNoticia
   End If
 
   If sstrIN = "" then
-     sql = "SELECT a.sq_noticia, a.dt_noticia AS data, a.ds_titulo AS ocorrencia, 'Escola' AS origem " & VbCrLf & _
+     sql = "SELECT a.ln_externo, a.sq_noticia, a.dt_noticia AS data, a.ds_titulo AS ocorrencia, 'Escola' AS origem " & VbCrLf & _
            "  FROM escNoticia_Cliente  a" & VbCrLf & _
            " WHERE sq_site_cliente   = " & CL & VbCrLf & _
            "  and a.in_ativo         = 'Sim'" & VbCrLf & _
            "  and a.in_exibe         = 'Sim'" & VbCrLf & _
            "  and YEAR(a.dt_noticia) = " & wAno & VbCrLf & _
            "UNION " & VbCrLf & _
-           "SELECT a.sq_noticia, dt_noticia AS data, ds_titulo AS ocorrencia, 'Regional' AS origem " & VbCrLf & _
+           "SELECT a.ln_externo, a.sq_noticia, dt_noticia AS data, ds_titulo AS ocorrencia, 'Regional' AS origem " & VbCrLf & _
            "FROM escNoticia_Cliente    AS a" & VbCrLf & _
            "     INNER JOIN escCliente AS b ON (a.sq_site_cliente = b.sq_cliente) " & VbCrLf & _
            "     INNER JOIN escCliente AS c ON (b.sq_cliente      = c.sq_cliente_pai) " & VbCrLf & _
@@ -516,7 +591,7 @@ Public Sub ShowNoticia
            "  and a.in_exibe         = 'Sim'" & VbCrLf & _
            "  and YEAR(a.dt_noticia) = " & wAno & VbCrLf & _
            "UNION " & VbCrLf & _
-           "SELECT a.sq_noticia, dt_noticia AS data, ds_titulo AS ocorrencia, 'SEDF' AS origem " & VbCrLf & _
+           "SELECT a.ln_externo, a.sq_noticia, dt_noticia AS data, ds_titulo AS ocorrencia, 'SEDF' AS origem " & VbCrLf & _
            "FROM escNoticia_Cliente    AS a" & VbCrLf & _
            "     INNER JOIN escCliente AS b ON (a.sq_site_cliente = b.sq_cliente) " & VbCrLf & _
            "     INNER JOIN escCliente AS c ON (b.sq_cliente      = c.sq_cliente_pai) " & VbCrLf & _
@@ -546,7 +621,11 @@ Public Sub ShowNoticia
            ShowHTML "    <TD>&nbsp;"
            ShowHTML "    <TD align=""center"">" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
            ShowHTML "    <TD align=""center"">" & RS("origem")
-           ShowHTML "    <TD colspan=2>" & RS("ocorrencia") & "&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"
+           If RS("ln_externo") > "" Then
+             ShowHTML "  <TD colspan=2><a target=""_blank"" href="""&RS("ln_externo")&"""> " & RS("ocorrencia") & "</a>&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"      
+           Else
+             ShowHTML "  <TD colspan=2>" & RS("ocorrencia") & "&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"
+           End If
            ShowHTML "  </TR>"
            wCont = wCont + 1
            RS.MoveNext
@@ -588,7 +667,7 @@ Public Sub ShowNoticia
      If Not RS.EOF Then
         ShowHTML "  <TR valign=""top""><TD colspan=""5""><br><b>Notícias de outros anos</b><br>"     
         While Not RS.EOF
-           ShowHTML "    <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ id=""link2"">Notícias de " & RS("ano") & "</a> </TD>"
+           ShowHTML "    <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ id=""link2"">Notícias de " & RS("ano") & "</a> </li>"
            RS.MoveNext
         Wend
         ShowHTML "  </TD></TR>"

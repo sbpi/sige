@@ -1423,6 +1423,26 @@ Function ExibeData(data)
   ExibeData = dia_semana & ", " & Day(Date()) & " de " & mes & " de " & Year(data)
 End Function
 
+'Imprime nome do mês
+Function exibeMes(data)
+  mes = Month(data)
+  Select Case mes
+  Case 1 : mes = "Janeiro"
+  Case 2 : mes = "Fevereiro"
+  Case 3 : mes = "Março"
+  Case 4 : mes = "Abril"
+  Case 5 : mes = "Maio"
+  Case 6 : mes = "Junho"
+  Case 7 : mes = "Julho"
+  Case 8 : mes = "Agosto"
+  Case 9 : mes = "Setembro"
+  Case 10 : mes = "Outubro"
+  Case 11 : mes = "Novembro"
+  Case 12 : mes = "Dezembro"
+  End Select
+  ExibeMes = mes
+End Function
+
 ' Imprime uma linha HTML
 Sub ShowHtml(Line)
   Response.Write Line & CHR(13) & CHR(10)

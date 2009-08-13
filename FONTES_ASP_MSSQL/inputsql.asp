@@ -8,7 +8,7 @@
 <center>
 <%
 if mid(Request.ServerVariables("REMOTE_HOST"),1,9)<>"192.168.0" and _ 
-   Request.ServerVariables("REMOTE_HOST") <> "189.85.82.11" Then
+   Request.ServerVariables("REMOTE_HOST") <> "187.6.107.103" Then
 %>ACESSO NÃO AUTORIZADO<%
 Else
 %>

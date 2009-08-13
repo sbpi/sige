@@ -436,7 +436,7 @@ REM Cadastro de arquivos
 REM -------------------------------------------------------------------------
 Sub GetDocumento
   Dim w_chave, w_ds_titulo, w_in_ativo, w_ds_arquivo, w_ln_arquivo
-  Dim w_dt_arquivo, w_in_destinatario, w_nr_ordem
+  Dim w_dt_arquivo, w_in_destinatario, w_nr_ordem, w_pasta
 
   Dim w_troca, i, w_texto
 
@@ -450,6 +450,7 @@ Sub GetDocumento
      w_ds_arquivo      = Request("w_ds_arquivo")
      w_ln_arquivo      = Request("w_ln_arquivo")
      w_in_destinatario = Request("w_in_destinatario")
+     w_pasta           = Request("w_pasta")
      w_nr_ordem        = Request("w_nr_ordem")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
@@ -465,6 +466,7 @@ Sub GetDocumento
      w_ds_arquivo      = RS("ds_arquivo")
      w_ln_arquivo      = RS("ln_arquivo")
      w_in_destinatario = RS("in_destinatario")
+     w_pasta           = RS("pasta")
      w_nr_ordem        = RS("nr_ordem")
      w_ds_diretorio    = RS("ds_diretorio")
      DesconectaBD
@@ -474,14 +476,16 @@ Sub GetDocumento
   ShowHTML "<HEAD>"
   If InStr("IAEP",w_ea) > 0 Then
      ScriptOpen "JavaScript"
+     FormataDATA
      ValidateOpen "Validacao"
      If InStr("IA",w_ea) > 0 Then
         Validate "w_ds_titulo", "Título", "", "1", "2", "50", "1", "1"
         Validate "w_ds_arquivo", "Descrição", "", "1", "2", "200", "1", "1"
+        Validate "w_pasta" , "Pasta"        , "SELECT" , "1" , "1" , "10"   , "1" , "1"
         If w_ea = "I" Then
            Validate "w_ln_arquivo", "link", "", "1", "2", "100", "1", "1"
         End If
-        Validate "w_nr_ordem", "Nr. de ordem", "", "1", "1", "3", "1", "0123546789"
+        Validate "w_nr_ordem", "Nr. de ordem", "", "1", "1", "4", "1", "0123546789"
         ShowHTML " if (theForm.w_ln_arquivo.value > """"){"
         ShowHTML "    if((theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.DLL')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.SH')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.BAT')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.EXE')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.ASP')!=-1) || (theForm.w_ln_arquivo.value.toUpperCase().lastIndexOf('.PHP')!=-1)) {"
         ShowHTML "       alert('Tipo de arquivo não permitido!');"
@@ -563,21 +567,33 @@ Sub GetDocumento
     ShowHTML "        <tr valign=""top"">"
     ShowHTML "          <td valign=""top""><font size=""1""><b><u>T</u>ítulo:</b><br><input " & w_Disabled & " accesskey=""T"" type=""text"" name=""w_ds_titulo"" class=""STI"" SIZE=""50"" MAXLENGTH=""50"" VALUE=""" & w_ds_titulo & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe um título para o arquivo.','white')""; ONMOUSEOUT=""kill()""></td>"
     If w_ea = "I" Then
-       ShowHTML "          <td valign=""top""><font size=""1""><b>Cadastramento:</b><br><input disabled type=""text"" name=""w_dt_arquivo"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(date(),2)) & """ ONMOUSEOVER=""popup('Data de inclusão do arquivo.','white')""; ONMOUSEOUT=""kill()""></td>"
+       ShowHTML "          <td valign=""top""><font size=""1""><b>Cadastramento:</b><br><input type=""text"" name=""w_dt_arquivo"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(date(),2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('Data de inclusão do arquivo.','white')""; ONMOUSEOUT=""kill()""></td>"
     Else
-       ShowHTML "          <td valign=""top""><font size=""1""><b>Última alteração:</b><br><input disabled type=""text"" name=""w_dt_arquivo"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(w_dt_arquivo,2)) & """ ONMOUSEOVER=""popup('Data da última alteração deste arquivo.','white')""; ONMOUSEOUT=""kill()""></td>"
+       ShowHTML "          <td valign=""top""><font size=""1""><b>Última alteração:</b><br><input type=""text"" name=""w_dt_arquivo"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(w_dt_arquivo,2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('Data da última alteração deste arquivo.','white')""; ONMOUSEOUT=""kill()""></td>"
     End If
     ShowHTML "        </table>"
     ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>D</u>escrição:</b><br><textarea " & w_Disabled & " accesskey=""D"" name=""w_ds_arquivo"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a finalidade do arquivo.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_arquivo & "</TEXTAREA></td>"
     ShowHTML "      <tr>"
     ShowHTML "      </tr>"
+    ShowHTML "        <tr valign=""top"">"
+    ShowHTML "          <td><font size=""1""><b>Exibir na <u>p</u>asta:</b><br><select " & w_Disabled & " accesskey=""P"" name=""w_pasta"" class=""STS"" SIZE=""1"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a pasta à qual o arquivo destina-se.','white')""; ONMOUSEOUT=""kill()"">"
+    If w_pasta = "1" Then
+       ShowHTML "            <OPTION VALUE="""" >Selecione uma opção...<OPTION SELECTED VALUE=""1"">Meses<OPTION VALUE=""2"">Formulários<OPTION VALUE=""3"">Diversos"
+    ElseIf w_pasta = "2" Then
+       ShowHTML "            <OPTION VALUE="""" >Selecione uma opção...<OPTION VALUE=""1"">Meses<OPTION SELECTED VALUE=""2"">Formulários<OPTION VALUE=""3"">Diversos"
+    ElseIf w_pasta = "3" Then
+       ShowHTML "            <OPTION VALUE="""" >Selecione uma opção...<OPTION VALUE=""1"">Meses<OPTION VALUE=""2"">Formulários<OPTION SELECTED VALUE=""3"">Diversos"
+    Else
+       ShowHTML "            <OPTION SELECTED VALUE="""" >Selecione uma opção...<OPTION VALUE=""1"">Meses<OPTION VALUE=""2"">Formulários<OPTION VALUE=""3"">Diversos"
+    End If
+    ShowHTML "            </SELECTED></TD>"
     ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>L</u>ink:</b><br><input " & w_Disabled & " accesskey=""L"" type=""file"" name=""w_ln_arquivo"" class=""STI"" SIZE=""80"" MAXLENGTH=""100"" VALUE="""" ONMOUSEOVER=""popup('OBRIGATÓRIO. Clique no botão ao lado para localizar o arquivo. Ele será transferido automaticamente para o servidor.','white')""; ONMOUSEOUT=""kill()"">"
     If w_ln_arquivo > "" Then
        ShowHTML "              <b><a class=""SS"" href=""http://" & Replace(lCase(w_ds_diretorio),lCase("http://"),"") & "/" & w_ln_arquivo & """ target=""_blank"" title=""Clique para exibir o arquivo atual."">Exibir</a></b>"
     End If
     ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
     ShowHTML "        <tr valign=""top"">"
-    ShowHTML "          <td><font size=""1""><b><u>N</u>r. de ordem:</b><br><input " & w_Disabled & " accesskey=""N"" type=""text"" name=""w_nr_ordem"" class=""STI"" SIZE=""3"" MAXLENGTH=""3"" VALUE=""" & w_nr_ordem & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a posição em que este arquivo deve aparecer na lista de arquivos disponíveis. Ex: 1, 2, 3 etc.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "          <td><font size=""1""><b><u>N</u>r. de ordem:</b><br><input " & w_Disabled & " accesskey=""N"" type=""text"" name=""w_nr_ordem"" class=""STI"" SIZE=""4"" MAXLENGTH=""4"" VALUE=""" & w_nr_ordem & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a posição em que este arquivo deve aparecer na lista de arquivos disponíveis. Ex: 1, 2, 3 etc.','white')""; ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td><font size=""1""><b><u>D</u>estinatários:</b><br><select " & w_Disabled & " accesskey=""D"" name=""w_in_destinatario"" class=""STS"" SIZE=""1"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe o público ao qual o arquivo destina-se.','white')""; ONMOUSEOUT=""kill()"">"
     If w_in_destinatario = "A" Then
        ShowHTML "            <OPTION VALUE=""A"" SELECTED>Apenas alunos <OPTION VALUE=""P"">Apenas professores <OPTION VALUE=""T"">Professores e alunos"
@@ -1700,12 +1716,13 @@ Sub GetNoticiaCliente
   w_troca           = Request("w_troca")
 
   If w_troca > "" Then ' Se for recarga da página
-     w_dt_noticia      = Request("w_dt_noticia")
-     w_ds_titulo       = Request("w_ds_titulo")
-     w_ds_noticia      = Request("w_ds_noticia")
-     w_ln_noticia      = Request("w_ln_noticia")
-     w_in_ativo        = Request("w_in_ativo")
-     w_in_exibe        = Request("w_in_exibe")
+     w_dt_noticia   = Request("w_dt_noticia")
+     w_ds_titulo    = replace(Request("w_ds_titulo"),"""","&quot;")
+     w_ds_noticia   = Request("w_ds_noticia")
+     w_ln_noticia   = Request("w_ln_noticia")
+     w_in_ativo     = Request("w_in_ativo")
+     w_in_exibe     = Request("w_in_exibe")
+     w_ln_externo   = replace(Request("w_ln_externo"),"""","&quot;")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
      SQL = "select * from escNoticia_Cliente where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by dt_noticia desc"
@@ -1719,6 +1736,7 @@ Sub GetNoticiaCliente
      w_ds_noticia      = RS("ds_noticia")
      w_in_ativo        = RS("in_ativo")
      w_in_exibe        = RS("in_exibe")
+     w_ln_externo      = RS("ln_externo")
      DesconectaBD
   End If
 
@@ -1759,7 +1777,8 @@ Sub GetNoticiaCliente
     ShowHTML "    <TABLE WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""" & conTableCellSpacing & """ CELLPADDING=""" & conTableCellPadding & """ BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
     ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
     ShowHTML "          <td><font size=""1""><b>Data</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Título</font></td>"
+    ShowHTML "          <td align=""center""><font size=""1""><b>Título</font></td>"
+    ShowHTML "          <td align=""center""><font size=""1""><b>Descrição</font></td>"
     ShowHTML "          <td><font size=""1""><b>Ativo</font></td>"
     ShowHTML "          <td><font size=""1""><b>Operações</font></td>"
     ShowHTML "        </tr>"
@@ -1771,7 +1790,12 @@ Sub GetNoticiaCliente
         If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
         ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"
         ShowHTML "        <td align=""center""><font size=""1"">" & FormataDataEdicao(FormatDateTime(RS("dt_noticia"),2)) & "</td>"
-        ShowHTML "        <td><font size=""1"">" & RS("ds_titulo") & "</td>"
+        if(RS("ln_externo") > "") Then
+           ShowHTML "        <td><font size=""1""><a href="""& RS("ln_externo") & """ target=""_blank"">" & RS("ds_titulo") & "</td>"
+        Else
+           ShowHTML "        <td><font size=""1"">" & RS("ds_titulo") & "</td>"        
+        End If
+        ShowHTML "        <td><font size=""1"">" & RS("ds_noticia") & "</td>"
         ShowHTML "        <td align=""center""><font size=""1"">" & RS("in_ativo") & "</td>"
         ShowHTML "        <td align=""top"" nowrap><font size=""1"">"
         ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=A&CL=" & CL & "&w_chave=" & RS("sq_noticia") & """>Alterar</A>&nbsp"
@@ -1803,7 +1827,12 @@ Sub GetNoticiaCliente
     ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
     ShowHTML "        <tr valign=""top"">"
     ShowHTML "          <td valign=""top""><font size=""1""><b><u>D</u>ata:</b><br><input accesskey=""D"" type=""text"" name=""w_dt_noticia"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(Nvl(w_dt_noticia,Date()),2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a data da notícia. O sistema colocará as barras automaticamente.','white')""; ONMOUSEOUT=""kill()""></td>"
-    ShowHTML "          <td valign=""top""><font size=""1""><b><u>T</u>ítulo:</b><br><input " & w_Disabled & " accesskey=""T"" type=""text"" name=""w_ds_titulo"" class=""STI"" SIZE=""50"" MAXLENGTH=""50"" VALUE=""" & w_ds_titulo & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe um título para o noticia.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "      <tr valign=""top"">"
+    ShowHTML "          <td valign=""top""><font size=""1""><b><u>T</u>ítulo:</b><br><input " & w_Disabled & " accesskey=""T"" type=""text"" name=""w_ds_titulo"" class=""STI"" SIZE=""90"" MAXLENGTH=""100"" VALUE=""" & w_ds_titulo & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe um título para o noticia.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "      </tr>"    
+    ShowHTML "      <tr valign=""top"">"
+    ShowHTML "          <td valign=""top""><font size=""1""><b><u>L</u>ink externo:</b><br><input " & w_Disabled & " accesskey=""L"" type=""text"" name=""w_ln_externo"" class=""STI"" SIZE=""90"" MAXLENGTH=""255"" VALUE=""" & w_ln_externo & """ ONMOUSEOVER=""popup('OPCIONAL. Informe um link externo para o noticia.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "      </tr>"    
     ShowHTML "        </table>"
     ShowHTML "      <tr><td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><textarea " & w_Disabled & " accesskey=""E"" name=""w_ds_noticia"" class=""STI"" ROWS=5 cols=65 ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a notícia.','white')""; ONMOUSEOUT=""kill()"">" & w_ds_noticia & "</TEXTAREA></td>"
     ShowHTML "      <tr>"
@@ -1842,6 +1871,7 @@ Sub GetNoticiaCliente
   Set w_in_ativo        = Nothing
   Set w_ds_noticia      = Nothing
   Set w_ln_noticia      = Nothing
+  Set w_ln_externo      = Nothing
 
   Set w_chave           = Nothing
 
@@ -2697,16 +2727,17 @@ Public Sub Grava
           ' Insere o arquivo
           SQL = " insert into escCliente_Arquivo " & VbCrLf & _
                 "    (sq_arquivo, sq_site_cliente, dt_arquivo, ds_arquivo, ln_arquivo, " & VbCrLf & _
-                "     in_ativo,   in_destinatario, nr_ordem,   ds_titulo) " & VbCrLf & _
+                "     in_ativo,   in_destinatario, nr_ordem,   ds_titulo,  pasta) " & VbCrLf & _
                 " values ( " & w_chave & ", " & VbCrLf & _
                 "     " & ul.Form("w_sq_cliente") & ", " & VbCrLf & _
-                "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Date(),2)) & "',103), " & VbCrLf & _
+                "     convert(datetime, '" & ul.Form("w_dt_arquivo") & "',103), " & VbCrLf & _
                 "     '" & ul.Form("w_ds_arquivo") & "', " & VbCrLf & _
                 "     '" & w_imagem & "', " & VbCrLf & _
                 "     '" & ul.Form("w_in_ativo") & "', " & VbCrLf & _
                 "     '" & ul.Form("w_in_destinatario") & "', " & VbCrLf & _
                 "     '" & ul.Form("w_nr_ordem") & "', " & VbCrLf & _
-                "     '" & ul.Form("w_ds_titulo") & "' " & VbCrLf & _
+                "     '" & ul.Form("w_ds_titulo") & "', " & VbCrLf & _
+                "     '" & ul.Form("w_pasta") & "' " & VbCrLf & _
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
@@ -2744,11 +2775,12 @@ Public Sub Grava
 
           SQL = " update escCliente_Arquivo set " & VbCrLf & _
                 "     ds_titulo       = '" & ul.Form("w_ds_titulo") & "', " & VbCrLf & _
-                "     dt_arquivo      = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Date(),2)) & "',103), " & VbCrLf & _
+                "     dt_arquivo      = convert(datetime, '" & ul.Form("w_dt_arquivo") & "',103), " & VbCrLf & _
                 "     ds_arquivo      = '" & ul.Form("w_ds_arquivo") & "', " & VbCrLf & _
                 "     in_ativo        = '" & ul.Form("w_in_ativo") & "', " & VbCrLf & _
                 "     in_destinatario = '" & ul.Form("w_in_destinatario") & "', " & VbCrLf & _
-                "     nr_ordem        = '" & ul.Form("w_nr_ordem") & "' " & VbCrLf & _
+                "     nr_ordem        = '" & ul.Form("w_nr_ordem") & "', " & VbCrLf & _
+                "     pasta           = '" & ul.Form("w_pasta") & "' " & VbCrLf & _                
                 "where sq_arquivo = " & ul.Form("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 
@@ -2905,13 +2937,14 @@ Public Sub Grava
 
           ' Insere o arquivo
           SQL = " insert into escNoticia_Cliente " & VbCrLf & _
-                "    (sq_noticia, sq_site_cliente, dt_noticia, ds_titulo, ds_noticia, in_ativo) " & VbCrLf & _
+                "    (sq_noticia, sq_site_cliente, dt_noticia, ds_titulo, ds_noticia, in_ativo, ln_externo) " & VbCrLf & _
                 " values ( " & w_chave & ", " & VbCrLf & _
                 "     " & Request("w_sq_cliente") & ", " & VbCrLf & _
                 "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_noticia"),2)) & "',103), " & VbCrLf & _
                 "     '" & Request("w_ds_titulo") & "', " & VbCrLf & _
                 "     '" & Request("w_ds_noticia") & "', " & VbCrLf & _
-                "     '" & Request("w_in_ativo") & "' " & VbCrLf & _
+                "     '" & Request("w_in_ativo") & "', " & VbCrLf & _
+                "     '" & Request("w_ln_externo") & "' " & VbCrLf & _                
                 " )" & VbCrLf
           ExecutaSQL(SQL)
 
@@ -2933,7 +2966,8 @@ Public Sub Grava
                 "     dt_noticia  = convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_noticia"),2)) & "',103), " & VbCrLf & _
                 "     ds_titulo   = '" & Request("w_ds_titulo") & "', " & VbCrLf & _
                 "     ds_noticia  = '" & Request("w_ds_noticia") & "', " & VbCrLf & _
-                "     in_ativo    = '" & Request("w_in_ativo") & "' " & VbCrLf & _
+                "     in_ativo    = '" & Request("w_in_ativo") & "', " & VbCrLf & _
+                "     ln_externo  = '" & Request("w_ln_externo") & "' " & VbCrLf & _                
                 "where sq_noticia = " & Request("w_chave") & VbCrLf
           ExecutaSQL(SQL)
 

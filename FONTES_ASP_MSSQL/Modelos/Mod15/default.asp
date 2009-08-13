@@ -64,7 +64,14 @@ ShowHTML "   <title>Secretaria de Estado de Educa&ccedil;&atilde;o</title>"
 ShowHTML "   <meta http-equiv=""Content-Type"" content=""text/html; charset=iso-8859-1"" /> "
 ShowHTML "   <link href=""/css/estilo.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
 ShowHTML "   <link href=""/css/print.css""  media=""print""  rel=""stylesheet"" type=""text/css"" />"
-ShowHTML "   <script language=""javascript"" src=""inc/scripts.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/scripts.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery-1.3.2.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.hoverIntent.minified.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.bgiframe.min.js""> </script>"
+ShowHTML "<!--[if IE]><script src=""/inc/excanvas.js"" type=""text/javascript"" charset=""utf-8""></script><![endif]-->"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.bt.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.treeview.js""> </script>"
+
 ShowHTML "</head>"
 
 ShowHTML "<BASE HREF=""" & conSite & "/"">"
@@ -76,6 +83,24 @@ End If
 ShowHTML "    <div id=""pagina"">"
 ShowHTML "    <div id=""topo""></div>"
 %>
+<script>
+$(document).ready(function(){
+  $('a[title]').bt({
+  fill: '#F7F7F7', 
+  strokeStyle: '#B7B7B7', 
+  spikeLength: 10, 
+  spikeGirth: 10, 
+  padding: 8, 
+  cornerRadius: 0, 
+  cssStyles: {
+    fontFamily: '"lucida grande",tahoma,verdana,arial,sans-serif', 
+    fontSize: '13px',
+    width: 'auto'
+  }
+});
+$("#arvore").treeview();
+});
+</script>
 <div id="busca">
     <div class="data"> <% Response.Write(ExibeData(date())) %> </div>
     <div class="clear"></div>
@@ -110,7 +135,7 @@ ShowHTML "      <script language=""JavaScript"" src=""inc/mm_menu.js"" type=""te
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=110&CL=" & replace(CL,"sq_cliente=","") & """ >Inicial</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=113&CL=" & replace(CL,"sq_cliente=","") & """ id=""link1"">Quem somos</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=117&CL=" & replace(CL,"sq_cliente=","") & """ >Fale conosco </a></li>"
-ShowHTML "      <li><a href=""" & w_dir & "Default.Asp?EW=116&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Composiçao administrativa</a></li>"
+ShowHTML "      <li><a href=""" & w_dir & "Default.Asp?EW=composicao&EF=" & CL & "&CL=" & replace(CL,"sq_cliente=","") & "&IN=1"" >Composiçao administrativa</a></li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & """ id=""link2"">Notícias</a> </li>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=115&CL=" & replace(CL,"sq_cliente=","") & """ id=""link5"">Calendário</a>"
 ShowHTML "      <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & """ >Arquivos (<i>download</i>)</a></li>"
@@ -185,8 +210,8 @@ Public Sub ShowArquivo
      wAno = Year(Date())
   End If
 
-  sql = "SELECT case in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
-        "       dt_arquivo, ds_titulo, nr_ordem, ds_arquivo, ln_arquivo, 'Regional' AS Origem, x.ln_internet diretorio " & VbCrLf & _
+  sql = "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem else (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem end as ordena, case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
+        "       dt_arquivo, ds_titulo, nr_ordem, a.pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'Regional' AS Origem, x.ln_internet diretorio " & VbCrLf & _
         "From escCliente_Arquivo a, escCliente x " & VbCrLf & _
         "WHERE in_ativo = 'Sim'" & VbCrLf & _
         "  AND x." & sstrEF & " " & VbCrLf & _
@@ -194,8 +219,8 @@ Public Sub ShowArquivo
         "  and in_destinatario <> 'E'" & VbCrLf & _
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
         "UNION " & VbCrLf & _
-        "SELECT case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
-        "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, ds_arquivo, ln_arquivo, 'SEDF' AS Origem, d.ds_diretorio diretorio " & VbCrLf & _
+        "SELECT case a.pasta when '1' then (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem else (a.pasta*1000000)+(12-month(a.dt_arquivo)*10000)+a.nr_ordem end as ordena, case a.in_destinatario when 'A' then 'Aluno' when 'P' then 'Professor' when 'E' then 'Escola' else 'Todos' end AS in_destinatario, " & VbCrLf & _
+        "       a.dt_arquivo, a.ds_titulo, a.nr_ordem, a.pasta, case a.pasta when '1' then 'Meses' when '2' then 'Formulários' when '3' then 'Diversos' else '' end as nmpasta, ds_arquivo, ln_arquivo, 'SEDF' AS Origem, d.ds_diretorio diretorio " & VbCrLf & _
         "From escCliente_Arquivo AS a INNER JOIN escCliente AS c ON (a.sq_site_cliente = c.sq_cliente) " & VbCrLf & _
         "                             INNER JOIN escCliente AS e ON (e.sq_cliente_pai  = c.sq_cliente) " & VbCrLf & _
         "                             INNER JOIN escCliente_Site AS d ON (c.sq_cliente = d.sq_cliente) " & VbCrLf & _
@@ -203,35 +228,82 @@ Public Sub ShowArquivo
         "  AND e." & sstrEF & " " & VbCrLf & _
         "  and in_destinatario <> 'E'" & VbCrLf & _        
         "  and YEAR(a.dt_arquivo) = " & wAno & VbCrLf & _
-        "ORDER BY origem, nr_ordem, dt_arquivo desc, in_destinatario " & VbCrLf 
+        " ORDER BY 1 asc " & VbCrLf 
   RS.Open sql, dbms, adOpenForwardOnly
-
-  ShowHTML "<tr><td><TABLE border=0 cellSpacing=5 width=""95%"">"
-  ShowHTML "  <TR>"
-  ShowHTML "    <TD><b>Origem"
-  ShowHTML "    <TD><b>Alvo"
-  ShowHTML "    <TD><b>Data"
-  ShowHTML "    <TD><b>Componente curricular"
-  ShowHTML "  </TR>"
-  ShowHTML "  <TR>"
-  ShowHTML "    <TD COLSPAN=""4"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
-  ShowHTML "  </TR>"
+  'response.write sql
   wCont = 0
-     
+  Dim meses
   If Not RS.EOF Then
-     wCont = 1
-     Do While Not RS.EOF
-        ShowHTML "  <TR valign=""top"">"
-        ShowHTML "    <TD>" & RS("origem")
-        ShowHTML "    <TD>" & RS("in_destinatario")
-        ShowHTML "    <TD>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
-        ShowHTML "    <TD><a href=""" & RS("diretorio") & "/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
-        ShowHTML "  </TR>"
-
-        RS.MoveNext
-     Loop
+    wCont = 1
+    ShowHTML "<ul id=""arvore"" class=""filetree"">"
+    pasta = 0    
+    meses = 0
+    formularios = 0
+    diversos = 0
+    Do While Not RS.EOF
+      for i = 1 to 3 step 1
+        If(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=1)Then
+          meses = meses + 1
+        elseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=2)Then
+          formularios = formularios + 1
+        elseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=3)Then
+          diversos = diversos + 1
+        End If
+        'response.write "1: "&meses&"<br/>"
+        'response.write "2: "&formularios&"<br/>"
+        'response.write "3: "&diversos&"<br/>"
+        If(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta"))=1)Then
+          ShowHTML "<li><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+        ElseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta")) = 2)Then
+          If(meses > 0 OR diversos > 0) Then
+            ShowHTML "</ul></li></ul></li><li class=""closed""><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          else
+            ShowHTML "<li><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          End If          
+        ElseIf(cInt(RS("pasta")) <> cInt(pasta) AND cInt(RS("pasta")) = 3)Then
+          If(meses > 0 OR formularios > 0) Then
+            ShowHTML "</ul></li></li><li class=""closed""><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          else
+            ShowHTML "<li><span class=""folder"">"&RS("nmpasta")&"</span><ul>"
+          End If          
+        End If
+            If(cInt(RS("pasta")) = 1 )Then
+              If(cInt(month(RS("dt_arquivo")))<>mes) Then
+                If(cInt(RS("pasta")) = cInt(pasta))Then
+                  ShowHTML "</ul></li>"
+                End If                
+                ShowHTML " <li class=""closed""><span class=""folder"">"
+                ShowHTML exibeMes(RS("dt_arquivo"))&"/"&year(RS("dt_arquivo"))
+                ShowHTML "</span><ul>"
+              End If                
+            End If
+          If(cInt(RS("pasta")) = i)Then
+            If (instr(1,RS("ln_arquivo"),".pdf",1) > 0)Then
+              icone = "pdf.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".xls",1) > 0)Then
+              icone = "xls.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".txt",1) > 0)Then
+              icone = "txt.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".doc",1) > 0)Then
+              icone = "doc.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".ppt",1) > 0)Then
+              icone = "ppt.gif"
+            ElseIf (instr(1,RS("ln_arquivo"),".jpeg",1) > 0 OR instr(1,RS("ln_arquivo"),".jpg",1) > 0 OR instr(1,RS("ln_arquivo"),".gif",1) > 0 OR instr(1,RS("ln_arquivo"),".png",1) > 0)Then
+              icone = "picture.gif"
+            Else
+              icone = "undefined.gif"
+            End If
+              ShowHTML "<LI><span class=""file"" style=""background: url(../img/"&icone&") 0 0 no-repeat;"">&nbsp;<a href=""" & RS("diretorio") & "/" & RS("ln_arquivo") & """ title="""&Nvl(RS("ds_arquivo"),"Descrição não informada.")&""" target=""_blank"">"&RS("dt_arquivo")&" — "&RS("ds_titulo")&"&nbsp;("&RS("origem")&")</a></span></LI>"
+          End If
+        pasta = RS("pasta")
+        mes   = cInt(Month(RS("dt_arquivo")))
+      Next
+    RS.MoveNext
+    Loop
+    ShowHTML "  </UL>"
+    ShowHTML "  </UL>"
   Else
-     ShowHTML "  <TR><TD COLSPAN=4 ALIGN=CENTER>Não há arquivos disponíveis no momento para o ano de " & wAno & " </TR>"
+   ShowHTML "  <TR><TD COLSPAN=4 ALIGN=CENTER>Não há arquivos disponíveis no momento para o ano de " & wAno & " </TR>"
   End If
   RS.Close
 
@@ -263,12 +335,13 @@ Public Sub ShowArquivo
         "ORDER BY year(dt_arquivo) desc " & VbCrLf 
     RS.Open sql, dbms, adOpenForwardOnly
     If Not RS.EOF Then
-       ShowHTML "  <TR><TD COLSPAN=4 ><b>Arquivos de outros anos</b><br>"
-       While Not RS.EOF
-          ShowHTML "     <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a></TR>"
-          RS.MoveNext
-       Wend
-       ShowHTML "  </TD></TR>"
+      ShowHTML "  </UL>"
+      ShowHTML "  <TR><br /><TD COLSPAN=4 ><b>Arquivos de outros anos</b><br>"
+      While Not RS.EOF
+        ShowHTML "     <li><a href=""" & w_dir & "Default.asp?EW=143&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a></li>"
+        RS.MoveNext
+      Wend
+      ShowHTML "  </TD></TR>"
     End If
     RS.Close
   ShowHTML "</table></center>"
@@ -484,14 +557,14 @@ Public Sub ShowNoticia
   End If
 
   If sstrIN = "" then
-     sql = "SELECT a.sq_noticia, a.dt_noticia AS data, a.ds_titulo AS ocorrencia, 'G' AS origem " & VbCrLf & _
+     sql = "SELECT a.ln_externo, a.sq_noticia, a.dt_noticia AS data, a.ds_titulo AS ocorrencia, 'G' AS origem " & VbCrLf & _
            "  FROM escNoticia_Cliente  a" & VbCrLf & _
            " WHERE sq_site_cliente   = " & CL & VbCrLf & _
            "  and a.in_ativo         = 'Sim'" & VbCrLf & _
            "  and a.in_exibe         = 'Sim'" & VbCrLf & _
            "  and YEAR(a.dt_noticia) = " & wAno & VbCrLf & _
            "UNION " & VbCrLf & _
-           "SELECT a.sq_noticia, dt_noticia AS data, ds_titulo AS ocorrencia, 'R' AS origem " & VbCrLf & _
+           "SELECT a.ln_externo, a.sq_noticia, dt_noticia AS data, ds_titulo AS ocorrencia, 'R' AS origem " & VbCrLf & _
            "FROM escNoticia_Cliente    AS a" & VbCrLf & _
            "     INNER JOIN escCliente AS b ON (a.sq_site_cliente = b.sq_cliente) " & VbCrLf & _
            "     INNER JOIN escCliente AS c ON (b.sq_cliente      = c.sq_cliente_pai) " & VbCrLf & _
@@ -517,20 +590,28 @@ Public Sub ShowNoticia
      If Not RS.EOF Then
         wCont = 1
         Do While Not RS.EOF
-           ShowHTML "  <TR valign=""top"">"
-           ShowHTML "    <TD>&nbsp;"
-           If RS("origem") = "R" then
+          ShowHTML "  <TR valign=""top"">"
+          ShowHTML "    <TD>&nbsp;"
+          If RS("origem") = "R" then
               ShowHTML "    <TD align=""center"">" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
               ShowHTML "    <TD align=""center"">SEDF"
-              ShowHTML "    <TD colspan=2>" & RS("ocorrencia") & "&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"
-           Else
-              ShowHTML "    <TD align=""center"">" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
-              ShowHTML "    <TD align=""center"">Regional"
-              ShowHTML "    <TD colspan=2>" & RS("ocorrencia") & "&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"
-           End If
-           ShowHTML "  </TR>"
-           wCont = wCont + 1
-           RS.MoveNext
+            If RS("ln_externo") > "" Then
+              ShowHTML "  <TD colspan=2><a target=""_blank"" href="""&RS("ln_externo")&"""> " & RS("ocorrencia") & "</a>&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"      
+            Else
+              ShowHTML "  <TD colspan=2>" & RS("ocorrencia") & "&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"
+            End If
+          Else
+            ShowHTML "    <TD align=""center"">" & Mid(100+Day(RS("data")),2,2) & "/" & Mid(100+Month(RS("data")),2,2) & "/" &Year(RS("data"))
+            ShowHTML "    <TD align=""center"">Regional"
+            If RS("ln_externo") > "" Then
+              ShowHTML "  <TD colspan=2><a target=""_blank"" href="""&RS("ln_externo")&"""> " & RS("ocorrencia") & "</a>&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"      
+            Else
+              ShowHTML "  <TD colspan=2>" & RS("ocorrencia") & "&nbsp;&nbsp;&nbsp;<a href=""" & w_dir & sstrSN & "?EW=" & conWhatExNoticia & "&CL=" & CL & "&EF=" & sstrEF & "&IN=" & RS("sq_noticia") & """><b>[Ler]</a>"
+            End If
+          End If
+          ShowHTML "  </TR>"
+          wCont = wCont + 1
+          RS.MoveNext
         Loop
         
      Else
@@ -559,7 +640,7 @@ Public Sub ShowNoticia
      If Not RS.EOF Then
         ShowHTML "  <TR valign=""top""><TD colspan=""5""><br><b>Notícias de outros anos</b><br>"     
         While Not RS.EOF
-           ShowHTML "    <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ id=""link2"">Notícias de " & RS("ano") & "</a> </TD>"
+           ShowHTML "    <li><a href=""" & w_dir & "Default.asp?EW=114&CL=" & replace(CL,"sq_cliente=","") & "&wAno=" & RS("ano") & """ id=""link2"">Notícias de " & RS("ano") & "</a> </li>"
            RS.MoveNext
         Wend
         ShowHTML "  </TD></TR>"
@@ -1239,6 +1320,109 @@ Sub MontaBarra (p_link, p_PageCount, p_AbsolutePage, p_PageSize, p_RecordCount)
 End Sub
 
 REM =========================================================================
+REM Monta a tela de Validação de Senha
+REM -------------------------------------------------------------------------
+Public Sub ShowValida
+
+  Dim strLabel, strTexto, strAction, strCampo
+  
+  If sstrIN > 0 Then
+    sql = "SELECT b.ds_diretorio, b.ln_prop_pedagogica " & _
+          "From escCliente as a INNER JOIN escCLIENTE_SITE as b on (a.sq_cliente = b.sq_cliente) " & _
+          "                     INNER JOIN escModelo as c on (b.sq_modelo = c.sq_modelo) " & _
+          "                     INNER JOIN escCliente_Dados as d on (a.sq_cliente = d.sq_cliente) " & _
+          "WHERE a." & sstrEF 
+      RS.CursorLocation = 3
+      RS.Open sql, dbms, adOpenForwardOnly
+      ShowHTML "<tr><td>"
+      'If Nvl(RS("ln_prop_pedagogica"),"") > "" Then
+      If RS.RecordCount > 0 Then
+        ShowHTML "    <font size=1><b>"
+        If InStr(lCase(RS("ln_prop_pedagogica")),lCase(".pdf")) > 0 Then
+           ShowHTML "        A exibição do arquivo exige que o Acrobat Reader tenha sido instalado em seu computador."
+           ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, clique <a href=""http://www.adobe.com.br/products/acrobat/readstep2.html"" target=""_blank"">aqui</a> para instalar ou atualizar o Acrobat Reader."
+        Else
+           ShowHTML "        A exibição do arquivo exige o editor de textos Word ou equivalente. "
+           ShowHTML "        <br>Se o arquivo não for exibido no quadro abaixo, verifique se o Word foi corretamente instalado em seu computador."        
+        End If
+        ShowHTML "<table align=""center"" width=""100%"" cellspacing=0 style=""border: 1px solid rgb(0,0,0);""><tr><td>"
+        ShowHTML "    <iframe src=""" & RS("ds_diretorio") & "/" & RS("ln_prop_pedagogica") & """ width=""100%"" height=""510"">"
+        ShowHTML "    </iframe>"
+        ShowHTML "</table>"
+      Else
+        ShowHTML "    <font size=1><b>Composição Administrativa não informada."
+      End If
+  Else
+     strLabel = "Alunos"
+     strTexto = "Informe nos campos abaixo sua Matrícula e Senha de Acesso, conforme informado pela escola. Se você não recebeu esses dados, clique no botão <i>Fale Conosco</I>, acima, para ver como entrar em contato com a escola e consegui-los."
+     strAction = sstrSN & "?EW=" & conWhatSenha & "&EF=" & sstrEF & "&CL=" & CL & "&IN=" & sstrIN
+     strCampo = "Matrícula"
+
+     ShowHTML "<script Language=""JavaScript"">" & chr(13)
+     ShowHTML "<!--" & chr(13)
+     ShowHTML "function Validacao(theForm)" & chr(13)
+     ShowHTML "{" & chr(13)
+     ShowHTML "  var checkOK = ""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"";" & chr(13)
+     ShowHTML "  var checkStr = theForm.UID.value;" & chr(13)
+     ShowHTML "  var allValid = true;" & chr(13)
+     ShowHTML "  for (i = 0;  i < checkStr.length;  i++)" & chr(13)
+     ShowHTML "  {" & chr(13)
+     ShowHTML "    ch = checkStr.charAt(i);" & chr(13)
+     ShowHTML "    for (j = 0;  j < checkOK.length;  j++)" & chr(13)
+     ShowHTML "      if (ch == checkOK.charAt(j))" & chr(13)
+     ShowHTML "        break;" & chr(13)
+     ShowHTML "    if (j == checkOK.length)" & chr(13)
+     ShowHTML "    {" & chr(13)
+     ShowHTML "      allValid = false;" & chr(13)
+     ShowHTML "      break;" & chr(13)
+     ShowHTML "    }" & chr(13)
+     ShowHTML "  }" & chr(13)
+     ShowHTML "  if (!allValid)" & chr(13)
+     ShowHTML "  {" & chr(13)
+     ShowHTML "    alert(""Informe apenas letras e números no campo \""Nome de Usuário\""."");" & chr(13)
+     ShowHTML "    theForm.UID.focus();" & chr(13)
+     ShowHTML "    return (false);" & chr(13)
+     ShowHTML "  }" & chr(13)
+     ShowHTML "  var checkOK = ""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"";" & chr(13)
+     ShowHTML "  var checkStr = theForm.PWD.value;" & chr(13)
+     ShowHTML "  var allValid = true;" & chr(13)
+     ShowHTML "  for (i = 0;  i < checkStr.length;  i++)" & chr(13)
+     ShowHTML "  {" & chr(13)
+     ShowHTML "    ch = checkStr.charAt(i);" & chr(13)
+     ShowHTML "    for (j = 0;  j < checkOK.length;  j++)" & chr(13)
+     ShowHTML "      if (ch == checkOK.charAt(j))" & chr(13)
+     ShowHTML "        break;" & chr(13)
+     ShowHTML "    if (j == checkOK.length)" & chr(13)
+     ShowHTML "    {" & chr(13)
+     ShowHTML "      allValid = false;" & chr(13)
+     ShowHTML "      break;" & chr(13)
+     ShowHTML "    }" & chr(13)
+     ShowHTML "  }" & chr(13)
+     ShowHTML "  if (!allValid)" & chr(13)
+     ShowHTML "  {" & chr(13)
+     ShowHTML "    alert(""Informe apenas letras e números no campo \""Senha\""."");" & chr(13)
+     ShowHTML "    theForm.PWD.focus();" & chr(13)
+     ShowHTML "    return (false);" & chr(13)
+     ShowHTML "  }" & chr(13)
+     ShowHTML "  return (true);" & chr(13)
+     ShowHTML "}" & chr(13)
+     ShowHTML "//-->" & chr(13)
+     ShowHTML "</script>" & chr(13)
+     ShowHTML "<form method=""POST"" action=""" & w_dir & strAction & """ onsubmit=""return Validacao(this)"" name=""Form1"">"
+
+     ShowHTML "<tr><td><table align=""center"" width=""95%"">"
+     ShowHTML "<tr><td colspan=""3""><p align=""justify"">" & strTexto & "<p>&nbsp"
+     ShowHTML "<tr><td align=""right""><b>" & strCampo & ":</b><td>&nbsp;<td><input type=""text"" class=""texto"" lenght=""14"" maxsize=""14"" name=""UID"" value="""">"
+     ShowHTML "<tr><td align=""right""><b>Senha de acesso:</b><td>&nbsp;<td><input type=""password"" class=""texto"" lenght=""14"" maxsize=""14"" name=""PWD"" value="""">"
+     ShowHTML "<tr><td align=""right"">&nbsp;<td>&nbsp;<td><input type=""submit"" name=""BTN"" class=""botao"" value=""Encontrar"">&nbsp;<input type=""reset"" class=""botao"" name=""CLR"" value=""Limpar"">"
+     ShowHTML "</table>"
+
+     ShowHTML "</form>"
+  End If
+
+End Sub
+
+REM =========================================================================
 REM Corpo Principal do programa
 REM -------------------------------------------------------------------------
 Private Sub Main
@@ -1257,6 +1441,7 @@ Private Sub Main
     Case conWhatExCalend    ShowCalend
     Case conWhatValida      ShowEscolas
     Case "PreparaMail"      PreparaMail
+    Case "composicao"       ShowValida
   End Select
 End Sub
 REM -------------------------------------------------------------------------
