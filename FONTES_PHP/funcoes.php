@@ -4304,6 +4304,9 @@
     if ($chaveaux > "") {
       $SQL .= '   and nvl(sq_cliente_pai,0) = ' . $chaveaux . $crlf;
     }
+    if ($restricao=='ESCOLA') {
+      $SQL .= '   and b.tipo = 3' . $crlf;
+    }
     $SQL .= 'ORDER BY b.tipo, ds_cliente' . $crlf;
     $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
     if (is_null($hint)) {
@@ -4446,16 +4449,16 @@
     extract($GLOBALS);
     if (substr($_SESSION["username"], 0, 2) == 'RE') {
       $SQL = "SELECT  a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " . $crlf .
-      "  FROM  sbpi.CLIENTE a " . $crlf .
-      " WHERE  a.sq_cliente = " . $CL . $crlf .
-      "ORDER BY a.ds_cliente ";
+             "  FROM  sbpi.CLIENTE a " . $crlf .
+             " WHERE  a.sq_cliente = " . $CL . $crlf .
+             "ORDER BY a.ds_cliente ";
     } else {
       $SQL = "SELECT a.sq_cliente, a.sq_tipo_cliente, a.ds_cliente " . $crlf .
-      "  from sbpi.CLIENTE a " . $crlf .
-      "       inner join sbpi.Tipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " . $crlf .
-      " WHERE b.tipo = 2 " . $crlf .
-      "    OR (b.tipo = 1 and a.sq_cliente_pai is null) " . $crlf .
-      "ORDER BY b.tipo, a.ds_cliente" . $crlf;
+             "  from sbpi.CLIENTE a " . $crlf .
+             "       inner join sbpi.Tipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " . $crlf .
+             " WHERE b.tipo = 2 " . $crlf .
+             "    OR (b.tipo = 1 and a.sq_cliente_pai is null) " . $crlf .
+             "ORDER BY b.tipo, a.ds_cliente" . $crlf;
     }
     $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 

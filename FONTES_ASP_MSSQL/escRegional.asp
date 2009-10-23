@@ -175,7 +175,7 @@ Sub LigaRegEsc
   ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
   ShowHTML "      <tr><td colspan=2><table border=0 width=""90%"" cellspacing=0>"
   ShowHTML "        <tr valign=""top"">"
-  SelecaoEscola         "Unidad<u>e</u> de ensino:", "E", "Selecione unidade." , p_escola, null, "p_escola", null, "onChange=""document.Form.action='" & w_pagina & w_ew & "'; document.Form.w_ea.value='P'; document.Form.p_regiao.value=''; document.Form.p_regional.value=''; document.Form.w_troca.value='p_regiao'; document.Form.submit();"""
+  SelecaoEscola         "Unidad<u>e</u> de ensino:", "E", "Selecione unidade." , p_escola, null, "p_escola", "ESCOLA", "onChange=""document.Form.action='" & w_pagina & w_ew & "'; document.Form.w_ea.value='P'; document.Form.p_regiao.value=''; document.Form.p_regional.value=''; document.Form.w_troca.value='p_regiao'; document.Form.submit();"""
   ShowHTML "        <tr valign=""top"">"
   SelecaoRegiaoAdm "Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", p_regiao, p_escola, "p_regiao", null, null
   ShowHTML "        <tr valign=""top"">"

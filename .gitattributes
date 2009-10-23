@@ -215,6 +215,7 @@ FONTES_ASP_MSSQL/inc/scripts.js -text
 FONTES_ASP_MSSQL/inputsql.asp -text
 FONTES_ASP_MSSQL/jScript.asp -text
 FONTES_ASP_MSSQL/jquery.js -text
+FONTES_ASP_MSSQL/recadastramento/default.asp -text
 FONTES_ASP_MSSQL/results.asp -text
 FONTES_ASP_ORACLE/Constants.inc -text
 FONTES_ASP_ORACLE/Constants_ADO.inc -text

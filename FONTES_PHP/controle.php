@@ -1,5 +1,4 @@
 <?php
-
   // Garante que a sessão será reinicializada.
   session_start();
 
@@ -2653,38 +2652,42 @@
         If (Nvl($O, "") == "I") {
 
           //'Criação das escolas na tabela principal
-          $SQL = "insert into sbpi.Cliente (sq_cliente,              sq_cliente_pai,              sq_tipo_cliente,                            ds_cliente,  " .
-          "                        ds_apelido,              no_municipio,                sg_uf,                                      ds_username, " .
-          "                        ds_senha_acesso,         ln_internet,                 ds_email,                                   dt_cadastro,  " .
-          "                        ativo  ,sq_regiao_adm , localizacao" .
-          " ) values ( " .
-          "                        " . $w_chave . "," . $_REQUEST["w_sq_cliente_pai"] . "," . $_REQUEST["w_sq_tipo_cliente"] . ",'" . $_REQUEST["w_ds_cliente"] . "'," .
-          "                        '" . $_REQUEST["w_ds_apelido"] . "','" . $_REQUEST["w_no_municipio"] . "','" . $_REQUEST["w_sg_uf"] . "','" . $_REQUEST["w_ds_username"] . "'," .
-          "                        '9" . $w_chave . "','" . $_REQUEST["w_ln_internet"] . "','" . Nvl($_REQUEST["w_ds_email"], "Não informado") . "', sysdate,'" . $_REQUEST["w_ativo"] . "' , '" . $_REQUEST['w_sq_regiao_adm'] . "','" . $_REQUEST['w_localizacao'] . "') ";
+          $SQL = "insert into sbpi.Cliente (  " . $crlf .
+                 "       sq_cliente,              sq_cliente_pai,              sq_tipo_cliente,                            ds_cliente,  " . $crlf .
+                 "       ds_apelido,              no_municipio,                sg_uf,                                      ds_username, " . $crlf .
+                 "       ds_senha_acesso,         ln_internet,                 ds_email,                                   dt_cadastro,  " . $crlf .
+                 "       ativo  ,                 sq_regiao_adm ,              localizacao" . $crlf .
+                 " ) values ( " . $crlf .
+                 "       " . $w_chave . "," . $_REQUEST["w_sq_cliente_pai"] . "," . $_REQUEST["w_sq_tipo_cliente"] . ",'" . $_REQUEST["w_ds_cliente"] . "'," . $crlf .
+                 "       '" . $_REQUEST["w_ds_apelido"] . "','" . $_REQUEST["w_no_municipio"] . "','" . $_REQUEST["w_sg_uf"] . "','" . $_REQUEST["w_ds_username"] . "'," . $crlf .
+                 "       '9" . $w_chave . "','" . $_REQUEST["w_ln_internet"] . "','" . Nvl($_REQUEST["w_ds_email"], "Não informado") . "', sysdate,'" . $_REQUEST["w_ativo"] . "' , '" . $crlf .
+                 "       " . $_REQUEST['w_regiao'] . ",'" . $_REQUEST['w_local'] . "') ";
 
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
           //'Criação das escolas na tabela que contém dados complementares'
-          $SQL = "insert into sbpi.Cliente_Dados (sq_cliente          ,            nr_cnpj,                 tp_registro,  " .
-          "                              ds_ato,                      nr_ato,              dt_ato,                  ds_orgao,         ds_logradouro, " .
-          "                              no_bairro,                   nr_cep,              no_contato,              ds_email_contato, nr_fone_contato, " .
-          "                              nr_fax_contato,              no_diretor,          no_secretario " .
-          " ) values ( " .
-          "                              " . $w_chave . ",null,null, " .
-          "                              null,                        null,                null,                    null,'" . $_REQUEST["w_ds_logradouro"] . "'," .
-          "                              '" . $_REQUEST["w_no_bairro"] . "','" . trim($_REQUEST["w_nr_cep"]) . "','" . $_REQUEST["w_no_contato"] . "', '" . $_REQUEST["w_email_contato"] . "','" . $_REQUEST["w_nr_fone_contato"] . "'," .
-          "                              '" . $_REQUEST["w_nr_fax_contato"] . "','" . Nvl($_REQUEST["w_no_diretor"], "Não informado") . "','" . Nvl($_REQUEST["w_no_secretario"], "Não informado") . "') ";
+          $SQL = "insert into sbpi.Cliente_Dados (" . $crlf .
+                 "       sq_cliente,                  nr_cnpj,                 tp_registro,  " . $crlf .
+                 "       ds_ato,                      nr_ato,              dt_ato,                  ds_orgao,         ds_logradouro, " . $crlf .
+                 "       no_bairro,                   nr_cep,              no_contato,              ds_email_contato, nr_fone_contato, " . $crlf .
+                 "       nr_fax_contato,              no_diretor,          no_secretario " . $crlf .
+                 " ) values ( " . $crlf .
+                 "       " . $w_chave . ",null,null, " . $crlf .
+                 "       null,                        null,                null,                    null,'" . $_REQUEST["w_ds_logradouro"] . "'," . $crlf .
+                 "       '" . $_REQUEST["w_no_bairro"] . "','" . trim($_REQUEST["w_nr_cep"]) . "','" . $_REQUEST["w_no_contato"] . "', '" . $_REQUEST["w_email_contato"] . "','" . $_REQUEST["w_nr_fone_contato"] . "'," . $crlf .
+                 "       '" . $_REQUEST["w_nr_fax_contato"] . "','" . Nvl($_REQUEST["w_no_diretor"], "Não informado") . "','" . Nvl($_REQUEST["w_no_secretario"], "Não informado") . "') ";
 
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
           //'Criação das escolas na tabela que contém informações sobre o site web
-          $SQL = "insert into sbpi.Cliente_Site (               sq_cliente,                   sq_modelo,                      no_contato_internet,              " .
-          "                             nr_fone_internet,              nr_fax_internet,              ds_email_internet,              ds_diretorio,                     " .
-          "                             sq_siscol,                     ds_mensagem,                  ds_institucional,               ds_texto_abertura                 " .
-          " ) values ( " .
-          "                             " . $w_chave . "," . $_REQUEST["w_sq_modelo"] . ",'" . $_REQUEST["w_no_contato_internet"] . "', " .
-          "                             '" . $_REQUEST["w_nr_fone_internet"] . "','" . $_REQUEST["w_nr_fax_internet"] . "','" . $_REQUEST["w_ds_email_internet"] . "','" . $_REQUEST["w_ds_diretorio"] . "'," .
-          "                             '" . $_REQUEST["w_sq_siscol"] . "','" . Nvl($_REQUEST["w_ds_mensagem"], "A ser inserido") . "','" . Nvl($_REQUEST["w_ds_institucional"], "A ser inserido") . "','" . Nvl($_REQUEST["w_ds_texto_abertura"], "A ser inserido") . "')";
+          $SQL = "insert into sbpi.Cliente_Site (" . $crlf .
+                 "       sq_cliente,                   sq_modelo,                      no_contato_internet,              " . $crlf .
+                 "       nr_fone_internet,              nr_fax_internet,              ds_email_internet,              ds_diretorio,                     " . $crlf .
+                 "       sq_siscol,                     ds_mensagem,                  ds_institucional,               ds_texto_abertura                 " . $crlf .
+                 " ) values ( " . $crlf .
+                 "       " . $w_chave . "," . $_REQUEST["w_sq_modelo"] . ",'" . $_REQUEST["w_no_contato_internet"] . "', " . $crlf .
+                 "       '" . $_REQUEST["w_nr_fone_internet"] . "','" . $_REQUEST["w_nr_fax_internet"] . "','" . $_REQUEST["w_ds_email_internet"] . "','" . $_REQUEST["w_ds_diretorio"] . "'," . $crlf .
+                 "       '" . $_REQUEST["w_sq_siscol"] . "','" . Nvl($_REQUEST["w_ds_mensagem"], "A ser inserido") . "','" . Nvl($_REQUEST["w_ds_institucional"], "A ser inserido") . "','" . Nvl($_REQUEST["w_ds_texto_abertura"], "A ser inserido") . "')";
 
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
@@ -2692,61 +2695,55 @@
 
           if (is_array($_REQUEST['w_sq_codigo_espec'])) {
             foreach ($_REQUEST['w_sq_codigo_espec'] as $row) {
-              $SQL = "insert into sbpi.Especialidade_Cliente (sq_cliente , sq_especialidade " .
-              " ) values ( " . $w_chave . "," . $row . ") ";
+              $SQL = "insert into sbpi.Especialidade_Cliente (sq_cliente , sq_especialidade) values (" . $w_chave . "," . $row . ") ";
               db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
             }
           }
-          ScriptOpen("JavaScript");
-          ShowHTML("  location.href=\"" . $w_pagina . "escolas&O=L\"; ");
-          ScriptClose();
-
-        }
-        ElseIf (Nvl($O, "") == "A") {
+        } elseif (Nvl($O, "") == "A") {
 
           //'Altera os dados das escolas na tabela principal
-          $SQL = "update sbpi.Cliente set " .
-          "   sq_cliente_pai  = " . $_REQUEST["w_sq_cliente_pai"] . "," .
-          "   sq_tipo_cliente = " . $_REQUEST["w_sq_tipo_cliente"] . "," .
-          "   ds_cliente      = '" . $_REQUEST["w_ds_cliente"] . "'," .
-          "   ds_apelido      = '" . $_REQUEST["w_ds_apelido"] . "'," .
-          "   no_municipio    = '" . $_REQUEST["w_no_municipio"] . "'," .
-          "   sg_uf           = '" . $_REQUEST["w_sg_uf"] . "'," .
-          "   ds_username     = '" . $_REQUEST["w_ds_username"] . "'," .
-          "   ln_internet     = '" . $_REQUEST["w_ln_internet"] . "'," .
-          "   ds_email        = '" . $_REQUEST["w_ds_email"] . "'," .
-          "   sq_regiao_adm   = '" . $_REQUEST["w_sq_regiao_adm"] . "'," .
-          "   localizacao     = '" . $_REQUEST["w_localizacao"] . "'," .
-          "   ativo        = '" . $_REQUEST["w_ativo"] . "'" .
-          " where sq_cliente = " . $w_chave;
+          $SQL = "update sbpi.Cliente set " . $crlf .
+                 "   sq_cliente_pai  = " . $_REQUEST["w_sq_cliente_pai"] . "," . $crlf .
+                 "   sq_tipo_cliente = " . $_REQUEST["w_sq_tipo_cliente"] . "," . $crlf .
+                 "   ds_cliente      = '" . $_REQUEST["w_ds_cliente"] . "'," . $crlf .
+                 "   ds_apelido      = '" . $_REQUEST["w_ds_apelido"] . "'," . $crlf .
+                 "   no_municipio    = '" . $_REQUEST["w_no_municipio"] . "'," . $crlf .
+                 "   sg_uf           = '" . $_REQUEST["w_sg_uf"] . "'," . $crlf .
+                 "   ds_username     = '" . $_REQUEST["w_ds_username"] . "'," . $crlf .
+                 "   ln_internet     = '" . $_REQUEST["w_ln_internet"] . "'," . $crlf .
+                 "   ds_email        = '" . $_REQUEST["w_ds_email"] . "'," . $crlf .
+                 "   sq_regiao_adm   = '" . $_REQUEST["w_regiao"] . "'," . $crlf .
+                 "   localizacao     = '" . $_REQUEST["w_local"] . "'," . $crlf .
+                 "   ativo        = '" . $_REQUEST["w_ativo"] . "'" . $crlf .
+                 " where sq_cliente = " . $w_chave;
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
           //'Altera as escolas na tabela que contém dados complementares
-          $SQL = "update sbpi.Cliente_Dados set " .
-          "   ds_logradouro   = '" . $_REQUEST["w_ds_logradouro"] . "'," .
-          "   no_bairro       = '" . $_REQUEST["w_no_bairro"] . "'," .
-          "   nr_cep          = '" . trim($_REQUEST["w_nr_cep"]) . "'," .
-          "   no_contato      = '" . $_REQUEST["w_no_contato"] . "'," .
-          "   ds_email_contato= '" . $_REQUEST["w_email_contato"] . "'," .
-          "   nr_fone_contato = '" . $_REQUEST["w_nr_fone_contato"] . "'," .
-          "   nr_fax_contato  = '" . $_REQUEST["w_nr_fax_contato"] . "'," .
-          "   no_diretor      = '" . Nvl($_REQUEST["w_no_diretor"], "Não informado") . "'," .
-          "   no_secretario   = '" . Nvl($_REQUEST["w_no_secretario"], "Não informado") . "'" .
-          " where sq_cliente = " . $w_chave;
+          $SQL = "update sbpi.Cliente_Dados set " . $crlf .
+                 "   ds_logradouro   = '" . $_REQUEST["w_ds_logradouro"] . "'," . $crlf .
+                 "   no_bairro       = '" . $_REQUEST["w_no_bairro"] . "'," . $crlf .
+                 "   nr_cep          = '" . trim($_REQUEST["w_nr_cep"]) . "'," . $crlf .
+                 "   no_contato      = '" . $_REQUEST["w_no_contato"] . "'," . $crlf .
+                 "   ds_email_contato= '" . $_REQUEST["w_email_contato"] . "'," . $crlf .
+                 "   nr_fone_contato = '" . $_REQUEST["w_nr_fone_contato"] . "'," . $crlf .
+                 "   nr_fax_contato  = '" . $_REQUEST["w_nr_fax_contato"] . "'," . $crlf .
+                 "   no_diretor      = '" . Nvl($_REQUEST["w_no_diretor"], "Não informado") . "'," . $crlf .
+                 "   no_secretario   = '" . Nvl($_REQUEST["w_no_secretario"], "Não informado") . "'" . $crlf .
+                 " where sq_cliente = " . $w_chave;
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
           //'Altera as escolas na tabela que contém informações sobre o site web
-          $SQL = "update sbpi.Cliente_Site set " .
-          "   sq_modelo             = '" . $_REQUEST["w_sq_modelo"] . "'," .
-          "   no_contato_internet   = '" . $_REQUEST["w_no_contato_internet"] . "'," .
-          "   nr_fone_internet      = '" . $_REQUEST["w_nr_fone_internet"] . "'," .
-          "   nr_fax_internet       = '" . $_REQUEST["w_nr_fax_internet"] . "'," .
-          "   ds_email_internet     = '" . $_REQUEST["w_ds_email_internet"] . "'," .
-          "   ds_diretorio          = '" . $_REQUEST["w_ds_diretorio"] . "'," .
-          "   sq_siscol             = '" . $_REQUEST["w_sq_siscol"] . "'," .
-          "   ds_mensagem           = '" . Nvl($_REQUEST["w_ds_mensagem"], "A ser inserido") . "'," .
-          "   ds_institucional      = '" . Nvl($_REQUEST["w_ds_institucional"], "A ser inserido") . "'," .
-          "   ds_texto_abertura     = '" . Nvl($_REQUEST["w_ds_texto_abertura"], "A ser inserido") . "'" .
-          " where sq_cliente = " . $w_chave;
+          $SQL = "update sbpi.Cliente_Site set " . $crlf .
+                 "   sq_modelo             = '" . $_REQUEST["w_sq_modelo"] . "'," . $crlf .
+                 "   no_contato_internet   = '" . $_REQUEST["w_no_contato_internet"] . "'," . $crlf .
+                 "   nr_fone_internet      = '" . $_REQUEST["w_nr_fone_internet"] . "'," . $crlf .
+                 "   nr_fax_internet       = '" . $_REQUEST["w_nr_fax_internet"] . "'," . $crlf .
+                 "   ds_email_internet     = '" . $_REQUEST["w_ds_email_internet"] . "'," . $crlf .
+                 "   ds_diretorio          = '" . $_REQUEST["w_ds_diretorio"] . "'," . $crlf .
+                 "   sq_siscol             = '" . $_REQUEST["w_sq_siscol"] . "'," . $crlf .
+                 "   ds_mensagem           = '" . Nvl($_REQUEST["w_ds_mensagem"], "A ser inserido") . "'," . $crlf .
+                 "   ds_institucional      = '" . Nvl($_REQUEST["w_ds_institucional"], "A ser inserido") . "'," . $crlf .
+                 "   ds_texto_abertura     = '" . Nvl($_REQUEST["w_ds_texto_abertura"], "A ser inserido") . "'" . $crlf .
+                 " where sq_cliente = " . $w_chave;
           $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
           //'Apaga as escolas na tabela que contém as modalidades de ensino oferecidas pela escola
@@ -2762,11 +2759,11 @@
               db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
             }
           }
-
-          ScriptOpen("JavaScript");
-          ShowHTML("  location.href=\"" . $w_pagina . "escolas&O=L\"; ");
-          ScriptClose();
         }
+        ScriptOpen("JavaScript");
+        ShowHTML("  location.href=\"" . $w_pagina . "escolas&O=L&pesquisa=Sim" . MontaFiltro("GET") ."\"; ");
+        ScriptClose();
+
         break;
 
       Case "REDEPART" :
@@ -5566,7 +5563,7 @@
     ShowHTML('      <tr><td colspan=2><table border=0 width="90%" cellspacing=0>');
     ShowHTML('        <tr valign="top">');
 
-    SelecaoEscola("Unidad<u>e</u> de ensino:", "E", "Selecione unidade.", $p_escola, null, "p_escola", null, "onChange='document.Form.action=\"controle.php?par=dadosescola&O=p \"; document.Form.submit();'");
+    SelecaoEscola("Unidad<u>e</u> de ensino:", "E", "Selecione unidade.", $p_escola, null, "p_escola", "ESCOLA", "onChange='document.Form.action=\"controle.php?par=dadosescola&O=p \"; document.Form.submit();'");
     ShowHTML('        <tr valign="top">');
     SelecaoRegiaoAdm("Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", $p_regiao, $p_escola, "p_regiao", null, null);
     ShowHTML('        <tr valign="top">');
@@ -6364,6 +6361,8 @@
       $RS = $RS[0];
 
       $w_chave = $RS["sq_cliente"];
+      $w_regiao = $RS["sq_regiao_adm"];
+      $w_local  = $RS["localizacao"];
       $w_sq_cliente_pai = $RS["sq_cliente_pai"];
       $w_sq_tipo_cliente = $RS["sq_tipo_cliente"];
       $w_ds_cliente = $RS["ds_cliente"];
@@ -6420,7 +6419,8 @@
     ShowHTML("  document.Form.w_ds_diretorio.value = link + document.Form.w_ds_username.value;");
     ShowHTML("}");
     ValidateOpen("Validacao");
-    Validate("w_sq_cliente_pai", "Subordinação", "SELECT", "1", "1", "18", "1", "1");
+    Validate("w_sq_cliente_pai", "D.R.E.", "SELECT", "1", "1", "18", "1", "1");
+    Validate("w_regiao", "Região Administrativa", "SELECT", "1", "1", "18", "1", "1");
     Validate("w_sq_tipo_cliente", "Tipo de instituição", "SELECT", "1", "1", "18", "1", "1");
     Validate("w_ds_cliente", "Nome da escola", "1", "1", "3", "60", "1", "1");
     Validate("w_ds_apelido", "Apelido", "1", "", "3", "30", "1", "1");
@@ -6471,7 +6471,7 @@
       $w_disabled = " DISABLED ";
     }
     ShowHTML('<FORM action="' . $w_pagina . 'Grava" method="POST" name="Form" onSubmit="return(Validacao(this));">');
-    MontaFiltro("POST");
+    ShowHTML(MontaFiltro("POST"));
     ShowHTML('<INPUT type="hidden" name="O" value="' . $O . '">');
     ShowHTML('<INPUT type="hidden" name="w_chave" value="' . $w_chave . '">');
     ShowHTML('<INPUT type="hidden" name="SG" value="' . $par . '">');
@@ -6481,7 +6481,10 @@
     }
     ShowHTML('<tr bgcolor="#EFEFEF"><td align="center">');
     ShowHTML('    <table width="100%" border="0">');
-    SelecaoRegional("<u>S</u>ubordinação:", "S", "Indique a subordinação da escola.", $w_sq_cliente_pai, null, "w_sq_cliente_pai", "CADASTRO", null);
+    ShowHTML('        <tr valign="top">');
+    SelecaoRegional("Regional de en<u>s</u>ino:", "S", "Indique a D.R.E. da escola.", $w_sq_cliente_pai, null, "w_sq_cliente_pai", "CADASTRO", null);
+    SelecaoRegiaoAdm("Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", $w_regiao, $w_chave, "w_regiao", null, null);
+    ShowHTML('        <tr valign="top">');
     $SQL = "SELECT * FROM sbpi.Tipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente";
     $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
@@ -6496,7 +6499,16 @@
       }
     }
     ShowHTML('          </select>');
-
+    ShowHTML('          <td><b>Localização</b><br>');
+    If ($w_local == "1") {
+      ShowHTML('              <input  type="radio" name="w_local" value="0"> Não informada <input  type="radio" name="w_local" value="1" checked> Urbana <input  type="radio" name="w_local" value="2"> Rural ');
+    }
+    ElseIf ($w_local == "2") {
+      ShowHTML('              <input  type="radio" name="w_local" value="0"> Não informada <input  type="radio" name="w_local" value="1"> Urbana <input  type="radio" name="w_local" value="2" checked> Rural ');
+    } Else {
+      ShowHTML('              <input  type="radio" name="w_local" value="0" checked> Não informada <input  type="radio" name="w_local" value="1"> Urbana <input  type="radio" name="w_local" value="2"> Rural ');
+    }
+    
     ShowHTML('      <tr><td valign="top"><font size="1"><b>Nome <u>d</u>a escola:</b><br><input ' . $w_disabled . ' accesskey="D" type="text" name="w_ds_cliente" class="STI" SIZE="60" MAXLENGTH="60" VALUE="' . $w_ds_cliente . '" title="Informe uma descrição para a escola."></td>');
     ShowHTML('          <td valign="top"><font size="1"><b><u>A</u>pelido:</b><br><input ' . $w_disabled . ' accesskey="A" type="text" name="w_ds_apelido" class="STI" SIZE="30" MAXLENGTH="30" VALUE="' . $w_ds_apelido . '" title="Informe o apelido da escola."></td>');
 
@@ -6721,7 +6733,7 @@
         ShowHTML('            <input class="STB" type="submit" name="Botao" value="Atualizar">');
       }
     }
-    ShowHTML("            <input class='STB' type='button' onClick='location.href=\"" . $w_pagina . "escolas&O=L\";' name='Botao' value='Cancelar'>");
+    ShowHTML("            <input class='STB' type='button' onClick='location.href=\"" . $w_pagina . "escolas&O=L&pesquisa=Sim" . MontaFiltro("GET") . "\";' name='Botao' value='Cancelar'>");
     ShowHTML('          </td>');
     ShowHTML('      </tr>');
     ShowHTML('    </table>');
@@ -6738,81 +6750,31 @@
   function Main() {
     extract($GLOBALS);
     switch ($par) {
-      Case 'MENU' :
-        Menu();
-        break;
-      Case 'ADMINISTRATIVO' :
-        Administrativo();
-        break;
-      Case 'ADMLOG' :
-        AdmLog();
-        break;
-      Case 'ARQUIVOS' :
-        Arquivos();
-        break;
-      Case 'SHOW_LOG' :
-        showlog();
-        break;
-      Case 'CALEND_REDE' :
-        Calend_rede();
-        break;
-      Case 'CALEND_BASE' :
-        Calend_base();
-        break;
-      Case 'ESCPART' :
-        escPart();
-        break;
-      Case 'ESCOLAS' :
-        escolas();
-        break;
-      Case 'ESCPARTHOMOLOG' :
-        escPartHomolog();
-        break;
-      Case 'GRAVA' :
-        Grava();
-        break;
-      Case 'LOG' :
-        log_controle();
-        break;
-      Case 'DADOSESCOLA' :
-        dadosEscola();
-        break;
-      Case 'MSGALUNOS' :
-        Msgalunos();
-        break;
-      Case 'MODALIDADES' :
-        Modalidades();
-        break;
-      Case 'NEWSLETTER' :
-        Newsletter();
-        break;
-      Case 'NOTICIAS' :
-        Noticias();
-        break;
-      Case 'CADASTROESCOLA' :
-        CadastroEscolas();
-        break;
-      Case 'SENHA' :
-        Senha();
-        break;
-      Case 'SENHAESP' :
-        Senhaesp();
-        break;
-      Case 'TIPOCLIENTE' :
-        TipoCliente();
-        break;
-      Case 'VALIDA' :
-        Valida();
-        break;
-      Case 'FRAMES' :
-        Frames();
-        break;
-      Case 'REDEPART' :
-        redepart();
-        break;
-      Case 'SAIR' :
-        Sair();
-        break;
+      Case 'MENU'           : Menu();               break;
+      Case 'ADMINISTRATIVO' : Administrativo();     break;
+      Case 'ADMLOG'         : AdmLog();             break;
+      Case 'ARQUIVOS'       : Arquivos();           break;
+      Case 'SHOW_LOG'       : showlog();            break;
+      Case 'CALEND_REDE'    : Calend_rede();        break;
+      Case 'CALEND_BASE'    : Calend_base();        break;
+      Case 'ESCPART'        : escPart();            break;
+      Case 'ESCOLAS'        : escolas();            break;
+      Case 'ESCPARTHOMOLOG' : escPartHomolog();     break;
+      Case 'GRAVA'          : Grava();              break;
+      Case 'LOG'            : log_controle();       break;
+      Case 'DADOSESCOLA'    : dadosEscola();        break;
+      Case 'MSGALUNOS'      : Msgalunos();          break;
+      Case 'MODALIDADES'    : Modalidades();        break;
+      Case 'NEWSLETTER'     : Newsletter();         break;
+      Case 'NOTICIAS'       : Noticias();           break;
+      Case 'CADASTROESCOLA' : CadastroEscolas();    break;
+      Case 'SENHA'          : Senha();              break;
+      Case 'SENHAESP'       : Senhaesp();           break;
+      Case 'TIPOCLIENTE'    : TipoCliente();        break;
+      Case 'VALIDA'         : Valida();             break;
+      Case 'FRAMES'         : Frames();             break;
+      Case 'REDEPART'       : redepart();           break;
+      Case 'SAIR'           : Sair();               break;
       default :
         Cabecalho();
         ShowHTML('<BASE HREF="' . $conRootSIW . '">');

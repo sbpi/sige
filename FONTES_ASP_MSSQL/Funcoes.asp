@@ -148,8 +148,8 @@ REM Montagem da URL com os parâmetros de filtragem
 REM -------------------------------------------------------------------------
 Function MontaFiltro (p_method)
   Dim l_string, l_item
+  l_string = ""
   If Instr("POST, GET",p_method) > 0 Then
-     l_string = ""
      For Each l_Item IN Request.Form
         If lCase(l_item) <> "w_ew" and lCase(l_item) <> "w_ea" and lCase(l_item) <> "p3" and lCase(l_item) <> "p4" Then
            If Request(l_item) > "" Then
@@ -167,6 +167,29 @@ Function MontaFiltro (p_method)
               If uCase(p_method) = "GET" Then
                  l_string = l_string & "&" & l_Item & "=" & Request(l_Item)
               ElseIf uCase(p_method) = "POST" Then
+                 l_string = l_string & "<INPUT TYPE=""HIDDEN"" NAME=""" & l_Item & """ VALUE=""" & Request(l_Item) & """>" & VbCrLf
+              End If
+           End If
+        End If
+     Next
+  ElseIf Instr("POSTX,GETX",p_method) > 0 Then
+     For Each l_Item IN Request.Form
+        If lCase(l_item) <> "w_ew" and lCase(l_item) <> "w_ea" and lCase(l_item) <> "p3" and lCase(l_item) <> "p4" Then
+           If Mid(l_item,1,2) = "p_" and Request(l_item) > "" Then
+              If uCase(p_method) = "GETX" Then
+                 l_string = l_string & "&" & l_Item & "=" & Request(l_Item)
+              ElseIf uCase(p_method) = "POSTX" Then
+                 l_string = l_string & "<INPUT TYPE=""HIDDEN"" NAME=""" & l_Item & """ VALUE=""" & Request(l_Item) & """>" & VbCrLf
+              End If
+           End If
+        End If
+     Next
+     For Each l_Item IN Request.QueryString
+        If lCase(l_item) <> "w_ew" and lCase(l_item) <> "w_ea" and lCase(l_item) <> "p3" and lCase(l_item) <> "p4" Then
+           If Mid(l_item,1,2) = "p_" and Request(l_item) > "" Then
+              If uCase(p_method) = "GETX" Then
+                 l_string = l_string & "&" & l_Item & "=" & Request(l_Item)
+              ElseIf uCase(p_method) = "POSTX" Then
                  l_string = l_string & "<INPUT TYPE=""HIDDEN"" NAME=""" & l_Item & """ VALUE=""" & Request(l_Item) & """>" & VbCrLf
               End If
            End If
@@ -453,10 +476,7 @@ REM Final da rotina
 REM -------------------------------------------------------------------------
 
 REM =========================================================================
-REM Montagem da seleção de escolas
-REM -------------------------------------------------------------------------
-REM =========================================================================
-REM Montagem da seleção de escolas
+REM Montagem da seleção de escolas públicas
 REM -------------------------------------------------------------------------
 Sub SelecaoEscola (label, accesskey, hint, chave, chaveAux, campo, restricao, atributo)
 
@@ -467,6 +487,9 @@ Sub SelecaoEscola (label, accesskey, hint, chave, chaveAux, campo, restricao, at
           " WHERE PUBLICA = 'S' and upper(a.ds_username) <> 'SBPI' "
     If chaveAux > "" Then
        SQL = SQL & "   and IsNull(sq_cliente_pai,0) = " & chaveAux & VbCrLf
+    End If
+    If restricao = "ESCOLA" Then
+       SQL = SQL & "   and b.tipo                   = 3 " & VbCrLf
     End If
     SQL = SQL & "ORDER BY b.tipo, ds_cliente" & VbCrLf
     ConectaBD SQL
@@ -490,7 +513,7 @@ End Sub
 
 
 REM =========================================================================
-REM Montagem da seleção de escolas
+REM Montagem da seleção de escolas particulares
 REM -------------------------------------------------------------------------
 Sub SelecaoEscolaParticular (label, accesskey, hint, chave, chaveAux, campo, restricao, atributo)
 

@@ -78,7 +78,7 @@ REM -------------------------------------------------------------------------
      ShowHTML "<HTML>" & chr(13) & chr(10)
      ShowHTML "<BODY>" & chr(13) & chr(10)
      ShowHTML "<SCRIPT LANGUAGE='JAVASCRIPT'>" & chr(13) & chr(10)
-     ShowHTML "  top.location.href='Manut.asp?w_ew=logon';" & chr(13) & chr(10)
+     ShowHTML "  top.location.href='Manut.asp?w_ew=logon&wAno=" & request("wAno") & "';" & chr(13) & chr(10)
      ShowHTML "</SCRIPT>" & chr(13) & chr(10)
      ShowHTML "</BODY>" & chr(13) & chr(10)
      ShowHTML "</HTML>" & chr(13) & chr(10)
@@ -285,7 +285,7 @@ Sub LogOn
   ShowHTML "</table>"
   ShowHTML "              </TD></TR>"
   ShowHTML "          </table> "  
-  wAno =  Request.QueryString("wAno")
+  wAno =  Request("wAno")
   
   If wAno = "" Then
      wAno = Year(Date())
@@ -305,10 +305,8 @@ Sub LogOn
   ShowHTML "              <P><font face=""Arial"" size=1><b>ARQUIVOS INSERIDOS PELA SEDF</b></font><br>"  
   ShowHTML "<tr><td><TABLE border=0 cellSpacing=5 width=""95%"">"
   ShowHTML "  <TR>"
-  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Origem"
-  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Alvo"
   ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Data"
-  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Componente curricular"
+  ShowHTML "    <TD><FONT face=""Verdana"" size=1><b>Arquivo"
   ShowHTML "  </TR>"
   ShowHTML "  <TR>"
   ShowHTML "    <TD COLSPAN=""4"" HEIGHT=""1"" BGCOLOR=""#DAEABD"">"
@@ -319,8 +317,6 @@ Sub LogOn
      wCont = 1
      Do While Not RS.EOF
         ShowHTML "  <TR valign=""top"">"
-        ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & RS("origem")
-        ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & RS("in_destinatario")
         ShowHTML "    <TD><FONT face=""Verdana"" size=1>" & Mid(100+Day(RS("dt_arquivo")),2,2) & "/" & Mid(100+Month(RS("dt_arquivo")),2,2) & "/" &Year(RS("dt_arquivo"))
    REM  ShowHTML "    <TD><FONT face=""Verdana"" size=1><a href=""http://" & replace(RS("diretorio"),"http://","") & "//" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>" Original
 		ShowHTML "    <TD><FONT face=""Verdana"" size=1><a href=""http://" & replace(replace(RS("diretorio"),"http://","") , "se.df.gov.br" , "gdfsige.df.gov.br") & "/sedf/sedf/" & RS("ln_arquivo") & """ target=""_blank"">" & RS("ds_titulo") & "</a><br><div align=""justify""><font size=1>.:. " & RS("ds_arquivo") & "</div>"
@@ -333,7 +329,7 @@ Sub LogOn
   End If
   RS.Close
 
-  SQL = "SELECT year(dt_arquivo) ano " & VbCrLf & _
+  SQL = "SELECT distinct year(dt_arquivo) ano " & VbCrLf & _
         "From escCliente_Arquivo a INNER JOIN escCliente AS x ON (a.sq_site_cliente = x.sq_cliente)" & VbCrLf & _
         "WHERE in_ativo = 'Sim'" & VbCrLf & _
         "  AND x.sq_cliente = 0" & VbCrLf & _
@@ -341,15 +337,15 @@ Sub LogOn
         "  and YEAR(a.dt_arquivo) <> " & wAno & VbCrLf & _
         "ORDER BY year(dt_arquivo) desc " & VbCrLf 
   ConectaBD SQL
-    If Not RS.EOF Then
-       ShowHTML "  <TR><TD COLSPAN=4 ><FONT face=""Verdana"" size=1><b>Arquivos de outros anos</b><br>"
-       While Not RS.EOF
-          ShowHTML "     <li><a href=""" & w_dir & "Manut.asp?wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a></TR>"
-          RS.MoveNext
-       Wend
-       ShowHTML "  </TD></TR>"
-    End If
-    RS.Close
+  If Not RS.EOF Then
+     ShowHTML "  <TR><TD COLSPAN=4 ><FONT face=""Verdana"" size=1><b>Arquivos de outros anos</b><br>"
+     While Not RS.EOF
+        ShowHTML "     <li><a href=""" & w_dir & "Manut.asp?wAno=" & RS("ano") & """ >Arquivos de " & RS("ano") & "</a>"
+        RS.MoveNext
+     Wend
+     ShowHTML "  </TD></TR>"
+  End If
+  RS.Close
   ShowHTML "</table>"
   ShowHTML "              </FONT></P>"
   ShowHTML "              </TD></TR>"
@@ -2536,6 +2532,7 @@ Public Sub Grava
              "  from escCliente a, " & VbCrLf & _
              "       escCliente b " & VbCrLf & _
              " where b.sq_cliente_pai is null " & VbCrLf & _
+             "   and b.publica = 'S' " & VbCrLf & _             
              "   and a." & CL
        ConectaBD SQL
        w_diretorio = replace(conFilePhysical & "\" & RS("pai") &  "\" & RS("ds_username") & "\","\\","\")
@@ -2696,6 +2693,7 @@ Public Sub Grava
              "  from escCliente a, " & VbCrLf & _
              "       escCliente b " & VbCrLf & _
              " where b.sq_cliente_pai is null " & VbCrLf & _
+             "   and b.publica = 'S' " & VbCrLf & _
              "   and a." & CL
        ConectaBD SQL
        w_diretorio = replace(conFilePhysical & "\" & RS("pai") &  "\" & RS("ds_username") & "\","\\","\")
@@ -3097,6 +3095,7 @@ Public Sub Grava
              "  from escCliente a, " & VbCrLf & _
              "       escCliente b " & VbCrLf & _
              " where b.sq_cliente_pai is null " & VbCrLf & _
+             "   and b.publica = 'S' " & VbCrLf & _             
              "   and a." & CL
        ConectaBD SQL
        w_diretorio = replace(conFilePhysical & "\" & RS("pai") &  "\" & RS("ds_username") & "\","\\","\")

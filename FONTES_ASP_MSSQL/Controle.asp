@@ -55,7 +55,6 @@ REM -------------------------------------------------------------------------
 
   w_Data = Mid(100+Day(Date()),2,2) & "/" & Mid(100+Month(Date()),2,2) & "/" &Year(Date())
   w_Pagina = ExtractFileName(Request.ServerVariables("SCRIPT_NAME")) & "?w_ew="
-  
   AbreSessaoManut
   If Session("Username") > "" and InStr("LOGON,VALIDA",w_ew) = 0 Then
      Main
@@ -931,9 +930,6 @@ Sub GetSite
   Set w_ds_institucional    = Nothing 
   Set w_ds_mensagem         = Nothing
 End Sub
-REM =========================================================================
-REM Fim da tela de dados do site
-REM -------------------------------------------------------------------------
 
 REM =========================================================================
 REM Cadastro de notícias
@@ -1118,9 +1114,6 @@ Sub GetNoticiaCliente
   Set i            = Nothing 
   Set w_texto      = Nothing
 End Sub
-REM =========================================================================
-REM Fim do cadastro de notícias
-REM -------------------------------------------------------------------------
 
 REM =========================================================================
 REM Cadastro de sistemas
@@ -1277,9 +1270,6 @@ Sub GetSistema
   Set i             = Nothing 
   Set w_texto       = Nothing
 End Sub
-REM =========================================================================
-REM Fim do cadastro de sistemas
-REM -------------------------------------------------------------------------
 
 REM =========================================================================
 REM Cadastro de componentes
@@ -3725,7 +3715,6 @@ Public Sub Grava
   ShowHTML "</HEAD>"
   BodyOpen "onLoad=document.focus();"
   
-  
   ' Recupera o código a ser gravado na tabela de log
   If Instr("REDEPART,VERIFBANCO,VERIFARQ,ESCPARTHOMOLOG,BASE,NEWSLETTER,TIPOCLIENTE,COMPONENTE, VERSAO,CADASTROESCOLA",w_R) > 0 or w_R = conWhatAdmin or w_R = conWhatSGE Then
      w_funcionalidade = "null"
@@ -5421,11 +5410,12 @@ Public Sub Grava
           SQL = "insert into escCliente (sq_cliente,              sq_cliente_pai,              sq_tipo_cliente,                            ds_cliente,  " & VbCrLf &_
                 "                        ds_apelido,              no_municipio,                sg_uf,                                      ds_username, " & VbCrLf &_ 
                 "                        ds_senha_acesso,         ln_internet,                 ds_email,                                   dt_cadastro,  " & VbCrLf &_ 
-                "                        ativo  " & VbCrLf &_ 
+                "                        ativo,                   sq_regiao_adm,               localizacao  " & VbCrLf &_ 
                 " )values( " & VbCrLf &_
                 "                        " & w_chave & "," & Request("w_sq_cliente_pai") & "," &  Request("w_sq_tipo_cliente") & ",'" & Request("w_ds_cliente") & "'," & VbCrLf &_ 
                 "                        '" & Request("w_ds_apelido") & "','" & Request("w_no_municipio")& "','" & Request("w_sg_uf") & "','" & Request("w_ds_username") & "'," & VbCrLf &_ 
-                "                        '9"&w_chave & "','" & Request("w_ln_internet") & "','" & Nvl(Request("w_ds_email"),"Não informado") & "', getDate(),'" & Request("w_ativo") & "'); " & VbCrLf
+                "                        '9"&w_chave & "','" & Request("w_ln_internet") & "','" & Nvl(Request("w_ds_email"),"Não informado") & "', getDate(),'" & Request("w_ativo") & "', " & VbCrLf &_ 
+                "                        '" & Request("w_regiao") & "','" & Request("w_local")& "'); " & VbCrLf
           
           ExecutaSQL(SQL)
                 
@@ -5470,6 +5460,8 @@ Public Sub Grava
           'Altera os dados das escolas na tabela principal
           SQL = "update escCliente set " & VbCrLf & VbCrLf &_
                 "   sq_cliente_pai  = " & Request("w_sq_cliente_pai") & "," & VbCrLf &_
+                "   sq_regiao_adm   = " & Request("w_regiao") & "," & VbCrLf &_
+                "   localizacao     = '" & Request("w_local") & "'," & VbCrLf &_
                 "   sq_tipo_cliente = " & Request("w_sq_tipo_cliente") & "," & VbCrLf &_
                 "   ds_cliente      = '" & Request("w_ds_cliente") & "'," & VbCrLf &_
                 "   ds_apelido      = '" & Request("w_ds_apelido") & "'," & VbCrLf &_
@@ -5531,7 +5523,7 @@ Public Sub Grava
        dbms.CommitTrans()
           
        ScriptOpen "JavaScript"
-       ShowHTML "  location.href='" & w_Pagina & conRelEscolas & "&CL=" & CL & "&w_ea=L';"
+       ShowHTML "  location.href='" & w_Pagina & conRelEscolas & "&pesquisa=Sim" & MontaFiltro("GETX") & "&w_ea=L';"
        ScriptClose
     
     Case "VERIFARQ"
@@ -5959,7 +5951,7 @@ Public Sub ShowEscolas
           If p_tipo = "H" Then
              ShowHTML "    <td><font face=""Verdana"" size=""1"">"
              If Session("username") = "SBPI" Then
-                ShowHTML "       <A CLASS=""SS"" HREF=""" & w_Pagina & "CadastroEscola" & "&w_chave=" & RS("sq_cliente") & "&w_ea=A" & MontaFiltro("GET") & """ Title=""Alteração dos dados da escola!"">Alt</A>"
+                ShowHTML "       <A CLASS=""SS"" HREF=""" & w_Pagina & "CadastroEscola" & "&CL=sq_cliente=" & RS("sq_cliente") & "&w_chave=" & RS("sq_cliente") & "&w_ea=A" & MontaFiltro("GETX") & """ Title=""Alteração dos dados da escola!"">Alt</A>"
              End If             
              ShowHTML "       <A CLASS=""SS"" HREF=""Manut.asp?CL=sq_cliente=" & RS("sq_cliente") & "&w_ea=L&w_ew=Log&w_ee=1&P3=1&P4=30"" Title=""Exibe o registro de ocorrências da escola!"" target=""_blank"">Log</A>"
              If nvl(RS("adm"),"nulo") <> "nulo" Then
@@ -6482,7 +6474,7 @@ REM Cadastro de escolas
 REM -------------------------------------------------------------------------
 Sub CadastroEscolas
   Dim w_chave, w_sq_cliente_pai, w_sq_tipo_cliente, w_ds_cliente, w_ds_apelido, w_no_municipio
-  Dim w_sg_uf, w_ds_username, w_ln_internet, w_ds_email
+  Dim w_sg_uf, w_ds_username, w_ln_internet, w_ds_email, w_regiao, w_local
   Dim w_ds_logradouo, w_no_bairro, w_nr_cep
   Dim w_no_contato, w_email_contato, w_nr_fone_contato, w_nr_fax_contato, w_no_diretor, w_no_secretario
   Dim w_sq_modelo, w_no_contato_internet, w_nr_fone_internet, w_nr_fax_internet, w_ds_email_internet
@@ -6501,7 +6493,7 @@ Sub CadastroEscolas
   If InStr("A",w_ea) > 0 and w_Troca = "" Then
      
      ' Recupera os dados do cliente
-     SQL = " SELECT a.sq_cliente, sq_cliente_pai, sq_tipo_cliente, ds_cliente, ds_apelido, " & VbCrLf &_
+     SQL = " SELECT a.sq_cliente, sq_cliente_pai, sq_tipo_cliente, ds_cliente, ds_apelido, a.sq_regiao_adm, a.localizacao, " & VbCrLf &_
            "        no_municipio, sg_uf, ds_username, ln_internet, ds_email, nr_cep, no_contato, " & VbCrLf &_
            "        ds_email_contato, nr_fone_contato, nr_fax_contato, no_diretor, no_secretario, " & VbCrLf &_
            "        ds_logradouro, no_bairro, sq_modelo, " & VbCrLf &_
@@ -6514,6 +6506,8 @@ Sub CadastroEscolas
            "  WHERE a.sq_cliente = " & w_chave  & VbCrLf
      ConectaBD SQL
      w_chave               = RS("sq_cliente")
+     w_regiao              = RS("sq_regiao_adm")
+     w_local               = RS("localizacao")
      w_sq_cliente_pai      = RS("sq_cliente_pai")
      w_sq_tipo_cliente     = RS("sq_tipo_cliente") 
      w_ds_cliente          = RS("ds_cliente") 
@@ -6567,8 +6561,9 @@ Sub CadastroEscolas
   ShowHTML "  document.Form.w_ds_diretorio.value = link + document.Form.w_ds_username.value;"
   ShowHTML "}"
   ValidateOpen "Validacao"
-  Validate "w_sq_cliente_pai"       , "Subordinação"      , "SELECT" , "1" , "1"  , "18" , "1" , "1"
-  Validate "w_sq_tipo_cliente"      , "Tipo de instituição"          , "SELECT" , "1" , "1"  , "18" , "1" , "1"
+  Validate "w_sq_cliente_pai"       , "D.R.E."      , "SELECT" , "1" , "1"  , "18" , "1" , "1"
+  Validate "w_regiao"               , "Região Administrativa" , "SELECT" , "1" , "1"  , "18" , "1" , "1"
+  Validate "w_sq_tipo_cliente"      , "Tipo de instituição" , "SELECT" , "1" , "1"  , "18" , "1" , "1"
   Validate "w_ds_cliente"           , "Nome da escola"          , "1"      , "1" , "3"  , "60" , "1" , "1"
   Validate "w_ds_apelido"           , "Apelido"                 , "1"      ,  "" , "3"  , "30" , "1" , "1"
   Validate "w_ds_username"          , "Username"                , "1"      , "1" , "3"  , "14" , "1" , "1"
@@ -6630,7 +6625,7 @@ Sub CadastroEscolas
      w_Disabled = " DISABLED "
   End If
   ShowHTML "<FORM action=""" & w_pagina & "Grava"" method=""POST"" name=""Form"" onSubmit=""return(Validacao(this));"">"
-  MontaFiltro("POST")
+  ShowHTML MontaFiltro("POSTX")
   ShowHTML "<INPUT type=""hidden"" name=""R"" value=""" & w_ew & """>"
   ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
   ShowHTML "<INPUT type=""hidden"" name=""w_chave"" value=""" & w_chave & """>"
@@ -6640,10 +6635,13 @@ Sub CadastroEscolas
   End If
   ShowHTML "<tr bgcolor=""" & "#EFEFEF" & """><td align=""center"">"
   ShowHTML "    <table width=""100%"" border=""0"">"
-  SelecaoRegional "<u>S</u>ubordinação:", "S", "Indique a subordinação da escola.", w_sq_cliente_pai, null, "w_sq_cliente_pai", "CADASTRO", null
+  ShowHTML "        <tr valign=""top"">"
+  SelecaoRegional "Regional de En<u>s</u>ino:", "S", "Indique a regional de ensino da escola.", w_sq_cliente_pai, null, "w_sq_cliente_pai", "CADASTRO", null
+  SelecaoRegiaoAdm "Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", w_regiao, w_chave, "w_regiao", null, null
   SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
   ConectaBD SQL  
-  ShowHTML "              <td valign=""top""><font size=""1""><b>Tipo de in<u>s</u>tituição:</b><br><SELECT accesskey=""S"" class=""STI"" NAME=""w_sq_tipo_cliente"">"
+  ShowHTML "        <tr valign=""top"">"
+  ShowHTML "              <td><font size=""1""><b>Tipo de in<u>s</u>tituição:</b><br><SELECT accesskey=""S"" class=""STI"" NAME=""w_sq_tipo_cliente"">"
   If RS.RecordCount > 1 Then ShowHTML "          <option value="""">---" End If
   While Not RS.EOF
      If cDbl(nvl(RS("sq_tipo_cliente"),0)) = cDbl(nvl(w_sq_tipo_cliente,0)) Then
@@ -6655,6 +6653,14 @@ Sub CadastroEscolas
   Wend
   ShowHTML "          </select>"
   DesconectaBD  
+  ShowHTML "          <td><font size=""1""><b>Localização</b><br>"
+  If w_local = "1" Then
+     ShowHTML "              <input  type=""radio"" name=""w_local"" value=""0""> Não informada <input  type=""radio"" name=""w_local"" value=""1"" checked> Urbana <input  type=""radio"" name=""w_local"" value=""2""> Rural "
+  ElseIf w_local = "2" Then
+     ShowHTML "              <input  type=""radio"" name=""w_local"" value=""0""> Não informada <input  type=""radio"" name=""w_local"" value=""1""> Urbana <input  type=""radio"" name=""w_local"" value=""2"" checked> Rural "
+  Else
+     ShowHTML "              <input  type=""radio"" name=""w_local"" value=""0"" checked> Não informada <input  type=""radio"" name=""w_local"" value=""1""> Urbana <input  type=""radio"" name=""w_local"" value=""2""> Rural "
+  End If
   ShowHTML "      <tr><td valign=""top""><font size=""1""><b>Nome <u>d</u>a escola:</b><br><input " & w_Disabled & " accesskey=""D"" type=""text"" name=""w_ds_cliente"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_cliente & """ ONMOUSEOVER=""popup('Informe uma descrição para a escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "          <td valign=""top""><font size=""1""><b><u>A</u>pelido:</b><br><input " & w_Disabled & " accesskey=""A"" type=""text"" name=""w_ds_apelido"" class=""STI"" SIZE=""30"" MAXLENGTH=""30"" VALUE=""" & w_ds_apelido & """ ONMOUSEOVER=""popup('Informe o apelido da escola.','white')""; ONMOUSEOUT=""kill()""></td>"
   ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>U</u>sername:</b><br><input " & w_Disabled & " accesskey=""U"" type=""text"" name=""w_ds_username"" class=""STI"" SIZE=""14"" MAXLENGTH=""14"" VALUE=""" & w_ds_username & """ ONMOUSEOVER=""popup('Informe o usernanme para acesso.','white')""; ONMOUSEOUT=""kill()"" ONBLUR=""javascript:montaLink();""></td>"
@@ -6811,7 +6817,7 @@ Sub CadastroEscolas
         ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Atualizar"">"
       End If
   End If
-  ShowHTML "            <input class=""STB"" type=""button"" onClick=""location.href='" & w_Pagina & conRelEscolas & MontaFiltro("GET") & "&w_ea=L';"" name=""Botao"" value=""Cancelar"">"
+  ShowHTML "            <input class=""STB"" type=""button"" onClick=""location.href='" & w_Pagina & conRelEscolas & replace(replace(MontaFiltro("GET"),CL,""),"CL=","") & "&w_ea=L&pesquisa=Sim';"" name=""Botao"" value=""Cancelar"">"
   ShowHTML "          </td>"
   ShowHTML "      </tr>"
   ShowHTML "    </table>"
@@ -6823,6 +6829,8 @@ Sub CadastroEscolas
   Rodape
 
   Set w_chave                 = Nothing 
+  Set w_regiao                = Nothing 
+  Set w_local                 = Nothing 
   Set w_sq_cliente_pai        = Nothing    
   Set w_sq_tipo_cliente       = Nothing 
   Set w_ds_cliente            = Nothing 

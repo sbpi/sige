@@ -15,7 +15,7 @@ Sub SelecaoRegional (label, accesskey, hint, chave, chaveAux, campo, restricao, 
              "  FROM escCLIENTE a " & VbCrLf & _
              "       inner join escTipo_Cliente b on (a.sq_tipo_cliente = b.sq_tipo_cliente) " & VbCrLf & _
              " WHERE b.tipo = 2 " & VbCrLf & _
-             "    OR (b.tipo = 1 and a.sq_cliente_pai is null) " & VbCrLf & _
+             "    OR (b.tipo = 1 and a.sq_cliente_pai is null and a.publica = 'S') " & VbCrLf & _
              "ORDER BY b.tipo, a.ds_cliente" & VbCrLf
     End If
     ConectaBD SQL
