@@ -17,7 +17,9 @@ create or replace function ValidaCalendario(calendario in number, ano in number)
       from Tipo_Data c
            left join (select a.sq_particular_calendario, b.sq_tipo_data
                         from Calendario_Cliente               b
-                             inner join Particular_Calendario a on (a.sq_particular_calendario = b.sq_particular_calendario)
+                             inner join Particular_Calendario a on (a.sq_particular_calendario = b.sq_particular_calendario and
+                                                                    year(b.dt_ocorrencia)      = a.ano
+                                                                   )
                        where a.sq_particular_calendario = calendario
                        and   year(b.dt_ocorrencia) = ano
                      )  d on (d.sq_tipo_data             = c.sq_tipo_data)
@@ -32,7 +34,9 @@ create or replace function ValidaCalendario(calendario in number, ano in number)
       from Tipo_Data c
            inner join (select a.sq_particular_calendario, b.sq_tipo_data
                          from Calendario_Cliente               b
-                              inner join Particular_Calendario a on (a.sq_particular_calendario = b.sq_particular_calendario)
+                              inner join Particular_Calendario a on (a.sq_particular_calendario = b.sq_particular_calendario and
+                                                                     year(b.dt_ocorrencia)      = a.ano
+                                                                    )
                         where a.sq_particular_calendario = calendario
                         and   year(b.dt_ocorrencia) = ano
                       )  d on (d.sq_tipo_data             = c.sq_tipo_data)
@@ -45,7 +49,9 @@ create or replace function ValidaCalendario(calendario in number, ano in number)
   cursor c_base is
     select a.sq_particular_calendario, b.dt_ocorrencia, count(*) qtd
       from Particular_Calendario           a
-           inner   join Calendario_Cliente b on (a.sq_particular_calendario = b.sq_particular_calendario)
+           inner   join Calendario_Cliente b on (a.sq_particular_calendario = b.sq_particular_calendario and
+                                                 year(b.dt_ocorrencia)      = a.ano
+                                                )
              inner join Tipo_Data          c on (b.sq_tipo_data             = c.sq_tipo_data)
              inner join Calendario_Base    d on (b.dt_ocorrencia            = d.dt_ocorrencia)
      where a.sq_particular_calendario = calendario
@@ -57,7 +63,9 @@ create or replace function ValidaCalendario(calendario in number, ano in number)
   cursor c_duplicata is
     select a.sq_particular_calendario, b.dt_ocorrencia, b.sq_tipo_data, count(*) qtd
       from Particular_Calendario           a
-           inner   join Calendario_Cliente b on (a.sq_particular_calendario = b.sq_particular_calendario)
+           inner   join Calendario_Cliente b on (a.sq_particular_calendario = b.sq_particular_calendario and
+                                                 year(b.dt_ocorrencia)      = a.ano
+                                                )
              inner join Tipo_Data          c on (b.sq_tipo_data             = c.sq_tipo_data)
      where a.sq_particular_calendario = calendario
      and   year(b.dt_ocorrencia) = ano

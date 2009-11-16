@@ -48,28 +48,36 @@ begin
      If w_publica = 'N' Then
         select dt_ocorrencia into w_let_ini
           from Particular_Calendario         c
-               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario)
+               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario and
+                                                   year(a.dt_ocorrencia)      = c.ano
+                                                  )
                inner join Tipo_Data          b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = w_ano and b.sigla = 'IA')
          where c.sq_cliente = cliente
            and c.sq_particular_calendario = coalesce(calendario,0);
 
         select dt_ocorrencia into w_let_fim
           from Particular_Calendario         c
-               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario)
+               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario and
+                                                   year(a.dt_ocorrencia)      = c.ano
+                                                  )
                inner join Tipo_Data          b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = w_ano and b.sigla = 'TA')
          where c.sq_cliente = cliente
            and c.sq_particular_calendario = coalesce(calendario,0);
 
         select dt_ocorrencia into w_let2_ini
           from Particular_Calendario         c
-               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario)
+               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario and
+                                                   year(a.dt_ocorrencia)      = c.ano
+                                                  )
                inner join Tipo_Data          b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = w_ano and b.sigla = 'I2')
          where c.sq_cliente = cliente
            and c.sq_particular_calendario = coalesce(calendario,0);
 
         select dt_ocorrencia into w_let1_fim
           from Particular_Calendario         c
-               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario)
+               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario and
+                                                   year(a.dt_ocorrencia)      = c.ano
+                                                  )
                inner join Tipo_Data          b on (a.sq_tipo_data = b.sq_tipo_data and year(a.dt_ocorrencia) = w_ano and b.sigla = 'T1')
          where c.sq_cliente = cliente
            and c.sq_particular_calendario = coalesce(calendario,0);
@@ -128,7 +136,9 @@ begin
      If w_publica = 'N' Then
         select count(*) into w_feriado
           from Particular_Calendario         c
-               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario)
+               inner join Calendario_Cliente a on (c.sq_particular_calendario = a.sq_particular_calendario and
+                                                   year(a.dt_ocorrencia)      = c.ano
+                                                  )
                inner join Tipo_Data          b on (a.sq_tipo_data             = b.sq_tipo_data)
            where a.sq_cliente           = cliente
            and a.dia_letivo                 = 'N'
