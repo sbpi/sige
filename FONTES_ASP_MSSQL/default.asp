@@ -120,20 +120,19 @@ ShowHTML " <h3>Busca avançada</h3>"
 <!-- <form action="" id="formConteudo">-->
 ShowHTML " <FORM ACTION=""default.asp?EW=121"" id=""form1"" name=""form1"" METHOD=""POST"">"
 ShowHTML " <div id=""tpinstituicao"">"
-ShowHTML " <div class=""topo""> </div>"
-    'ShowHTML "          <TR><TD colspan=""2"" align=""left"" valign""middle""><p align=""justify"">Selecione as formas de busca desejadas para listar as escolas (pelo menos uma delas deve ser selecionada):</p></td></tr>"
-ShowHTML "          <h4 title=""Selecione o tipo de instituição!"">Tipo de Instituição:</h4>"
+'ShowHTML " <div class=""topo""> </div>"
+'ShowHTML "          <h4 title=""Selecione o tipo de instituição!"">Tipo de Instituição:</h4>"
 ' Verifica se há alguma escola particular no cadastro. Se não, marca para tratar apenas escolas públicas
 SQL = "select count(sq_cliente) as cadprivada from escCliente_Particular"
 ConectaBD SQL
-If RS("cadprivada") > 0 Then
+If RS("cadprivada") < 0 Then
    If Nvl(Request("T"),"S") = "S" Then ShowHtml("<input type=""radio"" name=""T"" value=""S"" checked=""checked"" onclick=""marcaTipo();""> Rede pública")  Else ShowHtml("<input type=""radio"" name=""T"" value=""S"" onclick=""marcaTipo();""> Rede pública") End If
    If Request("T") = "P"          Then ShowHtml("<input type=""radio"" name=""T"" value=""P"" checked=""checked"" onclick=""marcaTipo();""> Rede privada")  Else ShowHtml("<input type=""radio"" name=""T"" value=""P"" onclick=""marcaTipo();""> Rede privada") End If        
 Else
    ShowHTML "        <input type=""Hidden"" name=""T"" value=""S"">"
 End If
     
-ShowHTML " <div class=""base""></div>"
+'ShowHTML " <div class=""base""></div>"
 ShowHTML " </div>"    
 ShowHTML " <div id=""regional"">"
 ShowHTML " <div class=""topo""> </div>"

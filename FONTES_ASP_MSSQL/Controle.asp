@@ -4626,7 +4626,7 @@ Public Sub Grava
                       
           Set f1 = FS.CreateTextFile(strFile)
           f1.WriteLine "<?xml version=""1.0"" encoding=""iso-8859-1""?>"
-          f1.WriteLine " <!--" 
+          f1.WriteLine " <!-- "
           f1.WriteLine "     Após a instalação de cada um dos componentes abaixo, URL_confirmacao deve "
           f1.WriteLine "     ser executada, substituindo 9999 pelo código da escola."
           f1.WriteLine "-->"
@@ -5566,7 +5566,7 @@ Public Sub Grava
     Case "ESCPARTHOMOLOG"
        dbms.BeginTrans()
        For w_cont = 1 To Request.Form("w_chave").Count
-          SQL = "UPDATE escParticular_Calendario SET homologado = '" & Request.Form("w_homologado")(w_cont) & "' , ultima_homologacao = getdate() WHERE sq_particular_calendario = " & Request.Form("w_chave")(w_cont)
+          SQL = "UPDATE escParticular_Calendario SET homologado = '" & Request.Form("w_homologado")(w_cont) & "' , ultima_homologacao = convert(varchar(10), getdate(), 103) WHERE sq_particular_calendario = " & Request.Form("w_chave")(w_cont)
           ExecutaSQL(SQL)       
        Next
        dbms.CommitTrans()
@@ -6405,21 +6405,33 @@ Public Sub ShowEscolaParticularHomolog
   'ShowHTML "        <tr valign=""top"">"
   'SelecaoTipoEscola     "<u>T</u>ipo de Escola:", "T", "Selecione o tipo da Escola.", p_tipo_escola, p_escola_particular, "p_tipo_escola", null, null
   if(p_escola_particular > "") Then
-  SQL = "SELECT sq_particular_calendario, sq_cliente as cliente, nome, homologado FROM escParticular_Calendario WHERE sq_cliente = " & p_escola_particular
+  SQL = "SELECT sq_particular_calendario, sq_cliente as cliente, nome, homologado, ano, dbo.ValidaCalendario(sq_particular_calendario,ano) as restricao FROM escParticular_Calendario WHERE sq_cliente = " & p_escola_particular
   ConectaBD SQL
   
-  ShowHTML "<font color=""#ff3737""><strong><a href=""javascript:this.status.value;"" onClick=""window.open('calendario.asp?CL=sq_cliente=" & RS("cliente") & "&w_ea=L&w_ew=formcal&w_ee=1','MetaWord','width=600, height=350, top=65, left=65, menubar=yes, scrollbars=yes, resizable=yes, status=no');"">Acessar o(s) calendário(s)</a></strong></font>"
+  ShowHTML "<font color=""#ff3737""><strong><a href=""javascript:this.status.value;"" onClick=""window.open('calendario.asp?CL=sq_cliente=" & RS("cliente") & "&w_ea=L&w_ew=formcal&w_ee=1','MetaWord','width=600, height=350, top=65, left=65, menubar=yes, scrollbars=yes, resizable=yes, status=no');"">Acessar o(s) calendário(s)</a></strong></font><br><br>"
     
-  ShowHTML "<table id=""tbhomologacao"" border=""1"">"
-  ShowHTML "<tr><td>Título do Calendário</td><td>Homologado?</td></tr>"
+  ShowHTML "<table cellpadding=""0"" cellspacing=""0"" width=""90%"" id=""tbhomologacao"">"
+  ShowHTML "<tr><td width=""1%"">&nbsp;</td><th align=""center"">Ano</th><th>Título do Calendário</th><th align=""center"">Homologado?</th></tr>"
   
-  Dim homologado
+  Dim homologado, aviso
   While Not RS.EOF
      homologado = RS("homologado")
+     	
+
+     If bgcolor = "#F5F5F5" Then
+       bgcolor = "#FFFFFF"
+     Else
+       bgcolor = "#F5F5F5"
+     End If
+     If Nvl(Trim(RS("restricao")),"") > "" Then
+       aviso = "<img width=""12px"" src=""img/asterisco.gif"" title=""Existem restrições no calendário""/>"
+       
+     End If
+     
      ShowHTML "<INPUT type=""hidden"" name=""w_cliente""    value=""" & RS("cliente") & """>"
-     ShowHTML "<tr><td>" &  RS("nome") & "</td>"     
+     ShowHTML "<tr bgcolor="""&bgcolor&"""><td width=""1%"">" & aviso & "</td><td width=""5%"" align=""center"">&nbsp;" &  RS("ano") & "&nbsp;</td><td>&nbsp;&nbsp;&nbsp;" &  RS("nome") & "</td>"     
      ShowHTML "<INPUT type=""hidden"" name=""w_chave"" value=""" & RS("sq_particular_calendario") &""">"
-     ShowHTML "<td><select name=""w_homologado"">"          
+     ShowHTML "<td width=""10%"" align=""center""><select name=""w_homologado"">"          
      if(inStr(uCase(homologado),"N"))Then
         ShowHTML "<option value=""N"" SELECTED>Não"
         ShowHTML "<option value=""S"">Sim"
@@ -6437,7 +6449,7 @@ Public Sub ShowEscolaParticularHomolog
      '   ShowHTML "<a href=""homolog.asp?homologado=S&calendario="& RS("sq_particular_calendario") & """>Não</a></td>"
      'end if     
 
-     ShowHTML "<td align=""center"" colspan=""2"">"
+     ShowHTML "<tr><td align=""center"" colspan=""2"">"
      'ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Gravar"">"
 
      ShowHTML "          </td>"
@@ -6637,7 +6649,7 @@ Sub CadastroEscolas
   ShowHTML "    <table width=""100%"" border=""0"">"
   ShowHTML "        <tr valign=""top"">"
   SelecaoRegional "Regional de En<u>s</u>ino:", "S", "Indique a regional de ensino da escola.", w_sq_cliente_pai, null, "w_sq_cliente_pai", "CADASTRO", null
-  SelecaoRegiaoAdm "Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", w_regiao, w_chave, "w_regiao", null, null
+  SelecaoRegiaoAdm "Região a<u>d</u>ministrativa:", "D", "Indique a região administrativa.", w_regiao, "w_regiao", "w_regiao", null, null
   SQL = "SELECT * FROM escTipo_Cliente a WHERE a.tipo = 3 ORDER BY a.ds_tipo_cliente" & VbCrLf
   ConectaBD SQL  
   ShowHTML "        <tr valign=""top"">"

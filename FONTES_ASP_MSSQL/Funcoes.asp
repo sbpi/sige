@@ -251,6 +251,7 @@ Function MontaCalendario(p_mes, p_datas, p_cores, p_imagem)
    l_mes = Mid(p_mes,1,2)
    l_ano = Mid(p_mes,3,4)
    
+   
    ' Define cor de fundo padrão para as células de sábado e domingo
    l_cor_padrao = " bgcolor=""#DAEABD"""
    
@@ -308,7 +309,7 @@ Function MontaCalendario(p_mes, p_datas, p_cores, p_imagem)
              End If
           ElseIf l_item <> "&nbsp;" Then 
              If p_cores(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
-                l_cor = "  background-color: p_cores(l_item, l_mes, Mid(l_ano,3,2));"
+                'l_cor = "  background-color: " & p_cores(l_item, l_mes, Mid(l_ano,3,2))
              End If
              If p_imagem(l_item, l_mes, Mid(l_ano,3,2)) > "" Then
                 l_img = " style=""background: url(/img/" & p_imagem(l_item, l_mes, Mid(l_ano,3,2)) & ") no-repeat center;" & l_cor & """"
@@ -320,7 +321,6 @@ Function MontaCalendario(p_mes, p_datas, p_cores, p_imagem)
           
           ' Coloca uma célula do calendário
           l_html = l_html & "    <td " & l_img & l_ocorrencia & ">" & l_item & "</td>" & VbCrLf 
-          
           ' Trata a quebra de linha ao final de cada semana
           If ((l_cont Mod 7) = 0) Then
              l_html = l_html & "  </tr>" & VbCrLf 
@@ -993,8 +993,7 @@ REM =========================================================================
 REM Fim da rotina de tratamento de erros
 REM -------------------------------------------------------------------------
 
-Sub montaCheckBoxCal(cliente)
-
+Function montaCheckBoxCal(cliente,ano)
 ShowHTML "    <script language=""JavaScript"" type=""text/JavaScript"">" & chr(13) & chr(10)
 ShowHTML " ok=false;" & chr(13) & chr(10)
 ShowHTML "function CheckAll() {" & chr(13) & chr(10)
@@ -1020,24 +1019,29 @@ ShowHTML " }" & chr(13) & chr(10)
 ShowHTML " </script>" & chr(13) & chr(10)
 
 SQL = "select homologado, sq_particular_calendario, nome from escParticular_Calendario " & VbCrLf & _
-      " where ativo <> 'N' and sq_cliente = " & cliente
+      " where ativo <> 'N' and ano = " & ano & " and sq_cliente = " & cliente
+Response.write "<!--" & SQL & "-->"
 ConectaBD SQL
 
 If RS.RecordCount > 0 Then
     ShowHTML "<label><font size=""1""><b>Atribuição:</b></font></label>"
-    ShowHTML "<br><a href=""javascript:void(null)"" onClick=""CheckAll();""><font size=""1"">Marcar/Desmarcar Todos</font></a><br/>"
     While Not RS.EOF
        If(Instr(RS("homologado"),"S")) Then
-          ShowHTML "<br style=""""><font size=""1""><input disabled type=""checkbox"" name=""homologado"" value=""" & RS("sq_particular_calendario") & """>" & RS("nome") & "<font color=""#ff3737""> (Homologado pela SEDF)</font></label>"
+          ShowHTML "<br style=""""><font size=""1""><input disabled type=""checkbox"" name=""checkbox"" value=""" & RS("sq_particular_calendario") & """>" & RS("nome") & "<font color=""#ff3737""> (Homologado pela SEDF)</font></label>"
        Else
           ShowHTML "<br style=""""><font size=""1""><input type=""checkbox"" name=""checkbox"" value=""" & RS("sq_particular_calendario") & """>" & RS("nome") & "</label>"
        End If
        
         RS.MoveNext
     Wend
+    Application("calendarios") = true
 End If
 DesconectaBD   
-end sub
+End Function
+
+Function IIf(ByVal Condicao, ByVal Verdadeiro, ByVal Falso)
+    If Condicao Then IIf = Verdadeiro Else IIf = Falso
+End Function
 
 REM =========================================================================
 REM Rotina de cabeçalho
@@ -1532,5 +1536,23 @@ Sub Sort( ByRef myArray )
         Next
     Next 
 End Sub
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery-1.3.2.js""> </script>"
+ShowHTML "   <script language=""javascript"" src=""/inc/jquery.bt.js""> </script>"
 %>
-
+<script>
+$(document).ready(function(){
+  $('*[title]').bt({
+    fill: '#F7F7F7', 
+    strokeStyle: '#B7B7B7', 
+    spikeLength: 10, 
+    spikeGirth: 10, 
+    padding: 8, 
+    cornerRadius: 0, 
+    cssStyles: {
+      fontFamily: '"lucida grande",tahoma,verdana,arial,sans-serif', 
+      fontSize: '13px',
+      width: 'auto'
+    }
+  });
+});
+</script>     

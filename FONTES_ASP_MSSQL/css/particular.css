@@ -33,8 +33,12 @@ TABLE
 }
 A
 {
-    COLOR: #305052;
+    COLOR: #1B4F6F;
     TEXT-DECORATION: none
+}
+
+#calendario_unidade a:hover{
+  FONT-WEIGHT: normal;
 }
 A:hover
 {
@@ -61,10 +65,32 @@ A:hover
     FONT-WEIGHT: bold;
     TEXT-DECORATION: none
 }
+
+#tbhomologacao{
+  border: solid 0.03em #D5D5D5;
+  padding:px;
+  font-size:120%;
+}
+#tbhomologacao tr{
+  border:0;
+  margin-bottom:2px;
+  margin-top:2px;
+}
+
+#tbhomologacao tr:hover{
+  background-color:#D8E4F8;
+}
+
+#tbhomologacao td{
+  border:0;
+  border-right: solid 0.03em #E5E5E5;
+}
+
 #tbhomologacao SELECT
 {
     FONT: 10px #CCC
 }
+
 BODY
 {
     FONT: 10px Verdana, Arial, Helvetica, sans-serif;

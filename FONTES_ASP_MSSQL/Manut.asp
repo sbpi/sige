@@ -450,7 +450,7 @@ Sub GetDocumento
      w_nr_ordem        = Request("w_nr_ordem")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select * from escCliente_Arquivo where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by nr_ordem, ltrim(upper(ds_titulo))"
+     SQL = "select * from escCliente_Arquivo where " & replace(CL,"sq_cliente","sq_site_cliente") & " order by dt_arquivo, nr_ordem, ltrim(upper(ds_titulo))"
      ConectaBD SQL
   ElseIf InStr("AEV",w_ea) > 0 and w_Troca = "" Then
      ' Recupera os dados do endereço informado
@@ -513,31 +513,36 @@ Sub GetDocumento
     ShowHTML "<tr><td><font size=""2""><a accesskey=""I"" class=""SS"" href=""" & w_Pagina & w_ew & "&R=" & w_Pagina & par & "&w_ea=I&CL=" & CL & """><u>I</u>ncluir</a>&nbsp;"
     ShowHTML "    <td align=""right""><font size=""1""><b>Registros existentes: " & RS.RecordCount
     ShowHTML "<tr><td align=""center"" colspan=3>"
-    ShowHTML "    <TABLE WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""" & conTableCellSpacing & """ CELLPADDING=""" & conTableCellPadding & """ BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
-    ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
-    ShowHTML "          <td><font size=""1""><b>Ordem</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Arquivo</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Descrição</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Ativo</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Operações</font></td>"
-    ShowHTML "        </tr>"
-
+    ShowHTML "    <TABLE WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""#f5f5f5"" CELLSPACING=""0"" CELLPADDING=""2"" BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
     If RS.EOF Then ' Se não foram selecionados registros, exibe mensagem
         ShowHTML "      <tr bgcolor=""" & "#EFEFEF" & """><td colspan=7 align=""center""><font size=""2""><b>Não foram encontrados registros.</b></td></tr>"
     Else
-      While Not RS.EOF
-        If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
-        ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"
+      ano = ""
+      While Not RS.EOF      
+        If w_cor = "#F5F5F5" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#F5F5F5" End If
+        If ano <> year(RS("dt_arquivo")) Then
+          ShowHTML "      <tr><td align=""center"" colspan=""6""><font size=""2""><b>" & year(RS("dt_arquivo")) & "</b></td></tr>"
+          ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
+          ShowHTML "          <td><font size=""1""><b>Ordem</font></td>"
+          ShowHTML "          <td><font size=""1""><b>Data</font></td>"
+          ShowHTML "          <td><font size=""1""><b>Arquivo</font></td>"
+          ShowHTML "          <td><font size=""1""><b>Descrição</font></td>"
+          ShowHTML "          <td><font size=""1""><b>Ativo</font></td>"
+          ShowHTML "          <td><font size=""1""><b>Operações</font></td>"
+          ShowHTML "        </tr>"
+        End If
+        ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"        
         ShowHTML "        <td align=""center""><font size=""1"">" & RS("nr_ordem") & "</td>"
+        ShowHTML "        <td align=""center""><font size=""1"">&nbsp;" & formataDataEdicao(RS("dt_arquivo")) & "&nbsp;</td>"
         ShowHTML "        <td><font size=""1"">" & RS("ds_titulo") & "</td>"
-        ShowHTML "        <td><font size=""1"">" & RS("ds_arquivo") & "</td>"
+        ShowHTML "        <td><font size=""1"">" & Nvl(RS("ds_arquivo"),"---") & "</td>"
         ShowHTML "        <td align=""center""><font size=""1"">" & RS("in_ativo") & "</td>"
         ShowHTML "        <td align=""top"" nowrap><font size=""1"">"
         ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=A&CL=" & CL & "&w_chave=" & RS("sq_arquivo") & """>Alterar</A>&nbsp"
         ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=E&CL=" & CL & "&w_chave=" & RS("sq_arquivo") & """>Excluir</A>&nbsp"
         ShowHTML "        </td>"
         ShowHTML "      </tr>"
-
+        ano = year(RS("dt_arquivo"))
         RS.MoveNext
       wend
     End If

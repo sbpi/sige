@@ -100,7 +100,7 @@ Sub SelecaoRegiaoAdm (label, accesskey, hint, chave, chaveAux, campo, restricao,
              " WHERE a.ativo = 'S' " & VbCrLf & _
              "ORDER BY a.no_regiao" & VbCrLf
        ConectaBD SQL
-       
+      
        While Not RS.EOF
           If cInt(nvl(chave,0)) = cInt(RS("sq_regiao_adm")) Then
              ShowHTML "          <option value=""" & RS("sq_regiao_adm") & """ SELECTED>" & RS("no_regiao")

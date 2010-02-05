@@ -492,7 +492,6 @@ Select Case w_R
                    "     convert(datetime, '" & FormataDataEdicao(FormatDateTime(Request("w_dt_ocorrencia"),2)) & "',103), " & VbCrLf & _
                    "     '" & Request("w_ds_ocorrencia") & "', " & Request("w_tipo") & ", " & Item & ", dia_letivo" &  VbCrLf & _
                    " from escTipo_Data where sq_tipo_data = " & Request("w_tipo") & " )" & VbCrLf
-                  
                ExecutaSQL(SQL)
                                          
                ' Grava o acesso na tabela de log
@@ -511,7 +510,6 @@ Select Case w_R
                Next
      
        ElseIf w_ea = "A" Then
-          
           SQL = "select sq_particular_calendario as calendario from escCalendario_Cliente where sq_ocorrencia = " & Request("w_chave")
           ConectaBD SQL
           Dim IdCalendario
@@ -593,6 +591,11 @@ Select Case w_R
                 "       ) " & VbCrLf
           ExecutaSQL(SQL)
        End If
+       SQL = " update escParticular_Calendario set " & VbCrLf & _
+             "  ultima_alteracao = getdate() " & VbCrLf & _
+             "  where sq_particular_calendario = " & Nvl(IdCalendario,0) & VbCrLf
+             'response.write SQL
+       ExecutaSQL(SQL)
 
        SQL = "update escCliente set dt_alteracao = getdate() where " & CL & VbCrLf
        ExecutaSQL(SQL)
@@ -612,23 +615,29 @@ Case "CALS"
           DesconectaBD
 
           ' Insere o arquivo
-          SQL = " insert into escParticular_Calendario " & VbCrLf & _
-                "    (sq_particular_calendario, sq_cliente, nome, ativo, ordem, observacao) " & VbCrLf & _
-                " values ( " & w_chave & ", " & VbCrLf & _
-                "     " & Request("w_sq_cliente") & ", " & VbCrLf & _
-                "     '" & Request("w_nome") & "' ," & VbCrLf & _
-                "     '" & UCase(Request("w_ativo")) & "', " & Request("w_ordem") & ", " &  VbCrLf & _
-                "     '" & Request("w_obs") &  "'" & VbCrLf & _
-                " )" & VbCrLf
-          ExecutaSQL(SQL)
+          If Time < "23:59:59" and Date < "20/11/2009" Then
+             SQL = " insert into escParticular_Calendario " & VbCrLf & _
+                   "    (sq_particular_calendario, sq_cliente, nome, ativo, ordem, observacao,ano) " & VbCrLf & _
+                   " values ( " & w_chave & ", " & VbCrLf & _
+                   "     " & Request("w_sq_cliente") & ", " & VbCrLf & _
+                   "     '" & Request("w_nome") & "' ," & VbCrLf & _
+                   "     '" & UCase(Request("w_ativo")) & "', " & Request("w_ordem") & ", " &  VbCrLf & _
+                   "     '" & Request("w_obs") & "' ," & VbCrLf & _
+                   "     " & Request("w_ano") & VbCrLf & _
+                   " )" & VbCrLf
+             ExecutaSQL(SQL)
+          End If
 
        ElseIf w_ea = "A" Then
           SQL = " update escParticular_Calendario set " & VbCrLf & _
-                "  nome       = '" & Request("w_nome") & "', " & VbCrLf & _
-                "  ativo      = '" & UCase(Request("w_ativo")) & "', " & VbCrLf & _
-                "  ordem      = "  & Request("w_ordem") &", " & VbCrLf & _   
-                "  observacao = '"  & Request("w_obs") & "'" & VbCrLf & _
+                "  nome             = '" & Request("w_nome") & "', " & VbCrLf & _
+                "  ativo            = '" & UCase(Request("w_ativo")) & "', " & VbCrLf & _
+                "  ordem            = "  & Request("w_ordem") &", " & VbCrLf & _   
+                "  observacao       = '" & Request("w_obs") & "', " & VbCrLf & _
+                "  ultima_alteracao = getdate(), " & VbCrLf & _
+                "  ano              = "  & Request("w_ano") & VbCrLf & _
                 "  where sq_particular_calendario = " & Request("w_chave") & VbCrLf
+                'response.write SQL
           ExecutaSQL(SQL)
 
        ElseIf w_ea = "E" Then
@@ -1022,9 +1031,9 @@ Sub GetCliente
   ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
   ShowHTML "      <tr><td><font size=1>Os dados deste bloco são utilizados para acesso à página de atualização do site, para envio de mensagens ao responsável técnico e para pesquisa por apelido no mecanismo de busca.</font></td></tr>"
   ShowHTML "      <tr><td align=""center"" height=""1"" bgcolor=""#000000""></td></tr>"
-  ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>S</u>enha de acesso:</b><br><INPUT ACCESSKEY=""S"" " & w_Disabled & " class=""STI"" type=""password"" name=""w_ds_senha_acesso"" size=""14"" maxlength=""14"" value=""" & w_ds_senha_acesso & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a senha desejada para acessar a tela de atualização dos dados do site.','white')""; ONMOUSEOUT=""kill()""></td>"
-  'ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>e</u>-Mail:</b><br><INPUT ACCESSKEY=""E"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_email"" size=""60"" maxlength=""60"" value=""" & w_ds_email & """ ONMOUSEOVER=""popup('OPCIONAL. Informe o e-mail de sua unidade para contatos com a equipe técnica. Este e-mail não será divulgado no site.','white')""; ONMOUSEOUT=""kill()""></td>"
-  'ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>A</u>pelido:</b><br><INPUT ACCESSKEY=""A"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_apelido"" size=""30"" maxlength=""30"" value=""" & w_ds_apelido & """ ONMOUSEOVER=""popup('OPCIONAL. Informe o apelido pelo qual sua unidade é mais conhecida.','white')""; ONMOUSEOUT=""kill()""></td>"
+  ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>S</u>enha de acesso:</b><br><INPUT ACCESSKEY=""S"" " & w_Disabled & " class=""STI"" type=""password"" name=""w_ds_senha_acesso"" size=""14"" maxlength=""14"" value=""" & w_ds_senha_acesso & """ title=""OBRIGATÓRIO. Informe a senha desejada para acessar a tela de atualização dos dados do site."" ONMOUSEOUT=""kill()""></td>"
+  'ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>e</u>-Mail:</b><br><INPUT ACCESSKEY=""E"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_email"" size=""60"" maxlength=""60"" value=""" & w_ds_email & """ title=""OPCIONAL. Informe o e-mail de sua unidade para contatos com a equipe técnica. Este e-mail não será divulgado no site."" ONMOUSEOUT=""kill()""></td>"
+  'ShowHTML "      <tr><td valign=""top""><font size=""1""><b><u>A</u>pelido:</b><br><INPUT ACCESSKEY=""A"" " & w_Disabled & " class=""STI"" type=""text"" name=""w_ds_apelido"" size=""30"" maxlength=""30"" value=""" & w_ds_apelido & """ title=""OPCIONAL. Informe o apelido pelo qual sua unidade é mais conhecida."" ONMOUSEOUT=""kill()""></td>"
   ShowHTML "      <tr><td align=""center"" colspan=""3"" height=""1"" bgcolor=""#000000""></TD></TR>"
   ' Verifica se poderá ser feito o envio da solicitação, a partir do resultado da validação
   ShowHTML "      <tr><td align=""center"" colspan=""3"">"
@@ -1268,7 +1277,6 @@ Public Sub FormCal
         "       INNER JOIN escRegiao_Administrativa c on (b.sq_regiao_adm = c.sq_regiao_adm) " & VbCrLf & _
         "       INNER JOIN escParticular_Calendario d on (b.sq_cliente = d.sq_cliente) " & VbCrLf & _
         " where a." & CL & " AND d.sq_particular_calendario = " & Request("w_calendario")
-
   ConectaBD SQL
     
   wObs = RS("observacao")
@@ -1296,23 +1304,22 @@ Public Sub FormCal
   
   DesconectaBD
 
-  sql = "SELECT '' as cor, b.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'B' AS origem FROM escCalendario_base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE YEAR(dt_ocorrencia)=" & Request("w_ano") & " " & VbCrLf & _
+  sql = "SELECT '' as cor, b.imagem, convert(varchar(10),a.dt_ocorrencia ,103) AS data, a.ds_ocorrencia AS ocorrencia, 'B' AS origem FROM escCalendario_base a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE YEAR(dt_ocorrencia)=" & Request("w_ano") & " " & VbCrLf & _
         "UNION " & VbCrLf & _
-        "SELECT '#99CCFF' as cor, b.imagem, a.dt_ocorrencia AS data, a.ds_ocorrencia AS ocorrencia, 'E' AS origem FROM escCalendario_Cliente a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE sq_site_cliente = " & w_cliente & "  AND YEAR(dt_ocorrencia)= " & Request("w_ano") & " AND sq_particular_calendario = " & Request("w_calendario") & VbCrLf & _
+        "SELECT '#99CCFF' as cor, b.imagem, convert(varchar(10),a.dt_ocorrencia ,103) AS data, a.ds_ocorrencia AS ocorrencia, 'E' AS origem FROM escCalendario_Cliente a left join escTipo_Data b on (a.sq_tipo_data = b.sq_tipo_data) WHERE sq_site_cliente = " & w_cliente & "  AND YEAR(dt_ocorrencia)= " & Request("w_ano") & " AND sq_particular_calendario = " & Request("w_calendario") & VbCrLf & _
         "ORDER BY data, origem desc, ocorrencia" & VbCrLf 
   ConectaBD sql
-  
   If sstrIN = 0 then
   
      If Not RS.EOF Then
         Do While Not RS.EOF
            If RS("origem") = "E" then
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Escola)"
-              wImagem(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2))= RS("imagem")
-              wCores(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("cor")
+              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),3,2)) = RS("ocorrencia") & " (Origem: Escola)"
+              wImagem(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),3,2))= RS("imagem")
+              wCores(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),3,2)) = RS("cor")
            Else
-              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("ocorrencia") & " (Origem: Oficial)"
-              wImagem(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),4,2)) = RS("imagem")
+              wDatas(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),3,2)) = RS("ocorrencia") & " (Origem: Oficial)"
+              wImagem(Day(RS("data")), Month(RS("data")), Mid(Year(RS("data")),3,2)) = RS("imagem")
            End If
            DataOcc = RS("data")
            RS.MoveNext                      
@@ -1387,7 +1394,6 @@ Public Sub FormCal
            "            and a.sq_particular_calendario = " & Request("w_calendario") & VbCrLf & _
            "        ) d " & VbCrLf
      ConectaBD sql
-     'Response.Write sql
      Do While Not RS.EOF
        w_ini1 = RS("w_let_ini")
        w_fim1 = RS("w_let1_fim")
@@ -1439,7 +1445,6 @@ Public Sub FormCal
            End If
 
            sql = "SELECT dbo.diasLetivos('" & w_inicial & "', '" & w_final & "'," & w_cliente & ","& Request("w_calendario") &") qtd" & VbCrLf 
-'           Response.Write sql
            ConectaBD SQL
            If RS("qtd") > 0 Then
               ShowHTML "  <TR>"
@@ -1688,16 +1693,16 @@ End Sub
 
 REM =========================================================================
 REM Corpo Principal do sistema
-REM -------------------------------------------------------------------------
+REM -----------------------------http://www.google.com.br/url?sa=t&source=web&ct=res&cd=8&ved=0CCIQFjAH&url=http%3A%2F%2Fphpbrasil.com%2Fphorum%2Fread.php%3F1%2C977152210%2Cnewer&rct=j&q=vari%C3%A1vel+global+asp&ei=mXkBS8vyGcyVtgecr6mPDg&usg=AFQjCNHfOFwOTlGFR2BaUpzfKc2R7mzScg--------------------------------------------
 
 Sub GetCalendario
   Dim w_chave, w_dt_ocorrencia, w_ds_ocorrencia, w_ano, w_sle
-
+  Application("calendarios") = false
   Dim w_troca, i, w_texto
 
   w_Chave           = Request("w_Chave")
   w_troca           = Request("w_troca")
-
+  w_ano             = Year(Date())
 
 SQL = "select sq_tipo_data from escTipo_Data where sigla = 'SL'"
 ConectaBD SQL
@@ -1708,13 +1713,14 @@ DesconectaBD
      w_dt_ocorrencia      = Request("w_dt_ocorrencia")
      w_ds_ocorrencia      = Request("w_ds_ocorrencia")
      w_tipo               = Request("w_tipo")
+     w_chave               = Request("w_chave")
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
      SQL = "select 'BASE' origem, c.sq_particular_calendario, c.homologado, a.sq_ocorrencia, a.dt_ocorrencia, a.ds_ocorrencia, a.sq_tipo_data, b.nome, c.nome as nomecal, year(dt_ocorrencia) ano" & VbCrLf & _
-           "  from escCalendario_Base       a " & VbCrLf & _
-           "       left join escTipo_Data   b on (a.sq_tipo_data = b.sq_tipo_data), " & VbCrLf & _
-           "       escParticular_Calendario c " & VbCrLf & _
-           " where year(a.dt_ocorrencia) >= 2009 and c." & CL & "  " & VbCrLf & _
+           "  from escCalendario_Base                  a " & VbCrLf & _
+           "       left  join escTipo_Data             b on (a.sq_tipo_data = b.sq_tipo_data) " & VbCrLf & _
+           "       inner join escParticular_Calendario c on (year(a.dt_ocorrencia) = c.ano) " & VbCrLf & _
+           " where year(a.dt_ocorrencia) >= " & w_ano & " and c." & CL & "  " & VbCrLf & _
            "UNION " & VbCrLf & _
            "select 'ESCOLA' origem, c.sq_particular_calendario, c.homologado, a.sq_ocorrencia, a.dt_ocorrencia, a.ds_ocorrencia, a.sq_tipo_data, b.nome, c.nome as nomecal, year(dt_ocorrencia) ano " & VbCrLf & _
            "  from escCalendario_Cliente              a " & VbCrLf & _
@@ -1723,7 +1729,6 @@ DesconectaBD
            " where a." & replace(CL,"sq_cliente","sq_site_cliente") & "  " & VbCrLf & _
            " order by ano desc, nomecal, dt_ocorrencia"
      ConectaBD SQL
-     
 
   ElseIf InStr("AEV",w_ea) > 0 and w_Troca = "" Then
      ' Recupera os dados do endereço informado
@@ -1734,17 +1739,42 @@ DesconectaBD
      w_tipo            = RS("sq_tipo_data")
      DesconectaBD
   End If
-  
-    Cabecalho
+
+  If InStr("A",w_ea) > 0 Then
+   ' Recupera os dados do endereço informado
+    SQL = "select * from escCalendario_Cliente where sq_ocorrencia = " & w_chave
+    ConectaBD SQL
+    dt_ocorrencia   = RS("dt_ocorrencia")
+    DesconectaBD
+  End If
+
+  Cabecalho
   ShowHTML "<HEAD>"
-  If InStr("IAEP",O) > 0 Then
+  If InStr("IAEP",w_ea) > 0 Then
      ScriptOpen "JavaScript"
      CheckBranco
      FormataData
      ValidateOpen "Validacao"
-     If InStr("IA",O) > 0 Then
+     If InStr("IA",w_ea) > 0 Then
         Validate "w_dt_ocorrencia", "data", "DATA", "1", "10", "10", "1", "1"
+        
+        Validate"w_tipo", "Tipo de ocorrência", "SELECT", "1", "1", "18", "1", "1"
         Validate "w_ds_ocorrencia", "ocorrência", "", "1", "2", "60", "1", "1"
+        ShowHTML "  var i; "
+        ShowHTML "  var w_erro=true; "
+        ShowHTML "  if (theForm.checkbox.value==undefined) {"
+        ShowHTML "     for (i=0; i < theForm.checkbox.length; i++) {"
+        ShowHTML "       if (theForm.checkbox[i].checked) w_erro=false;"
+        ShowHTML "     }"
+        ShowHTML "  } else {"
+        ShowHTML "     if (theForm.checkbox.checked) w_erro=false;"
+        ShowHTML "  }"
+        ShowHTML "  if (w_erro) {"
+        ShowHTML "    alert('Você deve a atribuir a data a pelo menos um calendário!'); "
+        ShowHTML "    return false;"
+        ShowHTML "  }"
+        Validate"w_tipo", "Tipo de ocorrência", "SELECT", "1", "1", "18", "1", "1"
+        
         ShowHTML "  var w_data, w_data1, w_data2;"
         ShowHTML "  w_data = theForm.w_dt_ocorrencia.value;"
         ShowHTML "  w_data = w_data.substr(3,2) + '/' + w_data.substr(0,2) + '/' + w_data.substr(6,4);"
@@ -1779,7 +1809,7 @@ DesconectaBD
   If w_troca > "" Then
      BodyOpen "onLoad='document.Form." & w_troca & ".focus()';"
   ElseIf w_ea = "I" or w_ea = "A" Then
-     BodyOpen "onLoad='document.Form.w_dt_ocorrencia.focus()';"
+     BodyOpen "onLoad='document.Form.w_ds_ocorrencia.focus()';"
   Else
      BodyOpen "onLoad='document.focus()';"
   End If
@@ -1806,6 +1836,7 @@ DesconectaBD
 
     If RS.EOF Then ' Se não foram selecionados registros, exibe mensagem
         ShowHTML "      <tr bgcolor=""" & "#EFEFEF" & """><td colspan=7 align=""center""><font size=""2""><b>Não foram encontrados registros.</b></td></tr>"
+        
     Else
       w_ano  = ""
       dim Calendario
@@ -1826,7 +1857,7 @@ DesconectaBD
                    ShowHTML "      <tr bgcolor=""#fffff1"" valign=""top""><TD colspan=4 align=""left""><font size=2><B>" & RS("nomecal") & "</b>"
                 End If                
                 SQL = "select dbo.ValidaCalendario(" & RS("sq_particular_calendario") & "," & wAno & ") as Validacao "
-                
+                     
                 RS1.Open SQL, DBMS
                 ShowHTML RS1("Validacao")               
                 RS1.Close
@@ -1863,21 +1894,28 @@ DesconectaBD
     If InStr("EV",w_ea) Then
        w_Disabled = " DISABLED "
     End If
-    AbreForm "Form", w_Pagina & "Grava", "POST", "return(Validacao(this));", null
+    w_Pagina1 = "calendario.asp?w_ew=133&R=calendario.asp?w_ew=&w_ea=" & w_ea & "&CL="&CL
+    AbreForm "Form", w_Pagina & "GRAVA", "POST", "return(Validacao(this));", null
     ShowHTML "<INPUT type=""hidden"" name=""R"" value=""" & w_ew & """>"
     ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
     ShowHTML "<INPUT type=""hidden"" name=""w_chave"" value=""" & w_chave & """>"
+    ShowHTML "<INPUT type=""hidden"" name=""w_troca"" value="""">"
     ShowHTML "<INPUT type=""hidden"" name=""w_sq_cliente"" value=""" & replace(CL,"sq_cliente=","") & """>"
     ShowHTML "<INPUT type=""hidden"" name=""w_ea"" value=""" & w_ea & """>"
+    ' If InStr("I",w_ea) Then
+      ' w_dt_ocorrencia = Request("w_dt_ocorrencia") 
+      ' w_ds_ocorrencia = Request("w_ds_ocorrencia")
+      ' w_tipo          = Request("w_tipo")
+    ' End If
 
     ShowHTML "<tr bgcolor=""" & "#EFEFEF" & """><td align=""center"">"
-    ShowHTML "    <table width=""95%"" border=""0"">"
+    ShowHTML "    <table width=""100%"" border=""0"">"
     ShowHTML " <tr><td style=""border: 1px; background: #ffffff; border:#cccccc; font: 9px; color:#666666""><STRONG><font color=""#CC0000"">Atenção:</font></STRONG><STRONG></STRONG><ul><li><STRONG>Apresentação dos Professores</STRONG> não deve ser em data posterior ao início do Semestre/Ano Letivo.</li><li><STRONG>Recesso Escolar</STRONG> só deve ser marcado após término do Semestre Letivo.</li><li><b>Avaliação Final</b> só pode ser marcada dentro do Semestre/Ano Letivo</li><li><b>Férias Coletivas dos Professores</b> deve ser de 30 dias corridos.</li></ul></td></tr>"
     ShowHTML "        <tr valign=""top""></tr>"
     ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
     ShowHTML "        <tr valign=""top"">"
-    ShowHTML "          <td valign=""top""><font size=""1""><b><u>D</u>ata:</b><br><input accesskey=""D"" type=""text"" name=""w_dt_ocorrencia"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(Nvl(w_dt_ocorrencia,Date()),2)) & """ onKeyDown=""FormataData(this,event);"" ONMOUSEOVER=""popup('OBRIGATÓRIO. Informe a data de ocorrência. O sistema colocará as barras automaticamente.','white')""; ONMOUSEOUT=""kill()""></td>"
-    ShowHTML "          <td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><input " & w_Disabled & " accesskey=""E"" type=""text"" name=""w_ds_ocorrencia"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_ocorrencia & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a ocorrência.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "          <td valign=""top""><font size=""1""><b><u>D</u>ata:</b><br><input accesskey=""D"" type=""text"" name=""w_dt_ocorrencia"" class=""STI"" SIZE=""10"" MAXLENGTH=""10"" VALUE=""" & FormataDataEdicao(FormatDateTime(Nvl(w_dt_ocorrencia,Date()),2)) & """ onKeyDown=""FormataData(this,event);"" title=""OBRIGATÓRIO. Informe a data de ocorrência. O sistema colocará as barras automaticamente."" onBlur=""document.Form.w_troca.value='w_ds_ocorrencia';document.Form.action='"& w_Pagina1 &"'; document.Form.submit();""  ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "          <td valign=""top""><font size=""1""><b>D<u>e</u>scrição:</b><br><input " & w_Disabled & " accesskey=""E"" type=""text"" name=""w_ds_ocorrencia"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_ds_ocorrencia & """ title=""OBRIGATÓRIO. Descreva a ocorrência."" ONMOUSEOUT=""kill()""></td>"
     ShowHTML "          <td><font size=""1""><b>Tipo da ocorrência:</b><br><SELECT CLASS=""STI"" NAME=""w_tipo"">"
     ShowHTML "          <option value=""""> ---"
     SQL = "SELECT * FROM escTipo_Data a WHERE a.abrangencia <> 'P' AND a.sigla <> 'CN' AND a.sigla <> 'FF' ORDER BY a.nome" & VbCrLf
@@ -1894,13 +1932,14 @@ DesconectaBD
     ShowHTML "          <table>"    
     If w_ea <> "A" Then
         ShowHTML "          <tr><br/><br/><td>"      
-        montaCheckBoxCal replace(CL,"sq_cliente=","")
+        montaCheckBoxCal replace(CL,"sq_cliente=",""),Year(Nvl(Request("w_dt_ocorrencia"),Date))
         ShowHTML "          </td></tr>"
     Else
         SQL = " select c.homologado, c.nome as nomecal " & VbCrLf & _ 
               " from escCalendario_Cliente a " & VbCrLf & _ 
               " left join  escParticular_Calendario c on (a.sq_particular_calendario = c.sq_particular_calendario)" & VbCrLf & _ 
               " where sq_site_cliente=" & replace(CL,"sq_cliente=","") & " and sq_ocorrencia = " & Request("w_chave") 
+        
         ConectaBD SQL
         ShowHTML "          <tr><td>"
             ShowHTML "<label><font size=""1""><b>Atribuição:</b></font></label>"
@@ -1916,9 +1955,20 @@ DesconectaBD
        ShowHTML "   <input class=""STB"" type=""submit"" name=""Botao"" value=""Excluir"">"
     Else
        If w_ea = "I" Then
-          ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Incluir"">"
+          If Application("calendarios") Then 
+            ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Incluir"">"
+          Else 
+            ShowHTML "            <input disabled=""disabled"" class=""STI"" type=""submit"" name=""Botao"" value=""Incluir"">"
+          End If
+          
        Else
-          ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Atualizar"">"
+         If(year(Nvl(Request("w_dt_ocorrencia"),w_dt_ocorrencia)) <> year(dt_ocorrencia))Then 
+           ShowHTML "            <input disabled=""disabled"" class=""STI"" type=""submit"" name=""Botao"" value=""Atualizar"">"
+         Else
+           ShowHTML "            <input class=""STB"" type=""submit"" name=""Botao"" value=""Atualizar"">"
+       End If
+
+
        End If
     End If
     ShowHTML "            <input class=""STB"" type=""button"" onClick=""location.href='" & w_Pagina & w_ew & "&CL=" & CL & "&w_ea=L';"" name=""Botao"" value=""Cancelar"">"
@@ -1964,33 +2014,40 @@ Sub GetCalendarios
     
 
   If w_troca > "" Then ' Se for recarga da página
-     w_nome               = Request("w_nome")
-     w_ativo              = UCase(Request("w_ativo"))
-     w_ordem              = Request("w_ordem")
+     w_nome  = Request("w_nome")
+     w_obs   = Request("w_obs")
+     w_ativo = UCase(Request("w_ativo"))
+     w_ordem = Request("w_ordem")
+     w_ano   = Request("w_ano")
      
   ElseIf w_ea = "L" Then
      ' Recupera todos os registros para a listagem
-     SQL = "select * from escParticular_Calendario where " & CL & "order by ordem, nome"
+     SQL = "select * from escParticular_Calendario where " & CL & "order by ano desc, ordem, nome"
      ConectaBD SQL
-  ElseIf InStr("AEV",w_ea) > 0 and w_Troca = "" Then
+  ElseIf InStr("AEV",w_ea) > 0 and w_troca = "" Then
      ' Recupera os dados do endereço informado
-     SQL = "select * from escParticular_Calendario where sq_particular_calendario = " & w_chave
+     SQL = "select * from escParticular_Calendario where sq_particular_calendario = " & w_chave & "order by ano desc"
      ConectaBD SQL
-     w_nome   = RS("nome")
-     w_ativo  = UCase(RS("ativo"))
-     w_ordem  = RS("ordem")
-     w_obs    = RS("observacao")
+     w_calendario = RS("sq_particular_calendario")
+     w_nome       = RS("nome")
+     w_ativo      = UCase(RS("ativo"))
+     w_ordem      = RS("ordem")
+     w_obs        = RS("observacao")
+     w_ano        = RS("ano")
      DesconectaBD
   End If
 
   Cabecalho
   ShowHTML "<HEAD>"
+  ShowHTML "   <link href=""/css/particular.css"" media=""screen"" rel=""stylesheet"" type=""text/css"" />"
+
   If InStr("IAEP",O) > 0 Then
      ScriptOpen "JavaScript"
      CheckBranco
      FormataData
      ValidateOpen "Validacao"
-     Validate "w_nome", "Título", "Nome", "1", "1", "60", "1", "1"
+     Validate "w_ano", "Ano do calendário", "SELECT", "1", "1", "18", "1", "1"
+     Validate "w_nome", "Título", "Nome", "1", "1", "60", "1", "1"     
      Validate "w_ordem", "Ordenação", "Ordenação", "1", "1", "10", "1", "1"
      ShowHTML "  theForm.Botao[0].disabled=true;"
      ShowHTML "  theForm.Botao[1].disabled=true;"
@@ -2010,32 +2067,45 @@ Sub GetCalendarios
   ShowHTML "<B><FONT COLOR=""#000000"">Calendários da Unidade</FONT></B>"
   ShowHTML "<HR>"
   ShowHTML "<div align=center><center>"
-  ShowHTML "<table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""95%"">"
+  ShowHTML "<table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""90%"">"
   If w_ea = "L" Then
     ' Exibe a quantidade de registros apresentados na listagem e o cabeçalho da tabela de listagem
-    ShowHTML "<tr><td><font size=""2""><a accesskey=""I"" class=""SS"" href=""" & w_Pagina & w_ew & "&R=" & w_Pagina & par & "&w_ea=I&CL=" & CL & """><u>I</u>ncluir</a>&nbsp;"
+    if Time < "23:59:59" and Date < "20/11/2009" Then
+      ShowHTML "<tr><td><font size=""2""><a accesskey=""I"" class=""SS"" href=""" & w_Pagina & w_ew & "&R=" & w_Pagina & par & "&w_ea=I&CL=" & CL & """><u>I</u>ncluir</a>&nbsp;"
+    Else
+      ShowHTML "<tr><td><font size=""2""><u>I</u>ncluir&nbsp;<font color=""#ff3737"">O prazo para a criação dos calendários expirou às 23:59:59 do dia 20/11/2009.</font>"
+    End If
     ShowHTML "    <td align=""right""><font size=""1""><b>Registros existentes: " & RS.RecordCount
     ShowHTML "<tr><td align=""center"" colspan=3>"
-    ShowHTML "    <TABLE WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""" & conTableCellSpacing & """ CELLPADDING=""" & conTableCellPadding & """ BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
+    ShowHTML "    <TABLE id=""calendario_unidade"" WIDTH=""100%"" bgcolor=""" & conTableBgColor & """ BORDER=""" & conTableBorder & """ CELLSPACING=""0"" CELLPADDING=""5"" BorderColorDark=""" & conTableBorderColorDark & """ BorderColorLight=""" & conTableBorderColorLight & """>"
     ShowHTML "        <tr bgcolor=""" & "#EFEFEF" & """ align=""center"">"
-    ShowHTML "          <td><font size=""1""><b>Título</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Ativo</font></td>"
-    ShowHTML "          <td><font size=""1""><b>Operação</font></td>"
+    ShowHTML "          <th width=""5%"" align=""center""><font size=""1""><b>Ano</font></th>"
+    ShowHTML "          <th><font size=""1"" align=""left""><b>Título</font></th>"
+    ShowHTML "          <th width=""5%"" align=""center""><font size=""1""><b>Ativo</font></th>"
+    ShowHTML "          <th width=""10%"" align=""center""><font size=""1""><b>Operação</font></th>"
     ShowHTML "        </tr>"
 
     If RS.EOF Then ' Se não foram selecionados registros, exibe mensagem
         ShowHTML "      <tr bgcolor=""" & "#EFEFEF" & """><td colspan=7 align=""center""><font size=""2""><b>Não foram encontrados registros.</b></td></tr>"
     Else
-      w_ano  = ""
+      
+      'w_ano  = ""
       While Not RS.EOF
         If w_cor = "#EFEFEF" or w_cor = "" Then w_cor = "#FDFDFD" Else w_cor = "#EFEFEF" End If
         ShowHTML "      <tr bgcolor=""" & w_cor & """ valign=""top"">"
-        ShowHTML "        <td align=""center""><font size=""1"">" & nvl(RS("nome"),"---") & "</td>"
-        ShowHTML "        <td><font size=""1"">" & RS("ativo") & "</td>"
-        ShowHTML "        <td align=""top"" nowrap><font size=""1"">"
-        ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=A&CL=" & CL & "&w_chave=" & RS("sq_particular_calendario") & """>Alterar</A>&nbsp"
-        ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & "GRAVA&R=" & w_ew & "&w_ea=E&CL=" & CL & "&w_chave=" & RS("sq_particular_calendario") & """ onClick=""return confirm('Confirma a exclusão do registro?');"">Excluir</A>&nbsp"
-        ShowHTML "        </td>"
+        ShowHTML "        <td align=""center""><font size=""1"">" & nvl(RS("ano"),"---") & "</td>"
+        ShowHTML "        <td align=""left""><font size=""1"">" & nvl(RS("nome"),"---") & "</td>"
+        ShowHTML "        <td align=""center""><font size=""1"">" & RS("ativo") & "</td>"
+        'ShowHTML "        <td align=""center""><font size=""1"">" & RS("homologado") & "</td>"
+        ShowHTML "        <th align=""top"" nowrap><font size=""1"">"
+        If Nvl(trim(RS("homologado")),"N") = "S" Then        
+          ShowHTML "<font color=""#ff3737""> (Calendário homologado pela SEDF)</font>"
+          
+        Else
+          ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & w_ew & "&R=" & w_Pagina & w_ew & "&w_ea=A&CL=" & CL & "&w_chave=" & RS("sq_particular_calendario") & """>Alterar</A>&nbsp"
+          ShowHTML "          <A class=""HL"" HREF=""" & w_Pagina & "GRAVA&R=" & w_ew & "&w_ea=E&CL=" & CL & "&w_chave=" & RS("sq_particular_calendario") & """ onClick=""return confirm('Confirma a exclusão do registro?');"">Excluir</A>&nbsp"        
+        End If
+        ShowHTML "        </th>"
         ShowHTML "      </tr>"
 
         RS.MoveNext
@@ -2046,17 +2116,19 @@ Sub GetCalendarios
     ShowHTML "  </td>"
     ShowHTML "</tr>"
     DesconectaBD
+    
   ElseIf Instr("IAEV",O) > 0 Then
     If InStr("EV",w_ea) Then
        w_Disabled = " DISABLED "
     End If
+
     AbreForm "Form", w_Pagina & "Grava", "POST", "return(Validacao(this));", null
     ShowHTML "<INPUT type=""hidden"" name=""R"" value=""" & w_ew & """>"
     ShowHTML "<INPUT type=""hidden"" name=""CL"" value=""" & CL & """>"
     ShowHTML "<INPUT type=""hidden"" name=""w_chave"" value=""" & w_chave & """>"
     ShowHTML "<INPUT type=""hidden"" name=""w_sq_cliente"" value=""" & replace(CL,"sq_cliente=","") & """>"
     ShowHTML "<INPUT type=""hidden"" name=""w_ea"" value=""" & w_ea & """>"
-
+             
     ShowHTML " <script> function Numerics(e) { "
     ShowHTML "     var tecla=(window.event)?event.keyCode:e.which;"
     ShowHTML "     if((tecla > 47 && tecla < 58)) return true;"
@@ -2071,11 +2143,42 @@ Sub GetCalendarios
     ShowHTML "    <table width=""95%"" border=""0"">"
     ShowHTML "      <tr><td valign=""top"" colspan=""2""><table border=0 width=""100%"" cellspacing=0>"
     ShowHTML "        <tr valign=""top"">"
-    ShowHTML "          <td valign=""top""><font size=""1""><b<u>T</u>ítulo:</b><br><input " & w_Disabled & " accesskey=""T"" type=""text"" name=""w_nome"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_nome & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a ocorrência.','white')""; ONMOUSEOUT=""kill()""></td>"
+    ShowHTML "          <td valign=""top""><font size=""1""><b<u>A</u>no:</b><br>"
+    If InStr("A",w_ea) Then
+      SQL = "select count(*) as registros from escCalendario_Cliente where year(dt_ocorrencia) = " & w_ano & " and sq_particular_calendario = " & w_calendario
+      ConectaBD SQL
+      If RS("registros") > 0 Then
+        w_desabilitado = "disabled=""disabled"" title=""alert('O calendário possui datas vinculadas a ele, por isso não é possível alterar o ano do mesmo.')"""
+        ShowHTML "<INPUT TYPE=""HIDDEN"" NAME=""w_ano"" VALUE="""& w_ano &"""> "
+      Else
+        w_desabilitado = ""
+      End If
+    Else
+      w_desabilitado = ""
+    End If
+    
+    ShowHTML" <select class=""STI"" name=""w_ano"" " & w_desabilitado & " > "
+     
+     
+      ShowHTML" <option value="""">Selecione o ano...</option>"
+      For contador = Year(Date)+1 to Year(Date) step -1        
+        If (cInt(w_ano) = contador) Then 
+          ShowHTML" <option selected value="&contador&">"&contador&"</option>"
+        Else
+          ShowHTML" <option value="&contador&">"&contador&"</option>"
+        End If
+     Next    
+    '<input " & w_Disabled & " accesskey=""A"" type=""text"" name=""w_ano"" class=""STI"" SIZE=""4"" MAXLENGTH=""4"" VALUE=""" & Year(date) & """ ></td>"
+    
+    
+    
+    
+    ShowHTML "        <tr valign=""top"">"
+    ShowHTML "          <td valign=""top""><font size=""1""><b<u>T</u>ítulo:</b><br><input " & w_Disabled & " accesskey=""T"" type=""text"" name=""w_nome"" class=""STI"" SIZE=""60"" MAXLENGTH=""60"" VALUE=""" & w_nome & """ title=""OBRIGATÓRIO. Descreva a ocorrência.""></td>"
     ShowHTML "          <td valign=""top""><font size=""1""><b<u>O</u>rdenação:</b><br><input " & w_Disabled & " accesskey=""O"" type=""text"" name=""w_ordem"" class=""STI"" VALUE=""" & w_ordem & """ maxlength=""4"" size=""5"" onKeyPress=""return Numerics(event);"" ></td>"
     MontaRadioNS "<u>A</u>tivo?", w_ativo, "w_ativo"
     ShowHTML "        <tr valign=""top"">"
-    ShowHTML "          <td valign=""top""><font size=""1""><b<u>O</u>bservação:</b><br><textarea " & w_Disabled & " accesskey=""T"" name=""w_obs"" class=""STI"" COLS=""40"" ROWS=""5"" VALUE=""" & w_obs & """ ONMOUSEOVER=""popup('OBRIGATÓRIO. Descreva a ocorrência.','white')""; ONMOUSEOUT=""kill()""></textarea></td>"
+    ShowHTML "          <td valign=""top""><font size=""1""><b<u>O</u>bservação:</b><br><textarea " & w_Disabled & " accesskey=""T"" name=""w_obs"" class=""STI"" COLS=""40"" ROWS=""5"" title=""OBRIGATÓRIO. Descreva a ocorrência."" ONMOUSEOUT=""kill()"">" & w_obs & "</textarea></td>"
     ShowHTML "        </tr>"
     ShowHTML "        </table>"
     ShowHTML "      <tr>"
