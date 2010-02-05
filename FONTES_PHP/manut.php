@@ -140,7 +140,7 @@
       ShowHTML('<body topmargin=0 leftmargin=10 onLoad=\'document.Form.Password1.focus();\'>');
     }
     ShowHTML('<CENTER>');
-    ShowHTML('<form method="post" action="manut.php?par=valida" onsubmit="return(Validacao(this));" name="Form"> ');
+    ShowHTML('<form method="post" action="'.$w_pagina.'valida" onsubmit="return(Validacao(this));" name="Form"> ');
     ShowHTML('<INPUT TYPE="HIDDEN" NAME="Login" VALUE=""> ');
     ShowHTML('<INPUT TYPE="HIDDEN" NAME="Password" VALUE=""> ');
     ShowHTML('<INPUT TYPE="HIDDEN" NAME="p_dbms" VALUE="1"> ');
@@ -181,7 +181,7 @@
     ShowHTML('              </TD></TR>');
     ShowHTML('          </table>   ');
 
-    $wAno = $_REQUESR["wAno"];
+    $wAno = $_REQUEST["wAno"];
 
     If ($wAno == "") {
       $wAno = date('Y');
@@ -201,27 +201,23 @@
     ShowHTML('              <P><font face="Arial" size=1><b>ARQUIVOS INSERIDOS PELA SEDF</b></font><br>');
     ShowHTML('<tr><td><TABLE border=0 cellSpacing=5 width="95%">');
     ShowHTML('  <TR>');
-    ShowHTML('    <TD><FONT face="Verdana" size=1><b>Origem');
-    ShowHTML('    <TD><FONT face="Verdana" size=1><b>Alvo');
     ShowHTML('    <TD><FONT face="Verdana" size=1><b>Data');
-    ShowHTML('    <TD><FONT face="Verdana" size=1><b>Componente curricular');
+    ShowHTML('    <TD><FONT face="Verdana" size=1><b>Arquivo');
     ShowHTML('  </TR>');
     ShowHTML('  <TR>');
-    ShowHTML('    <TD COLSPAN="4" HEIGHT="1" BGCOLOR="#DAEABD">');
+    ShowHTML('    <TD COLSPAN="2" HEIGHT="1" BGCOLOR="#DAEABD">');
     ShowHTML('  </TR>');
 
     $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
     if (count($RS) > 0) {
       foreach ($RS as $row) {
         ShowHTML('  <TR valign="top">');
-        ShowHTML('    <TD><FONT face="Verdana" size=1>' . $row["origem"]);
-        ShowHTML('    <TD><FONT face="Verdana" size=1>' . $row["in_destinatario"]);
         ShowHTML('    <TD><FONT face="Verdana" size=1>' . formatadataedicao($row["dt_arquivo"]));
         ShowHTML('    <TD><FONT face="Verdana" size=1><a href="sedf/' . $row["ln_arquivo"] . '" target="_blank">' . $row["ds_titulo"] . '</a><br><div align="justify"><font size=1>.:. ' . $row["ds_arquivo"] . '</div>');
         ShowHTML('  </TR>');
       }
     } Else {
-      ShowHTML('  <TR><TD COLSPAN=4 ALIGN=CENTER><FONT face="Verdana" size=1>Não há arquivos disponíveis no momento para o ano de ' . $wAno . ' </TR>');
+      ShowHTML('  <TR><TD COLSPAN=2 ALIGN=CENTER><FONT face="Verdana" size=1>Não há arquivos disponíveis no momento para o ano de ' . $wAno . ' </TR>');
     }
 
     $SQL = "SELECT distinct sbpi.year(dt_arquivo) ano " . $crlf .
@@ -238,7 +234,7 @@
     if (count($RS) > 0) {
       ShowHTML('  <TR><TD COLSPAN=4 ><FONT face="Verdana" size=1><b>Arquivos de outros anos</b><br>');
       foreach ($RS as $row) {
-        ShowHTML('     <li><a href="' . $w_dir . 'Manut.php?$wAno=' . $row["ano"] . '" >Arquivos de ' . $row["ano"] . '</a>');
+        ShowHTML('     <li><a href="'.$w_dir.$w_pagina.'&wAno='.$row["ano"].'" >Arquivos de ' . $row["ano"] . '</a>');
       }
       ShowHTML('</TD></TR>');
     }
@@ -411,7 +407,7 @@
     ShowHTML('<B><FONT COLOR="#000000">Atualização de dados do site da unidade</FONT></B>');
     ShowHTML('<HR>');
     ShowHTML('<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">');
-    ShowHTML('<FORM action="manut.php?par=Grava" method="POST" name="Form" onSubmit="return(Validacao(this));" enctype="multipart/form-data">');
+    ShowHTML('<FORM action="'.$w_pagina.'Grava" method="POST" name="Form" onSubmit="return(Validacao(this));" enctype="multipart/form-data">');
     ShowHTML(MontaFiltro("POST"));
     ShowHTML('<input type="hidden" name="SG" value="getsite">');
     ShowHTML('<tr bgcolor="" . "#EFEFEF" . ""><td align="center">');
@@ -961,7 +957,7 @@
       if ($O == "L") {
         //Recupera todos os registros para a listagem
 
-        $SQL = ' select * from sbpi.Cliente_Arquivo where  sq_cliente = ' . $CL . ' order by nr_ordem, ltrim(upper(ds_titulo))';
+        $SQL = ' select * from sbpi.Cliente_Arquivo where  sq_cliente = ' . $CL . ' order by dt_arquivo, nr_ordem, ltrim(upper(ds_titulo))';
         $RS = db_exec :: getInstanceOf($dbms, $SQL, & $numRows);
 
       } else
@@ -1032,30 +1028,38 @@
       ShowHTML('    <td align="right"><b>Registros existentes: ' . count($RS));
       ShowHTML('<tr><td align="center" colspan=3>');
       ShowHTML('    <TABLE WIDTH="100%" bgcolor="' . $conTableBgColor . '" BORDER="' . $conTableBorder . '" CELLSPACING="' . $conTableCellSpacing . '" CELLPADDING="' . $conTableCellPadding . '" BorderColorDark="' . $conTableBorderColorDark . '" BorderColorLight="' . $conTableBorderColorLight . '">');
-      ShowHTML('        <tr bgcolor="' . $conTrBgColor . '" align="center">');
-      ShowHTML('          <td><font size="1"><b>Ordem</font></td>');
-      ShowHTML('          <td><font size="1"><b>Arquivo</font></td>');
-      ShowHTML('          <td><font size="1"><b>Descrição</font></td>');
-      ShowHTML('          <td><font size="1"><b>Ativo</font></td>');
-      ShowHTML('          <td><font size="1"><b>Operações</font></td>');
-      ShowHTML('        </tr>');
-
       if (count($RS) <= 0) {
         // Se não foram selecionados registros, exibe mensagem
         ShowHTML('      <tr bgcolor="' . $conTrBgColor . '"><td colspan=5 align="center"><b>Não foram encontrados registros.</b></td></tr>');
       } else {
+        $ano = '';
         foreach ($RS as $row) {
           $w_cor = ($w_cor == $conTrBgColor || $w_cor == '') ? $w_cor = $conTrAlternateBgColor : $w_cor = $conTrBgColor;
+          if($ano != date('Y',f($row,'dt_arquivo'))){
+            ShowHTML('        <tr>');
+            ShowHTML('          <td align="center" colspan="6"><font size="2"><b>'.date('Y',f($row,'dt_arquivo')).'</font></td>');
+            ShowHTML('        </tr>');
+            ShowHTML('        <tr bgcolor="' . $conTrBgColor . '" align="center">');
+            ShowHTML('          <td><font size="1"><b>Ordem</font></td>');
+            ShowHTML('          <td><font size="1"><b>Data</font></td>');
+            ShowHTML('          <td><font size="1"><b>Arquivo</font></td>');
+            ShowHTML('          <td><font size="1"><b>Descrição</font></td>');
+            ShowHTML('          <td><font size="1"><b>Ativo</font></td>');
+            ShowHTML('          <td><font size="1"><b>Operações</font></td>');
+            ShowHTML('        </tr>');
+          }
           ShowHTML('      <tr bgcolor="' . $w_cor . '" valign="top">');
           ShowHTML('        <td align="center"><font size="1">' . f($row, "nr_ordem") . '</td>');
+          ShowHTML('        <td><font size="1">' . formataDataEdicao(f($row, "dt_arquivo")) . '</td>');
           ShowHTML('        <td><font size="1">' . f($row, "ds_titulo") . '</td>');
-          ShowHTML('        <td><font size="1">' . f($row, "ds_arquivo") . '</td>');
+          ShowHTML('        <td><font size="1">' . Nvl(f($row, "ds_arquivo"),'---') . '</td>');
           ShowHTML('        <td align="center"><font size="1">' . f($row, "ativo") . '</td>');
           ShowHTML('        <td align="top" nowrap><font size="1">');
           ShowHTML('          <A class="HL" HREF="' . $w_pagina . 'arquivos' . $w_ew . "&R=" . $w_pagina . 'arquivos' . $w_ew . "&O=A&CL=" . $CL . "&w_chave=" . f($row, "sq_arquivo") . '">Alterar</A>&nbsp');
           ShowHTML('          <A class="HL" HREF="' . $w_pagina . "arquivos&R=" . $w_pagina . "&O=E&w_chave=" . f($row, "sq_arquivo") . '" onClick="return confirm(\'Confirma a exclusão do registro?\');">Excluir</A>&nbsp');
           ShowHTML('        </td>');
           ShowHTML('      </tr>');
+          $ano = date('Y',f($row,'dt_arquivo'));
         }
       }
       ShowHTML('      </center>');

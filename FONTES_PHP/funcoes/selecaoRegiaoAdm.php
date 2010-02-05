@@ -12,9 +12,9 @@
     $rs = db_exec :: getInstanceOf($dbms, $sql, & $numRows);
 
     if (isset ($label)) {
-      ShowHTML('          <td colspan="' . $colspan . '" ' . ((!isset ($hint)) ? '' : 'title="' . $hint . '"') . '><b>' . $label . '</b><br><SELECT ACCESSKEY="' . $accesskey . '" CLASS="texto" NAME="' . $campo . '" ' . $w_Disabled . ' ' . $atributo . '>');
+      ShowHTML('          <td colspan="' . $colspan . '" ' . ((!isset ($hint)) ? '' : 'title="' . $hint . '"') . '><b>' . $label . '</b><br><SELECT ACCESSKEY="' . $accesskey . '" CLASS="STS" NAME="' . $campo . '" ' . $w_Disabled . ' ' . $atributo . '>');
     } else {
-      echo '<SELECT ACCESSKEY="' . $accesskey . '" CLASS="texto" NAME="' . $campo . '" ' . $w_Disabled . ' ' . $atributo . '>';
+      echo '<SELECT ACCESSKEY="' . $accesskey . '" CLASS="STS" NAME="' . $campo . '" ' . $w_Disabled . ' ' . $atributo . '>';
     }
 
     ShowHTML('          <option value="">Todas');

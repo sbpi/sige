@@ -94,10 +94,10 @@ $conApacheStat  = 'http://www2.sbpi.com.br/server-status-sbpi';
 $conDefaultPath = 'http://www2.sbpi.com.br';
 $conNmSistema   = 'SIGE-WEB';
 $conRootSIW     = 'http://www2.sbpi.com.br/sigeweb/';
-$conDiretorio   = '/var/www/html/sigeweb/';
+$conDiretorio   = '/var/www/sigeweb/';
 $conFontPath    = $conDiretorio.'fonts/linux/';
 $conFileVirtual = '/sigeweb/sedf/';
-$conFilePhysical= '/var/www/html/sigeweb/sedf/'; // Formato Linux
+$conFilePhysical= '/var/www/sigeweb/sedf/'; // Formato Linux
 //$conFilePhysical= 'c:/inetpub/wwwroot/sigeweb/sedf/'; // Formato Windows (IIS)
 
 // Define se deve ser gravado arquivo de log e o seu caminho

@@ -1,6 +1,6 @@
 <?php
 // Database Constants
-define("ORA9_SERVER_NAME", "XE.localdomain");
+define("ORA9_SERVER_NAME", "XE");
 define("ORA9_VERSION_TEXT", "Oracle Server 10g");
 define("ORA9_DATABASE_NAME", "sbpi");
 
